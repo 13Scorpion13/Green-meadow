@@ -41,7 +41,10 @@ class QAAgent:
         self.vectorstore = FAISS.load_local(str(self.index_dir), emb, allow_dangerous_deserialization=True)
     
     def _create_qa_chain(self):
-        template = """Используй только следующие фрагменты документов для ответа на вопрос в конце. 
+        # Основной промпт, который видит модель
+        template = """Используй следующие фрагменты документов, чтобы ответить на вопрос в конце.
+        Отвечай развернуто и по делу.
+        В конце своего ответа всегда указывай документ-источник, из которого ты взял информацию, в формате: (Источник: <название_документа>).
         Если в документах нет информации по вопросу, напиши: "В предоставленных документах нет информации по вашему запросу."
 
         Документы:
@@ -50,8 +53,12 @@ class QAAgent:
         Вопрос: {question}
 
         Ответ:"""
-
         QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
+
+        # Промпт для каждого отдельного документа в контексте
+        # Добавляем источник к каждому чанку, чтобы модель его видела
+        document_prompt_template = """Источник: {source}\n\n---\n\n{page_content}"""
+        DOCUMENT_PROMPT = PromptTemplate.from_template(document_prompt_template)
 
         self.qa = RetrievalQA.from_chain_type(
             llm=self.llm,
@@ -62,7 +69,10 @@ class QAAgent:
                 score_threshold=0.8
             ),
             return_source_documents=True,
-            chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
+            chain_type_kwargs={
+                "prompt": QA_CHAIN_PROMPT,
+                "document_prompt": DOCUMENT_PROMPT
+            }
         )
     
     def load_actual_index(self):
