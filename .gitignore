@@ -22,3 +22,6 @@ build/
 *.egg-info/
 
 *.log
+
+data/
+faiss_index/

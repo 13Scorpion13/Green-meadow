@@ -17,11 +17,11 @@ if st.button('Найти'):
     else:
         with st.spinner('Идёт поиск...'):
             try:
-                r = requests.post(f'{API_URL}/query', json={'query': query}, timeout=60)
+                r = requests.post(f'{API_URL}/query', json={'query': query})
                 r.raise_for_status()
                 data = r.json()
                 st.subheader('Ответ')
-                st.write(data['result'])
+                st.write(data['answer'])
             except Exception as e:
                 st.error(f'Ошибка запроса: {e}')
 
