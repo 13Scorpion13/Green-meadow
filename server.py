@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from pathlib import Path
 import uvicorn
 import shutil
+from starlette.responses import FileResponse, StreamingResponse
+from typing import List
+import io
+import zipfile
 
 from indexer import build_faiss_index
 from qa_agent import QAAgent
@@ -18,6 +22,8 @@ class IndexRequest(BaseModel):
 class QueryRequest(BaseModel):
     query: str
 
+class DownloadAllRequest(BaseModel):
+    source_paths: List[str]
 
 @app.post('/index')
 async def index(req: IndexRequest):
@@ -122,6 +128,53 @@ async def add_files(files: list[UploadFile] = File(...)):
             status_code=500, 
             detail=f"Ошибка загрузки файлов: {str(e)}"
         )
+
+
+@app.get("/download/{filename}")
+async def download_file(filename: str):
+    """
+    Позволяет скачать файл из папки с данными.
+    """
+    try:
+        file_path = Path(DATA_DIR) / filename
+
+        if not file_path.is_file() or not file_path.resolve().is_relative_to(Path(DATA_DIR).resolve()):
+            raise HTTPException(status_code=404, detail="Файл не найден или доступ запрещен")
+
+        return FileResponse(path=file_path, filename=filename, media_type='application/octet-stream')
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.post("/download_all")
+async def download_all_files(req: DownloadAllRequest):
+    """
+    Создает zip-архив из списка файлов и отдает его для скачивания.
+    """
+    validated_paths = []
+    for path_str in req.source_paths:
+        file_path = Path(path_str)
+        if file_path.is_file() and file_path.resolve().is_relative_to(Path(DATA_DIR).resolve()):
+            validated_paths.append(file_path)
+        else:
+            print(f"Нет файфлов: {path_str}")
+
+    if not validated_paths:
+        raise HTTPException(status_code=400, detail="Не найдено валидных файлов для архивации.")
+
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        for file_path in validated_paths:
+            zip_file.write(file_path, arcname=file_path.name)
+
+    zip_buffer.seek(0)
+
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=sources.zip"}
+    )
 
 
 @app.get('/health')
