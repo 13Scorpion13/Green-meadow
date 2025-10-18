@@ -1,0 +1,100 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+
+.icon-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  height: 2.25rem;
+}
+
+.icon-button:hover {
+  background-color: hsl(var(--accent) / 0.9);
+}
+
+.icon-button img {
+  width: 1rem;
+  height: 1rem;
+  filter: brightness(0) invert(1);
+}
+
+.btn--primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-glow);
+  padding: 0.75rem 1.5rem;
+  height: 2.25rem;
+}
+
+.btn--primary:hover {
+  background-color: hsl(var(--primary) / 0.9);
+  transform: translateY(-1px);
+}
+
+.category-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  height: 4rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.25;
+  transition: var(--transition-smooth);
+  background: var(--gradient-card);
+  color: white;
+}
+
+.category-button:hover {
+  transform: scale(1.05);
+  background-color: hsl(var(--accent) / 0.5);
+}
+
+.category-button.active {
+  background-color: hsl(var(--primary));
+  box-shadow: var(--shadow-glow);
+}
+
+.category-button img {
+  width: 1.25rem;
+  height: 1.25rem;
+  filter: brightness(0) invert(1);
+}
+
+.rent-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1.5rem;
+  height: 2.25rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-glow);
+}
+
+.rent-button:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}

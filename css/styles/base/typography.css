@@ -1,0 +1,25 @@
+.text-gradient {
+  background-image: var(--gradient-border);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.section-subtitle {
+  color: hsl(var(--muted-foreground));
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 2.25rem;
+  }
+}

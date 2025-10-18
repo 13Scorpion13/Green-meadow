@@ -1,0 +1,325 @@
+
+.hero-background {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        125deg,
+        hsl(217 91% 60% / 0.15),
+        hsl(263 85% 60% / 0.1),
+        hsl(180 100% 70% / 0.15),
+        hsl(217 91% 60% / 0.1)
+    );
+    background-size: 400% 400%;
+    animation: gradientFlow 12s ease infinite;
+    opacity: 0.6;
+}
+
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(hsl(var(--border) / 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, hsl(var(--border) / 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 20s linear infinite;
+    opacity: 0.3;
+}
+
+.hero-particles {
+    position: absolute;
+    inset: 0;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--ai-cyan)));
+    opacity: 0;
+    animation: floatParticle 20s linear infinite;
+}
+
+.particle-1 {
+    width: 4px;
+    height: 4px;
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+    background: hsl(var(--primary) / 0.6);
+}
+
+.particle-2 {
+    width: 6px;
+    height: 6px;
+    top: 60%;
+    left: 80%;
+    animation-delay: 2s;
+    background: hsl(var(--ai-cyan) / 0.4);
+}
+
+.particle-3 {
+    width: 3px;
+    height: 3px;
+    top: 40%;
+    left: 20%;
+    animation-delay: 4s;
+    background: hsl(var(--ai-purple) / 0.5);
+}
+
+.particle-4 {
+    width: 5px;
+    height: 5px;
+    top: 80%;
+    left: 40%;
+    animation-delay: 6s;
+    background: hsl(var(--primary) / 0.3);
+}
+
+.particle-5 {
+    width: 4px;
+    height: 4px;
+    top: 30%;
+    left: 90%;
+    animation-delay: 8s;
+    background: hsl(var(--ai-cyan) / 0.4);
+}
+
+.particle-6 {
+    width: 7px;
+    height: 7px;
+    top: 70%;
+    left: 15%;
+    animation-delay: 10s;
+    background: hsl(var(--ai-purple) / 0.3);
+}
+
+.hero-orbs {
+    position: absolute;
+    inset: 0;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    animation: pulseOrb 8s ease-in-out infinite;
+}
+
+.orb-1 {
+    width: 200px;
+    height: 200px;
+    top: 20%;
+    left: 10%;
+    background: hsl(var(--primary) / 0.1);
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 300px;
+    height: 300px;
+    top: 60%;
+    right: 10%;
+    background: hsl(var(--ai-purple) / 0.08);
+    animation-delay: 2s;
+}
+
+.orb-3 {
+    width: 250px;
+    height: 250px;
+    bottom: 20%;
+    left: 40%;
+    background: hsl(var(--ai-cyan) / 0.06);
+    animation-delay: 4s;
+}
+
+.hero-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.5;
+    animation: glowPulse 6s ease-in-out infinite;
+}
+
+.glow-1 {
+    width: 400px;
+    height: 400px;
+    top: -200px;
+    right: -100px;
+    background: hsl(var(--primary) / 0.1);
+}
+
+.glow-2 {
+    width: 300px;
+    height: 300px;
+    bottom: -150px;
+    left: -50px;
+    background: hsl(var(--ai-purple) / 0.1);
+    animation-delay: 3s;
+}
+
+.hero-stars {
+    position: absolute;
+    inset: 0;
+}
+
+.star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+.star-1 {
+    width: 2px;
+    height: 2px;
+    top: 15%;
+    left: 25%;
+    animation-delay: 0s;
+}
+
+.star-2 {
+    width: 1px;
+    height: 1px;
+    top: 40%;
+    left: 70%;
+    animation-delay: 1s;
+}
+
+.star-3 {
+    width: 3px;
+    height: 3px;
+    top: 65%;
+    left: 45%;
+    animation-delay: 2s;
+}
+
+.star-4 {
+    width: 2px;
+    height: 2px;
+    top: 25%;
+    left: 85%;
+    animation-delay: 0.5s;
+}
+
+.star-5 {
+    width: 1px;
+    height: 1px;
+    top: 75%;
+    left: 25%;
+    animation-delay: 1.5s;
+}
+
+.star-6 {
+    width: 2px;
+    height: 2px;
+    top: 55%;
+    left: 10%;
+    animation-delay: 2.5s;
+}
+
+.hero-waves {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    opacity: 0.1;
+    background: linear-gradient(
+        180deg,
+        transparent,
+        hsl(var(--primary) / 0.3)
+    );
+    animation: waveMove 1s ease-in-out infinite;
+}
+
+.hero-data-points {
+    position: absolute;
+    inset: 0;
+}
+
+.data-point {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: hsl(var(--ai-cyan));
+    opacity: 0;
+    animation: dataPointAppear 6s ease-in-out infinite;
+}
+
+.data-point-1 {
+    top: 30%;
+    left: 20%;
+    animation-delay: 0s;
+}
+
+.data-point-2 {
+    top: 50%;
+    left: 60%;
+    animation-delay: 2s;
+}
+
+.data-point-3 {
+    top: 70%;
+    left: 40%;
+    animation-delay: 4s;
+}
+
+.data-point-4 {
+    top: 20%;
+    left: 80%;
+    animation-delay: 1s;
+}
+
+.data-point-5 {
+    top: 80%;
+    left: 70%;
+    animation-delay: 3s;
+}
+
+.data-point-6 {
+    top: 40%;
+    left: 90%;
+    animation-delay: 5s;
+}
+
+.hero-connections {
+    position: absolute;
+    inset: 0;
+}
+
+.connection {
+    position: absolute;
+    background: hsl(var(--border) / 0.1);
+    animation: connectionPulse 4s ease-in-out infinite;
+}
+
+.connection-1 {
+    top: 30%;
+    left: 20%;
+    right: 60%;
+    height: 1px;
+    animation-delay: 0s;
+}
+
+.connection-2 {
+    top: 60%;
+    left: 40%;
+    right: 20%;
+    height: 1px;
+    animation-delay: 1s;
+}
+
+.connection-3 {
+    top: 20%;
+    left: 70%;
+    right: 10%;
+    height: 1px;
+    animation-delay: 2s;
+}

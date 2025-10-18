@@ -1,0 +1,97 @@
+.main-header {
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  backdrop-filter: blur(4px);
+  background-color: hsl(var(--background) / 0.8);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-container {
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  background-image: linear-gradient(to bottom right, hsl(var(--primary)), hsl(var(--ai-purple)));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow);
+}
+
+.logo-icon img {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+  filter: brightness(0) invert(1);
+}
+
+.logo-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.logo-subtitle {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  margin: 0;
+  line-height: 1;
+}
+
+.main-nav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+.main-nav a {
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  color: hsl(var(--foreground));
+}
+
+.main-nav a:hover {
+  color: hsl(var(--primary));
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.menu-button {
+  display: inline-flex;
+}
+
+@media (min-width: 768px) {
+  .menu-button {
+    display: none;
+  }
+}
