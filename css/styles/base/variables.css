@@ -25,6 +25,8 @@
   --ai-cyan: 180 100% 70%;
   --ai-success: 142 76% 36%;
   --ai-warning: 38 92% 50%;
+
+  --yellow-waiting: 50 84% 40%;
   
   --gradient-hero: linear-gradient(
     135deg,

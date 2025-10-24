@@ -1,0 +1,26 @@
+/* FORM UTILITY STYLES */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: hsl(var(--foreground));
+}
+
+.form-input {
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid hsl(var(--border) / 0.5);
+    background: hsl(var(--background) / 0.5);
+    color: hsl(var(--foreground));
+    font-size: 0.875rem;
+    transition: var(--transition-smooth);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+}
+
+.form-input::placeholder {
+    color: hsl(var(--muted-foreground));
+}
