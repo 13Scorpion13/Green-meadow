@@ -24,3 +24,5 @@
 
 @import url('styles/utilities/form-styles.css');
 @import url('styles/pages/account.css');
+@import url('styles/pages/agent-details.css');
+@import url('styles/components/disclaimer-popup.css');

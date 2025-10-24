@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Archivist - AI Market</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div id="root">
+        <div class="min-h-screen bg-background">
+            <header class="main-header">
+                <div class="container header-container">
+                    <div class="header-left">
+                        <div class="logo">
+                            <div class="logo-icon">
+                                <img src="images/logos/Bot.svg" alt="AI Market Logo">
+                            </div>
+                            <div>
+                                <h1 class="logo-title">AI Market</h1>
+                                <p class="logo-subtitle">Маркетплейс агентов</p>
+                            </div>
+                        </div>
+                        <nav class="main-nav">
+                            <a href="index.html">Каталог</a>
+                            <a href="#">Как работает</a>
+                            <a href="#">Для разработчиков</a>
+                            <a href="#">Сообщество</a>
+                        </nav>
+                    </div>
+                    <div class="header-right">
+                        <button class="icon-button">
+                            <img src="images/icons/ui/ShoppingCart.svg" alt="Shopping Cart">
+                        </button>
+                        <button class="icon-button" id="user-profile-button">
+                            <img src="images/icons/ui/UserProfile.svg" alt="User Profile">
+                        </button>
+                        <button class="btn btn--primary login-button">Войти/Зарегистрироваться</button>
+                        <button class="menu-button">
+                            <img src="images/icons/ui/Menu.svg" alt="Menu">
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content container">
+                <div class="back-to-catalog">
+                    <a href="index.html" class="btn btn--secondary">&lt; Назад в каталог</a>
+                </div>
+                <div class="agent-details-page">
+                    <div class="agent-details-main">
+                        <div class="agent-card-detailed">
+                            <div class="agent-header">
+                                <div class="agent-avatar">A</div>
+                                <div class="agent-info">
+                                    <h1 class="agent-name">AI Archivist</h1>
+                                    <h2 class="agent-author">от <a href="#">DataSolutions</a></h2>
+                                </div>
+                            </div>
+                            <p class="agent-description">
+                                Интеллектуальный агент для автоматизации работы с документами: классификация, извлечение данных, поиск и архивирование.
+                            </p>
+                            <div class="agent-stats">
+                                <div class="stat">
+                                    <img src="images/icons/ui/Star.svg" alt="Star Icon">
+                                    <span>4.7</span>
+                                    <span>(180 отзыва)</span>
+                                </div>
+                                <div class="stat">
+                                    <img src="images/icons/ui/Users.svg" alt="Users Icon">
+                                    <span>800 пользователей</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="agent-tabs">
+                            <button class="tab-button active" data-target="description">Описание</button>
+                            <button class="tab-button" data-target="guide">Руководство</button>
+                            <button class="tab-button" data-target="discussions">Обсуждения</button>
+                        </div>
+
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="description">
+                                <h2>Подробное описание AI Archivist</h2>
+                                <p>AI Archivist - это мощный ИИ-агент, разработанный для оптимизации и автоматизации процессов документооборота в организациях любого размера. Он использует передовые алгоритмы машинного обучения для анализа, классификации и индексации больших объемов текстовых и графических документов, значительно сокращая ручной труд и повышая точность.</p>
+                                <p>Агент способен работать с различными форматами документов, включая PDF, Word, Excel, изображения и сканы. Он идеально подходит для компаний, стремящихся к повышению эффективности управления документами, снижению операционных расходов и обеспечению быстрого доступа к необходимой информации.</p>
+                                <h3>Ключевые возможности:</h3>
+                                <ul>
+                                    <li><strong>Автоматическая классификация документов:</strong> Распознавание типов документов (счета, договоры, отчеты) и их автоматическое распределение по категориям.</li>
+                                    <li><strong>Интеллектуальное извлечение данных (OCR/ICR):</strong> Точное извлечение ключевой информации из документов, такой как даты, суммы, имена, адреса, с использованием оптического и интеллектуального распознавания символов.</li>
+                                    <li><strong>Расширенный поиск:</strong> Быстрый и точный поиск по содержимому и метаданным документов с поддержкой естественного языка.</li>
+                                    <li><strong>Автоматическое архивирование и индексация:</strong> Организация документов в структурированные архивы с автоматическим присвоением индексов и тегов.</li>
+                                    <li><strong>Интеграция с существующими системами:</strong> Легкая интеграция с CRM, ERP и другими системами управления документами.</li>
+                                </ul>
+                                <h3>Преимущества использования:</h3>
+                                <ul>
+                                    <li>Сокращение времени на обработку документов до 70%.</li>
+                                    <li>Уменьшение количества ошибок, связанных с ручным вводом данных.</li>
+                                    <li>Обеспечение быстрого доступа к информации и повышение производительности сотрудников.</li>
+                                    <li>Снижение затрат на хранение и управление документами.</li>
+                                </ul>
+                            </div>
+                            <div class="tab-pane" id="guide">
+                                <h2>Руководство по установке и запуску AI Archivist</h2>
+                                <p>AI Archivist доступен как open-source проект для локального развертывания или через наш облачный сервис.</p>
+                                <h3>Вариант 1: Локальная установка (для продвинутых пользователей)</h3>
+                                <ol>
+                                    <li><strong>Клонируйте репозиторий:</strong>
+                                        <pre><code>git clone https://github.com/datasolutions/ai-archivist.git</code></pre>
+                                    </li>
+                                    <li><strong>Перейдите в директорию проекта:</strong>
+                                        <pre><code>cd ai-archivist</code></pre>
+                                    </li>
+                                    <li><strong>Установите зависимости:</strong>
+                                        <pre><code>pip install -r requirements.txt</code></pre>
+                                    </li>
+                                    <li><strong>Настройте переменные окружения:</strong> Создайте файл <code>.env</code> на основе <code>.env.example</code> и укажите пути к хранилищам документов и ключи API для внешних OCR-сервисов.</li>
+                                    <li><strong>Запустите агент:</strong>
+                                        <pre><code>python app.py</code></pre>
+                                    </li>
+                                    <li><strong>Доступ к API:</strong> После запуска агент будет доступен по адресу <code>http://localhost:5000/api/v1/archivist</code>.</li>
+                                </ol>
+                                <h3>Вариант 2: Использование через CLI (для быстрого старта)</h3>
+                                <p>Используйте AI Market CLI для взаимодействия с облачной версией AI Archivist.</p>
+                                <ol>
+                                    <li><strong>Установите AI Market CLI:</strong>
+                                        <pre><code>npm install -g @aimarket/cli</code></pre>
+                                    </li>
+                                    <li><strong>Авторизуйтесь:</strong>
+                                        <pre><code>aimarket login</code></pre>
+                                    </li>
+                                    <li><strong>Используйте агент:</strong>
+                                        <pre><code>aimarket run ai-archivist --process-document "path/to/your/document.pdf" --output-format "json"</code></pre>
+                                        <p>Для получения дополнительной информации о командах CLI используйте <code>aimarket help</code>.</p>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="tab-pane" id="discussions">
+                                <h2>Обсуждения</h2>
+                                <div class="discussions-list">
+                                    <a href="#" class="discussion-item">Вопрос по точности OCR</a>
+                                    <a href="#" class="discussion-item">Предложения по интеграции с SharePoint</a>
+                                    <a href="#" class="discussion-item">Проблема с классификацией специфических документов</a>
+                                    <a href="#" class="discussion-item">Обсуждение новых функций в версии 2.0</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="agent-details-sidebar">
+                        <div class="sidebar-widget">
+                            <button class="btn btn--primary btn--large rent-button-detailed">Скачать</button>
+                        </div>
+                        <div class="sidebar-widget">
+                            <h3>Категории</h3>
+                            <div class="agent-categories">
+                                <a href="#" class="category-link">Документооборот</a>
+                                <a href="#" class="category-link">Автоматизация</a>
+                            </div>
+                        </div>
+                        <div class="sidebar-widget">
+                            <h3>Теги</h3>
+                            <div class="agent-tags">
+                                <div class="tag">Документы</div>
+                                <div class="tag">OCR</div>
+                                <div class="tag">Поиск</div>
+                                <div class="tag">Автоматизация</div>
+                                <div class="tag">Архивирование</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="comments-section-outer">
+                    <h2>Комментарии и Отзывы</h2>
+                    <div class="comments-section">
+                        <h3>Оставить комментарий</h3>
+                        <div class="comment-form">
+                            <textarea placeholder="Напишите ваш комментарий или вопрос..." rows="4"></textarea>
+                            <button class="btn btn--primary">Отправить комментарий</button>
+                        </div>
+                        <h3>Все комментарии (2)</h3>
+                        <div class="comments-list">
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-author-info">
+                                        <img src="images/icons/ui/UserProfile.svg" alt="User Avatar" class="comment-avatar">
+                                        <a href="#" class="comment-author">DocMaster</a>
+                                    </div>
+                                    <div class="comment-date">3 дня назад</div>
+                                </div>
+                                <div class="comment-text">Отличный инструмент для работы с большим объемом документов. Значительно ускорил наши процессы!</div>
+                                <button class="reply-button">Ответить</button>
+                            </div>
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-author-info">
+                                        <img src="images/icons/ui/UserProfile.svg" alt="User Avatar" class="comment-avatar">
+                                        <a href="#" class="comment-author">ArchivistPro</a>
+                                    </div>
+                                    <div class="comment-date">1 день назад</div>
+                                </div>
+                                <div class="comment-text">Иногда возникают сложности с очень старыми сканами, но в целом очень доволен функционалом.</div>
+                                <button class="reply-button">Ответить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="main-footer">
+                <div class="container footer-container">
+                    <div class="footer-grid">
+                        <div class="footer-about">
+                            <div class="logo">
+                                <div class="logo-icon">
+                                    <img src="images/logos/Bot.svg" alt="AI Market Logo">
+                                </div>
+                                <span class="logo-title">AI Market</span>
+                            </div>
+                            <p class="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
+                        </div>
+                        <div class="footer-links">
+                            <h3 class="footer-heading">Для клиентов</h3>
+                            <ul>
+                                <li><a href="#">Как арендовать</a></li>
+                                <li><a href="#">Гарантии</a></li>
+                                <li><a href="#">Поддержка</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-links">
+                            <h3 class="footer-heading">Для разработчиков</h3>
+                            <ul>
+                                <li><a href="#">Разместить агента</a></li>
+                                <li><a href="#">API документация</a></li>
+                                <li><a href="#">Комиссии</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-links">
+                            <h3 class="footer-heading">Компания</h3>
+                            <ul>
+                                <li><a href="#">О нас</a></li>
+                                <li><a href="#">Блог</a></li>
+                                <li><a href="#">Контакты</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer-copyright">
+                        © 2025 AI Market. Все права защищены.
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>
