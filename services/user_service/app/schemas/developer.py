@@ -3,17 +3,19 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
-class ProviderBase(BaseModel):
-    description: Optional[str] = Field(None, max_length=10000)
-    support_email: Optional[EmailStr] = None
+class DeveloperBase(BaseModel):
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    support_email: EmailStr
     support_phone: Optional[str] = Field(None, max_length=20, pattern=r"^\+?[1-9]\d{1,14}$")
     public_contact: Optional[bool] = True
 
-class ProviderCreate(ProviderBase):
+class DeveloperCreate(DeveloperBase):
     pass
 
-class ProviderOut(ProviderBase):
+class DeveloperOut(DeveloperBase):
     user_id: UUID
+    verified: bool
     created_at: datetime
 
     class Config:
