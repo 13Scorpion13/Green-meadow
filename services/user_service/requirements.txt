@@ -4,7 +4,7 @@ sqlalchemy
 asyncpg
 psycopg2-binary
 python-dotenv
-passlib[bcrypt]
+passlib[bcrypt]>=1.7.4
 bcrypt
 python-jose[cryptography]>=3.3.0
 alembic

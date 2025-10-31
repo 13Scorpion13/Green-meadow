@@ -13,6 +13,13 @@ class DeveloperBase(BaseModel):
 class DeveloperCreate(DeveloperBase):
     pass
 
+class DeveloperUpdate(DeveloperBase):
+    first_name: str | None = Field(None, min_length=1, max_length=100)
+    last_name: str | None = Field(None, min_length=1, max_length=100)
+    support_email: EmailStr | None = None
+    support_phone: str | None = Field(None, max_length=20)
+    public_contact: bool | None = None
+
 class DeveloperOut(DeveloperBase):
     user_id: UUID
     verified: bool

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models import Base
-from app.routers import users, developers
+from app.routers import users, developers, auth
 
 app = FastAPI(
     title="User Service",
@@ -20,6 +20,7 @@ app.add_middleware(
 
 app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(developers.router, prefix="/developers", tags=["Developers"])
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 
 @app.get("/health")
 async def health_check():

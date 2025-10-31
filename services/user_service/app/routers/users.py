@@ -15,6 +15,8 @@ from app.services.user_service import (
     update_user,
     delete_user
 )
+from app.services.developer_service import delete_developer
+from app.routers.deps import get_current_user
 
 router = APIRouter()
 
@@ -25,6 +27,12 @@ async def register_user(
 ):
     user = await create_user(db, user_in)
     return user
+
+@router.get("/me", response_model=UserOut)
+async def get_my_profile(
+    current_user: User = Depends(get_current_user)
+):
+    return current_user
 
 @router.get("/{user_id}", response_model=UserOut)
 async def get_user(
@@ -48,23 +56,48 @@ async def get_user_full_info(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@router.patch("/me", response_model=UserOut)
+async def update_my_profile(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    return await update_user(db, str(current_user.id), user_update)
+
 @router.patch("/{user_id}", response_model=UserOut)
 async def update_user_info(
     user_id: str,
     user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can update other users")
+    
     try:
         user = await update_user(db, user_id, user_update)
         return user
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     
+@router.delete("/me")
+async def delete_my_account(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    await delete_developer(db, str(current_user.id))
+    await delete_user(db, str(current_user.id))
+    return {"message": "Account deleted"}    
+
 @router.delete("/{user_id}")
 async def delete_user_info(
     user_id: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete other users")
+    
     try:
         result = await delete_user(db, user_id)
         return result
