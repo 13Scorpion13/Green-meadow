@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, TIMESTAMP, Boolean, text
+from sqlalchemy import Column, String, TIMESTAMP, text
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
@@ -15,10 +15,8 @@ class Developer(Base):
     )
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
-    support_email = Column(String(255), nullable=False)
     support_phone = Column(String(20), nullable=True)
-    public_contact = Column(Boolean, default=True, nullable=False)
-    verified = Column(Boolean, default=False, nullable=False)
+    github_profile = Column(String(255), nullable=True)
     created_at = Column(TIMESTAMP, server_default=text("now()"), nullable=False)
     
     user = relationship(

@@ -14,6 +14,7 @@ export interface Developer {
   user_id: string;
   first_name: string;
   last_name: string;
+  suppor_phone?: string;
   github_profile?: string;
   created_at: string;
 }
