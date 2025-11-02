@@ -1,0 +1,100 @@
+.hero-section {
+  position: relative;
+  min-height: 40vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-hero);
+  opacity: 0.2;
+}
+
+.hero-container-inner {
+  text-align: center;
+  position: relative;
+  z-index: 20;
+}
+
+.hero-content {
+  max-width: 56rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+  padding-top: 0rem;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0rem;
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 4.5rem;
+  }
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: hsl(var(--muted-foreground));
+  max-width: 42rem;
+  margin: 0 auto;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+}
+
+.hero-glow-1, .hero-glow-2, .hero-glow-3 {
+  position: absolute;
+}
+
+.hero-glow-1 {
+  top: 5rem;
+  left: 2.5rem;
+}
+
+.hero-glow-2 {
+  top: 8rem;
+  right: 5rem;
+}
+
+.hero-glow-3 {
+  bottom: 10rem;
+  left: 5rem;
+}
+
+.hero-glow-1 img {
+  width: 2rem;
+  height: 2rem;
+  color: hsl(var(--ai-cyan));
+  animation: pulse 2s infinite;
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px hsl(var(--ai-cyan) / 0.5));
+}
+
+.hero-glow-2 img {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: hsl(var(--ai-purple));
+  animation: bounce 1s infinite;
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px hsl(var(--ai-purple) / 0.5));
+}
+
+.hero-glow-3 img {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: hsl(var(--primary));
+  animation: pulse 2s infinite;
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px hsl(var(--ai-cyan) / 0.5));
+}

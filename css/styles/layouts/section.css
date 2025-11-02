@@ -1,0 +1,15 @@
+.main-content {
+  padding-top: var(--section-spacing);
+  padding-bottom: var(--section-spacing);
+}
+
+.categories-section,
+.top-ai-agents-section,
+.why-ai-market-section {
+  margin-bottom: var(--section-spacing);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: var(--section-spacing);
+}

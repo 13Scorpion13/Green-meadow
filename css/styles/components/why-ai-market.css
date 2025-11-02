@@ -1,0 +1,106 @@
+.why-ai-market-section {
+    padding-top: var(--section-spacing);
+    padding-bottom: var(--section-spacing);
+}
+
+.why-ai-market-card {
+    padding: 2rem 2rem;
+    text-align: center;
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border) / 0.5);
+    background: var(--gradient-card);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-card);
+}
+
+.why-ai-market-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+    .why-ai-market-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.why-ai-market-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.0rem;
+    border-radius: var(--radius);
+    background: hsl(var(--card) / 0.5);
+    transition: var(--transition-smooth);
+}
+
+.why-ai-market-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-glow);
+}
+
+.why-ai-market-value-primary {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: hsl(var(--primary));
+    line-height: 1;
+}
+
+.why-ai-market-value-cyan {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: hsl(var(--ai-cyan));
+    line-height: 1;
+}
+
+.why-ai-market-value-purple {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: hsl(var(--ai-purple));
+    line-height: 1;
+}
+
+.why-ai-market-value-success {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: hsl(var(--ai-success));
+    line-height: 1;
+}
+
+.why-ai-market-label {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+    line-height: 1.4;
+}
+
+.why-ai-market-item.gradient-text .why-ai-market-value-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--ai-cyan)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.why-ai-market-item.gradient-text .why-ai-market-value-cyan {
+    background: linear-gradient(135deg, hsl(var(--ai-cyan)), hsl(var(--ai-purple)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.why-ai-market-item.gradient-text .why-ai-market-value-purple {
+    background: linear-gradient(135deg, hsl(var(--ai-purple)), hsl(var(--primary)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.why-ai-market-item.gradient-text .why-ai-market-value-success {
+    background: linear-gradient(135deg, hsl(var(--ai-success)), hsl(var(--ai-cyan)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
