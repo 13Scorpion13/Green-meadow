@@ -1,0 +1,149 @@
+/* SETTINGS TAB STYLES - без модальных окон */
+.settings-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.settings-section {
+    background: var(--gradient-card);
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border) / 0.5);
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-card);
+}
+
+.settings-section .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: hsl(var(--foreground));
+}
+
+.settings-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid hsl(var(--border) / 0.2);
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: hsl(var(--foreground));
+}
+
+.setting-title.danger {
+    color: hsl(var(--destructive));
+}
+
+.setting-description {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.setting-description.danger {
+    color: hsl(var(--destructive) / 0.8);
+}
+
+/* Password Form in Settings */
+.password-form {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: hsl(var(--muted) / 0.1);
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border) / 0.3);
+}
+
+.password-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.password-form .form-actions {
+    border-top: 1px solid hsl(var(--border) / 0.2);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+
+/* Toggle Switch */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: hsl(var(--muted));
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: hsl(var(--primary));
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+/* Danger Button */
+.btn--danger {
+    background-color: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+    padding: 0.75rem 1.5rem;
+    height: 2.25rem;
+}
+
+.btn--danger:hover {
+    background-color: hsl(var(--destructive) / 0.9);
+    transform: translateY(-1px);
+}

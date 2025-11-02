@@ -1,0 +1,51 @@
+/* ACCOUNT TABS STYLES */
+.account-content {
+    min-height: 600px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tab-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.tab-subtitle {
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 0;
+}
+
+.new-project-btn {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .tab-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .new-project-btn {
+        margin-left: 0;
+        width: 100%;
+    }
+}

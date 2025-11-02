@@ -26,16 +26,17 @@
                             <a href="#">Каталог</a>
                             <a href="#">Как работает</a>
                             <a href="#">Для разработчиков</a>
+                            <a href="#">Сообщество</a>
                         </nav>
                     </div>
                     <div class="header-right">
                         <button class="icon-button">
                             <img src="images/icons/ui/ShoppingCart.svg" alt="Shopping Cart">
                         </button>
-                        <button class="icon-button">
+                        <button class="icon-button" id="user-profile-button">
                             <img src="images/icons/ui/UserProfile.svg" alt="User Profile">
                         </button>
-                        <button class="btn btn--primary login-button">Войти</button>
+                        <button class="btn btn--primary login-button">Войти/Зарегистрироваться</button>
                         <button class="menu-button">
                             <img src="images/icons/ui/Menu.svg" alt="Menu">
                         </button>
@@ -163,7 +164,7 @@
                         </div>
                         <div class="agents-grid">
                             <!-- Агент -->
-                            <div class="ai-card gradient-border animate-fadeIn">
+                            <a href="agent-details.html" class="ai-card gradient-border animate-fadeIn">
                                 <div class="recomended-badge">
                                     <img src="images/icons/ui/Zap.svg" alt="Zap Icon">
                                     Рекомендуем
@@ -200,12 +201,98 @@
                                 </div>
                                 <div class="agent-footer">
                                     <div class="agent-price">
-                                        <p class="price">₽2500</p>
-                                        <p class="price-period">за час</p>
+                                        <p class="price"> </p>
+                                        <p class="price-period"> </p>
                                     </div>
-                                    <button class="rent-button">Арендовать</button>
+                                    <button class="rent-button">Подробнее</button>
                                 </div>
-                            </div>
+                            </a>
+                            <!-- Агент -->
+
+                            <!-- Агент -->
+                            <a href="ai-archivist-details.html" class="ai-card gradient-border animate-fadeIn">
+                                <div class="agent-header">
+                                    <div class="agent-avatar">A</div>
+                                    <div class="agent-info">
+                                        <h3 class="agent-name">AI Archivist</h3>
+                                        <p class="agent-category">Документооборот</p>
+                                    </div>
+                                </div>
+                                <p class="agent-description">
+                                    Интеллектуальный агент для автоматизации работы с документами: классификация, извлечение данных, поиск и архивирование.
+                                </p>
+                                <div class="agent-tags">
+                                    <div class="tag">Документы</div>
+                                    <div class="tag">OCR</div>
+                                    <div class="tag">Поиск</div>
+                                    <div class="tag">Автоматизация</div>
+                                </div>
+                                <div class="agent-stats">
+                                    <div class="stat">
+                                        <img src="images/icons/ui/Star.svg" alt="Star Icon">
+                                        <span>4.7</span>
+                                        <span>(180)</span>
+                                    </div>
+                                    <div class="stat">
+                                        <img src="images/icons/ui/Clock.svg" alt="Clock Icon">
+                                        <span>&lt; 10 мин</span>
+                                    </div>
+                                    <div class="stat">
+                                        <img src="images/icons/ui/Users.svg" alt="Users Icon">
+                                        <span>800</span>
+                                    </div>
+                                </div>
+                                <div class="agent-footer">
+                                    <div class="agent-price">
+                                        <p class="price"> </p>
+                                        <p class="price-period"> </p>
+                                    </div>
+                                    <button class="rent-button">Подробнее</button>
+                                </div>
+                            </a>
+                            <!-- Агент -->
+
+                            <!-- Агент -->
+                            <a href="fitness-ai-details.html" class="ai-card gradient-border animate-fadeIn">
+                                <div class="agent-header">
+                                    <div class="agent-avatar">F</div>
+                                    <div class="agent-info">
+                                        <h3 class="agent-name">Fitness AI</h3>
+                                        <p class="agent-category">Здоровье и Фитнес</p>
+                                    </div>
+                                </div>
+                                <p class="agent-description">
+                                    Персональный ИИ-тренер, который разрабатывает индивидуальные программы тренировок и питания, отслеживает прогресс и дает рекомендации.
+                                </p>
+                                <div class="agent-tags">
+                                    <div class="tag">Фитнес</div>
+                                    <div class="tag">Здоровье</div>
+                                    <div class="tag">Тренировки</div>
+                                    <div class="tag">Питание</div>
+                                </div>
+                                <div class="agent-stats">
+                                    <div class="stat">
+                                        <img src="images/icons/ui/Star.svg" alt="Star Icon">
+                                        <span>4.8</span>
+                                        <span>(310)</span>
+                                    </div>
+                                    <div class="stat">
+                                        <img src="images/icons/ui/Clock.svg" alt="Clock Icon">
+                                        <span>&lt; 3 мин</span>
+                                    </div>
+                                    <div class="stat">
+                                        <img src="images/icons/ui/Users.svg" alt="Users Icon">
+                                        <span>1500</span>
+                                    </div>
+                                </div>
+                                <div class="agent-footer">
+                                    <div class="agent-price">
+                                        <p class="price"> </p>
+                                        <p class="price-period"> </p>
+                                    </div>
+                                    <button class="rent-button">Подробнее</button>
+                                </div>
+                            </a>
                             <!-- Агент -->
                         </div>
                     </div>
@@ -283,6 +370,17 @@
         </div>
     </div>
     
+    <div id="disclaimer-popup" class="popup-overlay hidden">
+        <div class="popup-content">
+            <h2 class="popup-title">Внимание!</h2>
+            <p class="popup-message">Мы не несем ответственности за действия данного ИИ-агента. Используя его, вы соглашаетесь с возможными рисками и принимаете полную ответственность за результаты.</p>
+            <div class="popup-actions">
+                <button id="cancel-disclaimer" class="btn btn--secondary">Отмена</button>
+                <button id="continue-to-agent" class="btn btn--primary">Продолжить</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
 </body>
 </html>
