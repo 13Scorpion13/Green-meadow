@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app.models import Base
 from app.routers import users, developers, auth
+from app.config import get_settings
+
+settings = get_settings()
 
 app = FastAPI(
     title="User Service",
@@ -12,7 +15,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[settings.API_GATEWAY_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
