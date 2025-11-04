@@ -26,3 +26,5 @@
 @import url('pages/account.css');
 @import url('pages/agent-details.css');
 @import url('components/disclaimer-popup.css');
+
+@import url('pages/auth.css');

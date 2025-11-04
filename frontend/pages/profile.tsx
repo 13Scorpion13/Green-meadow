@@ -2,10 +2,10 @@ import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useState } from 'react';
-import ProfileTab from '../components/ProfileTab'; // Добавьте эту строку
-import ProjectsTab from '../components/ProjectsTab'; // Добавьте эту строку
-import SettingsTab from '../components/SettingsTab'; // Добавьте эту строку
-import Footer from '../components/Footer'; // Добавьте эту строку
+import ProfileTab from '../components/ProfileTab';
+import ProjectsTab from '../components/ProjectsTab';
+import SettingsTab from '../components/SettingsTab';
+import Footer from '../components/Footer';
 
 export default function ProfilePage() {
   const { user, logout, loading } = useAuth();
@@ -26,14 +26,12 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="main-header">
         <div className="container header-container">
           <div className="header-left">
             <div className="logo">
               <div className="logo-icon">
-                {/* Замените на ваш логотип */}
-                <div className="icon-white">🤖</div>
+                <img src="/images/logos/Bot.svg" alt="AI Market Logo" className="icon-white" />
               </div>
               <div>
                 <h1 className="logo-title">AI Market</h1>
@@ -49,27 +47,17 @@ export default function ProfilePage() {
           </div>
           <div className="header-right">
             <button className="icon-button">
-              {/* Иконка корзины */}
-              <div>🛒</div>
-            </button>
-            <button className="icon-button">
-              {/* Иконка профиля */}
-              <div>👤</div>
+              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile"/>
             </button>
             <button className="btn btn--primary login-button" onClick={handleLogout}>
               Выйти
-            </button>
-            <button className="menu-button">
-              <div>☰</div>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="account-main">
         <div className="container account-container">
-          {/* Sidebar */}
           <aside className="account-sidebar">
             <div className="user-profile-card">
               <div className="user-avatar">
@@ -121,19 +109,15 @@ export default function ProfilePage() {
             </nav>
           </aside>
 
-          {/* Content Area */}
           <div className="account-content">
-            {/* Profile Tab */}
             {activeTab === 'profile' && (
               <ProfileTab user={user} />
             )}
 
-            {/* Projects Tab */}
             {activeTab === 'projects' && (
               <ProjectsTab />
             )}
 
-            {/* Settings Tab */}
             {activeTab === 'settings' && (
               <SettingsTab />
             )}
@@ -141,7 +125,6 @@ export default function ProfilePage() {
         </div>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );
