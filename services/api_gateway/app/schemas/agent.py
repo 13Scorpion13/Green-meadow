@@ -3,7 +3,6 @@ from uuid import UUID
 from typing import Optional, Any
 
 class AgentCreate(BaseModel):
-    user_id: UUID
     name: str
     slug: str
     agent_url: str

@@ -1,9 +1,12 @@
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 from jose import JWTError, jwt
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.config import get_settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 security = HTTPBearer()
@@ -19,15 +22,16 @@ def verify_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
     
-async def get_token_from_header(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
-    return credentials.credentials
-
-async def get_current_user(token: str = Depends(get_token_from_header)) -> dict:
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    logger.info(f"Received Authorization header: {credentials.credentials}")
+    token = credentials.credentials
     user_data = verify_token(token)
+    
     if user_data is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+            headers={"WWW-Authenticate": "Bearer"}, 
         )
+    
     return user_data

@@ -17,7 +17,7 @@ class Agent(Base):
     requirements = Column(Text, nullable=True)
     tags = Column(JSONB, nullable=True)
     category_id = Column(UUID(as_uuid=True), ForeignKey('categories.id'), nullable=True)
-    article_id = Column(UUID(as_uuid=True), nullable=True)   # связь со статьей
+    article_id = Column(UUID(as_uuid=True), nullable=True)
     price = Column(Numeric, nullable=True)
     avg_raiting = Column(Float, nullable=True)
     reviews_count = Column(Integer, nullable=True)

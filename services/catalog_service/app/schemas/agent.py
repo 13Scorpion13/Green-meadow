@@ -18,7 +18,6 @@ class AgentBase(BaseModel):
     reviews_count: Optional[int] = None
 
 class AgentCreate(BaseModel):
-    user_id: UUID
     name: str
     slug: str
     agent_url: str

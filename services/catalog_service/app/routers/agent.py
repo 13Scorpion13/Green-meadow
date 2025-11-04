@@ -5,14 +5,21 @@ from typing import List
 from ..schemas.agent import AgentCreate, AgentUpdate, AgentRead, AgentReadFull
 from ..models.agent import Agent
 from ..database import get_db
+from app.utils.auth import get_current_user
 import uuid
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 @router.post("/", response_model=AgentRead)
-async def create_agent(agent: AgentCreate, db: AsyncSession = Depends(get_db)):
-    """Create a new agent."""
-    db_agent = Agent(**agent.dict())
+async def create_agent(
+    agent: AgentCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    db_agent = Agent(
+        user_id=current_user["user_id"],
+        **agent.model_dump()
+    )
     db.add(db_agent)
     await db.commit()
     await db.refresh(db_agent)
