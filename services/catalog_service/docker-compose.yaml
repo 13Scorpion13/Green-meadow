@@ -1,13 +1,13 @@
 services:
   postgres:
     image: postgres:15
-    container_name: user_service_db
+    container_name: catalog_service_db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT_TWO}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

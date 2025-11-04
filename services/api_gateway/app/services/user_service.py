@@ -11,3 +11,11 @@ async def get_user_profile(user_id: str) -> dict:
             return response.json()
     except Exception as e:
         raise Exception(f"User Service error: {str(e)}")
+    
+async def verify_user_exists(user_id: str) -> bool:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{settings.USER_SERVICE_URL}/users/{user_id}")
+            return response.status_code == 200
+    except Exception:
+        return False

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import users, auth
+from app.routers import users, auth, agents
 
 app = FastAPI(title="API Gateway")
 
@@ -14,6 +14,7 @@ app.add_middleware(
 
 app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(auth.router, prefix="", tags=["Authentication"])
+app.include_router(agents.router, prefix="", tags=["Agents"])
 
 @app.get("/")
 def root():
