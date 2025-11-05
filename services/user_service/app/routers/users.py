@@ -30,7 +30,8 @@ async def register_user(
 
 @router.get("/me", response_model=UserOut)
 async def get_my_profile(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
 ):
     return current_user
 
