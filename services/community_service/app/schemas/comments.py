@@ -12,10 +12,8 @@ class CommentBase(BaseModel):
 
 class CommentCreate(BaseModel):
     parent_comment_id: Optional[UUID] = None
-    content_id: UUID
     rating: Optional[int] = None
     comment: str
-    user_id: UUID
 
 class CommentUpdate(BaseModel):
     parent_comment_id: Optional[UUID] = None

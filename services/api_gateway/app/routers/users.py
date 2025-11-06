@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.utils.auth import get_current_user, get_token_from_header
+from app.schemas.user import UserCreate, UserOut
 from app.services.user_service import (
+    register_user_in_user_service,
     get_user_profile_from_user_service,
     get_other_profile_from_user_service,
     get_developer_profile_from_user_service,
@@ -10,6 +12,16 @@ from app.services.user_service import (
 from app.schemas.user import UserWithDeveloper, UserUpdate
 
 router = APIRouter()
+
+@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+async def register_new_user(user_in: UserCreate):
+    try:
+        user = await register_user_in_user_service(user_in.model_dump(mode='json'))
+        return user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/me", response_model=UserWithDeveloper)
 async def get_my_profile(

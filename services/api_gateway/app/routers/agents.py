@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import List, Optional
 from app.utils.auth import get_current_user, get_token_from_header
 from app.services.catalog_service import (
     create_agent_in_catalog,
     get_agents_by_user_id_from_catalog_service,
     update_agent_in_catalog_service,
     delete_agent_in_catalog_service,
-    get_agent_by_id
+    get_agents_with_developers_from_catalog_service
 )
 from app.services.user_service import verify_user_exists
-from app.schemas.agent import AgentCreate, AgentRead, AgentUpdate
+from app.schemas.agent import AgentCreate, AgentRead, AgentUpdate, AgentReadFull
 
 router = APIRouter()
 
@@ -25,7 +26,31 @@ async def create_agent(
         return created_agent
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+@router.get("/", response_model=List[AgentReadFull])
+async def get_agents_list(
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(100, le=1000, description="Max number of records to return"),
+    category_id: Optional[str] = Query(None, description="Filter by category ID"),
+    min_rating: Optional[float] = Query(None, ge=0.0, le=5.0, description="Minimum average rating"),
+    max_price: Optional[float] = Query(None, gt=0, description="Maximum price"),
+    search: Optional[str] = Query(None, description="Search in name or description"),
+    token: Optional[str] = Depends(get_token_from_header)  # ← может быть None, если эндпоинт публичный
+):
+    try:
+        agents = await get_agents_with_developers_from_catalog_service(
+            skip=skip,
+            limit=limit,
+            category_id=category_id,
+            min_rating=min_rating,
+            max_price=max_price,
+            search=search,
+            token=token
+        )
+        return agents
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/users/{user_id}/agents", response_model=list[AgentRead])
 async def get_user_agents(
     user_id: str,

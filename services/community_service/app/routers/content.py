@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from uuid import UUID
 
 from app.database import get_db
 from app.models.content import Content
 from app.models.content_type import ContentType
 from app.schemas.content import ContentCreate, ContentUpdate, ContentRead, ContentReadFull
+from app.utils.auth import get_current_user
 
 
 async def get_content_or_404(db: Session, content_id: UUID) -> Content:
@@ -26,8 +28,11 @@ router = APIRouter(prefix="/contents", tags=["contents"])
 
 
 @router.post("/", response_model=ContentRead, status_code=status.HTTP_201_CREATED)
-async def create_content(content_in: ContentCreate, db: Session = Depends(get_db)):
-    # Проверка существования content_type
+async def create_content(
+    content_in: ContentCreate,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     stmt = select(ContentType.id).where(ContentType.id == content_in.content_type_id)
     result = await db.execute(stmt)
     content_type_exists = result.scalar_one_or_none()
@@ -37,7 +42,10 @@ async def create_content(content_in: ContentCreate, db: Session = Depends(get_db
             detail="Content type not found"
         )
 
-    db_content = Content(**content_in.dict())
+    db_content = Content(
+        **content_in.dict(),
+        user_id=current_user["user_id"]
+    )
     db.add(db_content)
     try:
         await db.commit()
@@ -53,9 +61,22 @@ async def create_content(content_in: ContentCreate, db: Session = Depends(get_db
 
 
 @router.get("/{content_id}", response_model=ContentReadFull)
-async def read_content(content_id: UUID, db: Session = Depends(get_db)):
-    result = await get_content_or_404(db, content_id)
-    return result
+async def read_content(
+    content_id: UUID,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = (
+        select(Content)
+        .options(selectinload(Content.content_type))
+        .options(selectinload(Content.comments))
+        .where(Content.id == content_id)
+    )
+    result = await db.execute(stmt)
+    content = result.scalar_one_or_none()
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return content
 
 
 @router.get("/", response_model=list[ContentRead])
@@ -64,6 +85,7 @@ async def read_contents(
     limit: int = 100,
     content_type_id: int | None = None,
     user_id: UUID | None = None,
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     stmt = select(Content)
@@ -83,13 +105,17 @@ async def read_contents(
 async def update_content(
     content_id: UUID,
     content_in: ContentUpdate,
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    db_content = get_content_or_404(db, content_id)
+    db_content = await get_content_or_404(db, content_id)
+
+    if str(db_content.user_id) != current_user["user_id"] and current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to update this content")
 
     update_data = content_in.dict(exclude_unset=True)
 
-    if "content_type_id" in update_data:  # ✅ Исправлено: было update_
+    if "content_type_id" in update_data:
         stmt = select(ContentType.id).where(ContentType.id == update_data["content_type_id"])
         exists = await db.execute(stmt).scalar_one_or_none()
         if not exists:
@@ -115,8 +141,16 @@ async def update_content(
 
 
 @router.delete("/{content_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_content(content_id: UUID, db: Session = Depends(get_db)):
+async def delete_content(
+    content_id: UUID,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     db_content = await get_content_or_404(db, content_id)
+
+    if str(db_content.user_id) != current_user["user_id"] and current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to delete this content")
+
     db.delete(db_content)
-    db.commit()
+    await db.commit()
     return

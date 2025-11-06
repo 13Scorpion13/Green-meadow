@@ -3,6 +3,22 @@ from app.config import get_settings
 
 settings = get_settings()
 
+async def register_user_in_user_service(user_data: dict) -> dict:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{settings.USER_SERVICE_URL}/users/",
+                json=user_data
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 400:
+            raise ValueError(e.response.json().get("detail", "Bad Request"))
+        raise Exception(f"User Service error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"User Service connection error: {str(e)}")
+
 async def get_user_profile_from_user_service(token: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:

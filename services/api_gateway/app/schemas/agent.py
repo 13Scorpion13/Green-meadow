@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional, Any
 from datetime import datetime
+from .user import DeveloperOut
 
 class AgentBase(BaseModel):
     name: str
@@ -30,6 +31,17 @@ class AgentRead(AgentBase):
     user_id: UUID
     created_at: datetime
     updated_at: datetime
+
+    class Config:
+        from_attributes = True
+        
+class AgentReadFull(AgentBase):
+    id: UUID
+    user_id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    developer: Optional[DeveloperOut] = None
 
     class Config:
         from_attributes = True
