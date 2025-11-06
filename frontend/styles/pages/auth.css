@@ -1,0 +1,109 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--background);
+}
+
+.account-card--center {
+  width: 420px;
+  text-align: center;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* Заголовок больше и с отступом */
+.account-title--big {
+  font-size: 35px;
+  font-weight: 700;
+  margin-bottom: 15px; /* расстояние между заголовком и формой */
+}
+
+/* Карточка */
+.account-card--center {
+  width: 420px;
+  text-align: center;
+  padding: 32px 40px;
+  border-radius: 14px;
+}
+
+/* Кнопки далеко друг от друга */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 100px; /* увеличенный отступ */
+  margin-top: 12px;
+}
+
+/* Больше расстояние после карточки перед "Нет аккаунта?" */
+.auth-switch {
+  margin-top: 10px;
+  font-size: 15px;
+  display: block;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.auth-card {
+  background: var(--card-bg, #ffffff10);
+  padding: 32px 40px;
+  border-radius: 14px;
+  width: 400px;
+  text-align: left;
+}
+
+.auth-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.input {
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #444);
+  background: var(--input-bg, #1a1a1a);
+  color: #fff;
+}
+
+.checkbox-line {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.auth-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.auth-link {
+  margin-top: 25px;
+  font-size: 15px;
+  display: block;
+}

@@ -130,11 +130,11 @@
 }
 
 @media (min-width: 768px) {
-  .md\\:flex {
+  .md\:flex {
     display: flex;
   }
   
-  .md\\:hidden {
+  .md\:hidden {
     display: none;
   }
 }
