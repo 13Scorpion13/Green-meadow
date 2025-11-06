@@ -14,13 +14,23 @@ class DeveloperBase(BaseModel):
     def validate_github_url(cls, v):
         if v is None:
             return v
+        v = v.strip()
         if not v.startswith("https://github.com/"):
             raise ValueError("Must be a valid GitHub profile URL (https://github.com/username)")
+
         parts = v.split("/")
-        if len(parts) < 4 or parts[3] == "":
-            return v
-        if parts[3] not in ["", "followers", "following", "stars", "repositories", "sponsoring", "topics", "trending", "stars", "watching", "settings"]:
+        if len(parts) < 4:
             raise ValueError("Must be a valid GitHub profile URL (https://github.com/username)")
+
+        username = parts[3]
+
+        if len(parts) > 4 and parts[4] != "":
+            raise ValueError("Must be a valid GitHub profile URL (https://github.com/username), not a repository link")
+
+        import re
+        if not re.match(r'^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$', username):
+            raise ValueError("Invalid GitHub username format")
+
         return v
 
 class DeveloperCreate(DeveloperBase):
@@ -33,7 +43,7 @@ class DeveloperUpdate(DeveloperBase):
     github_profile: str | None = Field(None, max_length=255)
 
 class DeveloperOut(DeveloperBase):
-    user_id: UUID
+    # user_id: UUID
     created_at: datetime
 
     class Config:

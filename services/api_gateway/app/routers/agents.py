@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.utils.auth import get_current_user, get_token_from_header
-from app.services.catalog_service import create_agent_in_catalog, get_agent_by_id
+from app.services.catalog_service import (
+    create_agent_in_catalog,
+    get_agents_by_user_id_from_catalog_service,
+    update_agent_in_catalog_service,
+    delete_agent_in_catalog_service,
+    get_agent_by_id
+)
 from app.services.user_service import verify_user_exists
-from app.schemas.agent import AgentCreate
+from app.schemas.agent import AgentCreate, AgentRead, AgentUpdate
 
-router = APIRouter(prefix="/agents", tags=["Agents"])
+router = APIRouter()
 
 @router.post("/", response_model=dict)
 async def create_agent(
@@ -17,6 +23,42 @@ async def create_agent(
     try:
         created_agent = await create_agent_in_catalog(agent_data, token)
         return created_agent
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/users/{user_id}/agents", response_model=list[AgentRead])
+async def get_user_agents(
+    user_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        agents = await get_agents_by_user_id_from_catalog_service(user_id)
+        return agents
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.patch("/{agent_id}", response_model=AgentRead)
+async def update_my_agent(
+    agent_id: str,
+    agent_update: AgentUpdate,
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        updated_agent = await update_agent_in_catalog_service(agent_id, agent_update.model_dump(mode='json'), token)
+        return updated_agent
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/{agent_id}")
+async def delete_my_agent(
+    agent_id: str,
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        result = await delete_agent_in_catalog_service(agent_id, token)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

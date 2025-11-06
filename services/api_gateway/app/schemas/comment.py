@@ -1,18 +1,14 @@
 from pydantic import BaseModel
 from uuid import UUID
-from typing import Optional
 from datetime import datetime
+from typing import Optional
 
 class CommentBase(BaseModel):
-    agent_id: UUID
-    user_id: UUID
     rating: int
     content: str
 
-class CommentCreate(BaseModel):
-    agent_id: UUID
-    rating: int
-    content: str
+class CommentCreate(CommentBase):
+    pass
 
 class CommentUpdate(BaseModel):
     rating: Optional[int] = None
@@ -20,12 +16,9 @@ class CommentUpdate(BaseModel):
 
 class CommentRead(CommentBase):
     id: UUID
-    created_at: datetime
-
-class CommentReadFull(BaseModel):
-    id: UUID
     agent_id: UUID
     user_id: UUID
-    rating: int
-    content: str
     created_at: datetime
+
+    class Config:
+        from_attributes = True

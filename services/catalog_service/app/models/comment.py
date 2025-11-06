@@ -10,7 +10,7 @@ class Comment(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
     agent_id = Column(UUID(as_uuid=True), ForeignKey('agents.id'), nullable=False)
-    user_id = Column(UUID(as_uuid=True), nullable=False)  # заглушка, не связана с реальной таблицей
+    user_id = Column(UUID(as_uuid=True), nullable=False)
     rating = Column(Integer, nullable=False)
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

@@ -1,82 +1,73 @@
 import httpx
 from app.config import get_settings
-from typing import Dict, Any
 
 settings = get_settings()
 
-async def create_agent_in_catalog(agent_data: dict, token: str) -> Dict[Any, Any]:
+async def create_comment_in_catalog_service(comment_data: dict, token: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{settings.CATALOG_SERVICE_URL}/agents/",
-                json=agent_data,
+                f"{settings.CATALOG_SERVICE_URL}/comments/",
+                json=comment_data,
                 headers={"Authorization": f"Bearer {token}"}
             )
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            raise Exception("Agent not found")
         raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
-    
-async def get_agents_by_user_id_from_catalog_service(user_id: str) -> list[dict]:
+
+async def get_comments_by_agent_id_from_catalog_service(agent_id: str, token: str) -> list[dict]:
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{settings.CATALOG_SERVICE_URL}/agents/",
-                params={"user_id": user_id}
+                f"{settings.CATALOG_SERVICE_URL}/comments/",
+                params={"agent_id": agent_id},
+                headers={"Authorization": f"Bearer {token}"}
             )
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:
-        if e.response.status_code == 404:
-            return []
         raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
 
-async def update_agent_in_catalog_service(agent_id: str, agent_update: dict, token: str) -> dict:
+async def update_comment_in_catalog_service(comment_id: str, comment_update: dict, token: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:
             response = await client.patch(
-                f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}",
-                json=agent_update,
+                f"{settings.CATALOG_SERVICE_URL}/comments/{comment_id}",
+                json=comment_update,
                 headers={"Authorization": f"Bearer {token}"}
             )
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 404:
-            raise Exception("Agent not found")
+            raise Exception("Comment not found")
         if e.response.status_code == 403:
-            raise Exception("Not authorized to update this agent")
+            raise Exception("Not authorized to update this comment")
         raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
 
-async def delete_agent_in_catalog_service(agent_id: str, token: str) -> dict:
+async def delete_comment_in_catalog_service(comment_id: str, token: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:
             response = await client.delete(
-                f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}",
+                f"{settings.CATALOG_SERVICE_URL}/comments/{comment_id}",
                 headers={"Authorization": f"Bearer {token}"}
             )
             response.raise_for_status()
             return response.json()
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 404:
-            raise Exception("Agent not found")
+            raise Exception("Comment not found")
         if e.response.status_code == 403:
-            raise Exception("Not authorized to delete this agent")
+            raise Exception("Not authorized to delete this comment")
         raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
-
-async def get_agent_by_id(agent_id: str) -> dict:
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}")
-            response.raise_for_status()
-            return response.json()
-    except Exception as e:
-        raise Exception(f"Catalog Service error: {str(e)}")

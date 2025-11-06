@@ -4,7 +4,7 @@ from uuid import UUID
 from datetime import datetime
 
 class DeveloperOut(BaseModel):
-    user_id: UUID
+    # user_id: UUID
     first_name: str
     last_name: str
     github_profile: Optional[str] = None
@@ -14,7 +14,7 @@ class DeveloperOut(BaseModel):
         from_attributes = True
 
 class UserWithDeveloper(BaseModel):
-    id: UUID
+    # id: UUID
     email: EmailStr
     nickname: str
     role: str
@@ -27,3 +27,8 @@ class UserWithDeveloper(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    nickname: Optional[str] = None
+    avatar_url: Optional[str] = None

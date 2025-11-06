@@ -2,9 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.utils.auth import get_current_user, get_token_from_header
 from app.services.user_service import (
     get_user_profile_from_user_service,
-    get_developer_profile_from_user_service
+    get_other_profile_from_user_service,
+    get_developer_profile_from_user_service,
+    update_user_profile_in_user_service,
+    delete_user_account_in_user_service
 )
-from app.schemas.user import UserWithDeveloper
+from app.schemas.user import UserWithDeveloper, UserUpdate
 
 router = APIRouter()
 
@@ -31,13 +34,50 @@ async def get_my_profile(
     # user_data = await get_user_profile(current_user["user_id"])
     # return user_data
 
-# @router.get("/{user_id}")
-# async def get_user_profile_endpoint(
-#     user_id: str,
-#     current_user: dict = Depends(get_current_user)
-# ):
-#     if current_user["user_id"] != user_id and current_user["role"] != "admin":
-#         raise HTTPException(status_code=403, detail="Access denied")
+@router.patch("/me")
+async def update_my_profile(
+    user_update: UserUpdate,
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        updated_profile = await update_user_profile_in_user_service(user_update.model_dump(mode='json'), token)
+        return updated_profile
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.delete("/me")
+async def delete_my_account(
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        result = await delete_user_account_in_user_service(token)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/profile", response_model=UserWithDeveloper)
+async def get_user_profile_by_id(
+    request: dict,
+    #current_user: dict = Depends(get_current_user)
+):
+    user_id = request.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
 
-#     user_data = await get_user_profile(user_id)
-#     return user_data
+    try:
+        profile = await get_other_profile_from_user_service(user_id)
+        return profile
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/{user_id}", response_model=UserWithDeveloper)
+async def get_user_profile(
+    user_id: str
+):
+    try:
+        profile = await get_other_profile_from_user_service(user_id)
+        return profile
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

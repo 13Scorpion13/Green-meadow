@@ -1,8 +1,9 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional, Any
+from datetime import datetime
 
-class AgentCreate(BaseModel):
+class AgentBase(BaseModel):
     name: str
     slug: str
     agent_url: str
@@ -14,3 +15,21 @@ class AgentCreate(BaseModel):
     price: Optional[float] = None
     avg_raiting: Optional[float] = None
     reviews_count: Optional[int] = None
+    
+class AgentCreate(AgentBase):
+    pass
+
+class AgentUpdate(AgentBase):
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    agent_url: Optional[str] = None
+    description: Optional[str] = None
+    
+class AgentRead(AgentBase):
+    id: UUID
+    user_id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

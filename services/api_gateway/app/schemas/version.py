@@ -1,10 +1,5 @@
 from pydantic import BaseModel
 from uuid import UUID
-from typing import Optional
-from datetime import datetime
-
-from pydantic import BaseModel
-from uuid import UUID
 from datetime import datetime
 from typing import Optional
 
@@ -12,7 +7,7 @@ class VersionBase(BaseModel):
     agent_id: UUID
     version: str
     changelog: Optional[str] = None
-    status: str  # enum: 'draft', 'published', 'deprecated'
+    status: str
     project_path: Optional[str] = None
 
 class VersionCreate(VersionBase):
@@ -21,7 +16,7 @@ class VersionCreate(VersionBase):
 class VersionUpdate(BaseModel):
     version: Optional[str] = None
     changelog: Optional[str] = None
-    status: Optional[str] = None  # enum: 'draft', 'published', 'deprecated'
+    status: Optional[str] = None
     project_path: Optional[str] = None
 
 class VersionRead(VersionBase):
@@ -30,12 +25,3 @@ class VersionRead(VersionBase):
 
     class Config:
         from_attributes = True
-
-class VersionReadFull(BaseModel):
-    id: UUID
-    agent_id: UUID
-    version: str
-    changelog: Optional[str] = None
-    status: str
-    project_path: Optional[str] = None
-    created_at: datetime
