@@ -15,6 +15,7 @@ class CommentCreate(BaseModel):
     content_id: UUID
     rating: Optional[int] = None
     comment: str
+    user_id: UUID
 
 class CommentUpdate(BaseModel):
     parent_comment_id: Optional[UUID] = None

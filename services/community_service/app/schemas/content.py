@@ -15,6 +15,7 @@ class ContentCreate(BaseModel):
     title: Optional[str] = None
     content: str
     agent_id: Optional[UUID] = None
+    user_id: UUID
 
 class ContentUpdate(BaseModel):
     content_type_id: Optional[int] = None
