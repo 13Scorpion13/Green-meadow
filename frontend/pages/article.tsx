@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 
@@ -10,39 +12,68 @@ const mockArticle = {
   content: `
     <p>В этой статье я расскажу, как создать собственного AI-агента для автоматизации рутинных задач. Мы рассмотрим основные этапы разработки, выбор технологий и лучшие практики.</p>
     <h2>1. Постановка задачи</h2>
-    <p>Определите, какие задачи должен решать ваш агент.</p>
+    <p>Определите, какие задачи должен решать ваш агент. Чётко сформулируйте цели: например, парсинг данных, генерация отчётов, ответы на частые вопросы пользователей или помощь в код-ревью.</p>
+    <blockquote>
+      Хорошая постановка задачи — 50% успеха. Не пытайтесь «сделать всё сразу» — начните с узкой, но полезной функции.
+    </blockquote>
     <h2>2. Выбор инструментов</h2>
-    <p>Для начала можно использовать Python и популярные библиотеки машинного обучения.</p>
+    <p>Для начала можно использовать Python и популярные библиотеки:</p>
+    <ul>
+      <li><strong>LangChain</strong> — оркестрация LLM и инструментов</li>
+      <li><strong>LLamaIndex</strong> — индексация и поиск в документах</li>
+      <li><strong>FastAPI</strong> — для backend-API</li>
+      <li><strong>React + Next.js</strong> — для интерфейса (если нужен UI)</li>
+    </ul>
+    <h3>Пример инициализации агента:</h3>
+    <pre><code>from langchain.agents import AgentExecutor, create_react_agent
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o")
+agent = create_react_agent(tools, prompt, llm)</code></pre>
     <h2>3. Реализация</h2>
-    <p>Создайте прототип, протестируйте и оптимизируйте его.</p>
+    <p>Создайте прототип, протестируйте и оптимизируйте его:</p>
+    <ol>
+      <li>Напишите минимальное ядро агента.</li>
+      <li>Добавьте обработку ошибок и логирование.</li>
+      <li>Интегрируйте с вашими данными (базы, API, документы).</li>
+      <li>Протестируйте на реальных сценариях.</li>
+    </ol>
     <h2>4. Итоги</h2>
-    <p>AI-агенты помогают экономить время и ресурсы.</p>
+    <p>AI-агенты помогают экономить время и ресурсы. Даже простые агенты могут брать на себя до 30% рутинной работы разработчика.</p>
   `,
 };
 
 const initialComments = [
-  { id: 1, author: 'Мария', text: 'Спасибо за статью! Очень полезно.' },
-  { id: 2, author: 'Алексей', text: 'А какие библиотеки лучше использовать для NLP?' },
+  { id: 1, author: 'Мария', avatar: '/images/icons/ui/UserProfile.svg', text: 'Спасибо за статью! Очень полезно.' },
+  { id: 2, author: 'Алексей', avatar: '/images/icons/ui/UserProfile.svg', text: 'А какие библиотеки лучше использовать для NLP?' },
 ];
 
 const ArticlePage: React.FC = () => {
   const [comments, setComments] = useState(initialComments);
   const [commentText, setCommentText] = useState('');
   const [likes, setLikes] = useState(12);
+  const [liked, setLiked] = useState(false);
 
-  const handleAddComment = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddComment = () => {
     if (commentText.trim()) {
       setComments([
+        { id: Date.now(), author: 'Вы', avatar: '/images/icons/ui/UserProfile.svg', text: commentText },
         ...comments,
-        { id: comments.length + 1, author: 'Вы', text: commentText },
       ]);
       setCommentText('');
     }
   };
 
+  const handleLike = () => {
+    if (!liked) {
+      setLikes(likes + 1);
+      setLiked(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
       <header className="main-header">
         <div className="container header-container">
           <div className="header-left">
@@ -62,48 +93,174 @@ const ArticlePage: React.FC = () => {
               <a href="#">Сообщество</a>
             </nav>
           </div>
+
+          <div className="header-right">
+            <button className="icon-button">
+              <img src="/images/icons/ui/ShoppingCart.svg" alt="Shopping Cart" />
+            </button>
+            <button className="icon-button" id="user-profile-button">
+              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
+            </button>
+            <button className="btn btn--primary login-button">Войти/Зарегистрироваться</button>
+            <button className="menu-button">
+              <img src="/images/icons/ui/Menu.svg" alt="Menu" />
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="main-content container">
-        <div className="article-page" style={{ maxWidth: 800, margin: '0 auto', background: 'var(--background-secondary, #181a20)', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.25)', padding: '2rem', color: 'var(--text-primary, #f3f3f3)' }}>
-          <img src={mockArticle.cover} alt="cover" style={{ width: '100%', borderRadius: 12, marginBottom: '2rem', objectFit: 'cover', maxHeight: 320, background: '#222' }} />
-          <h1 className="article-title" style={{ fontSize: '2.5rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary, #fff)' }}>{mockArticle.title}</h1>
-          <div className="article-author-block" style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
-            <img src={mockArticle.avatar} alt="author" style={{ width: 48, height: 48, borderRadius: '50%', marginRight: 16, background: '#222', border: '1px solid #333' }} />
-            <div>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary, #fff)' }}>{mockArticle.author}</div>
-              <div style={{ color: 'var(--text-tertiary, #aaa)', fontSize: '0.95rem' }}>{mockArticle.date}</div>
-            </div>
-            <button className="btn btn--primary" style={{ marginLeft: 'auto', fontWeight: 600 }} onClick={() => setLikes(likes + 1)}>
-              👍 Лайк ({likes})
-            </button>
-          </div>
-          <div className="article-content" style={{ fontSize: '1.15rem', lineHeight: 1.7, marginBottom: '2.5rem', color: 'var(--text-primary, #eaeaea)' }} dangerouslySetInnerHTML={{ __html: mockArticle.content }} />
-          <section className="comments-section" style={{ marginTop: '3rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary, #fff)' }}>Комментарии</h2>
-            <ul className="comments-list" style={{ listStyle: 'none', padding: 0 }}>
-              {comments.map((c) => (
-                <li key={c.id} className="comment" style={{ background: 'var(--background-tertiary, #23242a)', borderRadius: 8, padding: '1rem', marginBottom: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,0.10)', color: 'var(--text-primary, #f3f3f3)' }}>
-                  <span className="comment-author" style={{ fontWeight: 600, marginRight: 8, color: 'var(--text-secondary, #b3b3b3)' }}>{c.author}:</span> {c.text}
-                </li>
-              ))}
-            </ul>
-            <form className="comment-form" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={handleAddComment}>
-              <textarea
-                className="form-input"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Оставьте комментарий..."
-                rows={3}
-                required
-                style={{ resize: 'vertical', borderRadius: 8, border: '1px solid #333', padding: '0.75rem', fontSize: '1rem', background: '#181a20', color: '#f3f3f3' }}
-              />
-              <button type="submit" className="btn btn--primary" style={{ alignSelf: 'flex-end', minWidth: 120 }}>Отправить</button>
-            </form>
-          </section>
+        {/* Back button */}
+        <div className="back-to-catalog">
+          <Link href="/community" className="btn btn--secondary">
+            Назад в сообщество
+          </Link>
         </div>
+
+        {/* Article container */}
+        <article className="article-page">
+          {/* Article cover */}
+          <div className="article-cover">
+            <img
+              src={mockArticle.cover}
+              alt="Обложка статьи"
+              className="article-cover-img"
+            />
+          </div>
+
+          {/* Article title + meta */}
+          <div className="article-meta">
+            <h1 className="article-title">{mockArticle.title}</h1>
+            <div className="article-author-bar">
+              <div className="author-info">
+                <img src={mockArticle.avatar} alt="Автор" className="author-avatar" />
+                <div>
+                  <span className="author-name">{mockArticle.author}</span>
+                  <span className="article-date">{mockArticle.date}</span>
+                </div>
+              </div>
+              <div className="article-actions">
+                <button
+                  className={`btn btn--outline ${liked ? 'btn--liked' : ''}`}
+                  onClick={handleLike}
+                >
+                  👍 {likes}
+                </button>
+                <button className="btn btn--outline">
+                  <img
+                    src="/images/icons/ui/Share.svg"
+                    alt="Поделиться"
+                    className="icon-sm"
+                  />
+                  Поделиться
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Article body */}
+          <div
+            className="article-content rich-text"
+            dangerouslySetInnerHTML={{ __html: mockArticle.content }}
+          />
+
+          {/* Tags */}
+          <div className="article-tags">
+            <span>Теги:</span>
+            <div className="tag">AI-агенты</div>
+            <div className="tag">Разработка</div>
+            <div className="tag">Автоматизация</div>
+          </div>
+
+          {/* Comments */}
+          <div className="comments-section-outer">
+            <h2>Комментарии ({comments.length})</h2>
+            <div className="comments-section">
+              <h3>Оставить комментарий</h3>
+              <div className="comment-form">
+                <textarea
+                  placeholder="Поделитесь своим мнением..."
+                  rows={4}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                />
+                <button
+                  className="btn btn--primary"
+                  onClick={handleAddComment}
+                  type="button"
+                >
+                  Отправить
+                </button>
+              </div>
+
+              <h3>Обсуждение</h3>
+              <div className="comments-list">
+                {comments.map((c) => (
+                  <div key={c.id} className="comment-item">
+                    <div className="comment-header">
+                      <div className="comment-author-info">
+                        <img src={c.avatar} alt="User Avatar" className="comment-avatar" />
+                        <span className="comment-author">{c.author}</span>
+                      </div>
+                      <div className="comment-date">недавно</div>
+                    </div>
+                    <div className="comment-text">{c.text}</div>
+                    <button className="reply-button">Ответить</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </article>
       </main>
+
+      {/* Footer */}
+      <footer className="main-footer">
+        <div className="container footer-container">
+          <div className="footer-grid">
+            <div className="footer-about">
+              <div className="logo">
+                <div className="logo-icon">
+                  <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
+                </div>
+                <span className="logo-title">AI Market</span>
+              </div>
+              <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
+            </div>
+
+            <div className="footer-links">
+              <h3 className="footer-heading">Для клиентов</h3>
+              <ul>
+                <li><a href="#">Как арендовать</a></li>
+                <li><a href="#">Гарантии</a></li>
+                <li><a href="#">Поддержка</a></li>
+              </ul>
+            </div>
+
+            <div className="footer-links">
+              <h3 className="footer-heading">Для разработчиков</h3>
+              <ul>
+                <li><a href="#">Разместить агента</a></li>
+                <li><a href="#">API документация</a></li>
+                <li><a href="#">Комиссии</a></li>
+              </ul>
+            </div>
+
+            <div className="footer-links">
+              <h3 className="footer-heading">Компания</h3>
+              <ul>
+                <li><a href="#">О нас</a></li>
+                <li><a href="#">Блог</a></li>
+                <li><a href="#">Контакты</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="footer-copyright">
+            © 2025 AI Market. Все права защищены.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
