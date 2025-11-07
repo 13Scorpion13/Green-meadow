@@ -34,8 +34,8 @@ export default function ProfilePage() {
                 <img src="/images/logos/Bot.svg" alt="AI Market Logo" className="icon-white" />
               </div>
               <div>
-                <h1 className="logo-title">AI Market</h1>
-                <p className="logo-subtitle">Маркетплейс агентов</p>
+                <h1 className="logo-title">AI Community</h1>
+                <p className="logo-subtitle">Сообщество разработчиков</p>
               </div>
             </div>
             <nav className="main-nav">
@@ -76,10 +76,10 @@ export default function ProfilePage() {
                     <span className="stat-value">{new Date().toLocaleDateString()}</span>
                     <span className="stat-label">Зарегистрирован</span>
                   </div>
-                  <div className="stat">
+                  {/* <div className="stat">
                     <span className="stat-value">2</span>
                     <span className="stat-label">проекта</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -5,7 +5,7 @@ from datetime import datetime
 
 class CommentBase(BaseModel):
     agent_id: UUID
-    user_id: UUID
+    # user_id: UUID
     rating: int
     content: str
 
@@ -20,6 +20,7 @@ class CommentUpdate(BaseModel):
 
 class CommentRead(CommentBase):
     id: UUID
+    user_id: UUID
     created_at: datetime
 
 class CommentReadFull(BaseModel):

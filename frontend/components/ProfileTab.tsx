@@ -4,7 +4,7 @@ import { useState, FormEvent, ChangeEvent } from 'react';
 interface Developer {
   first_name: string;
   last_name: string;
-  middle_name?: string;
+  // middle_name?: string;
   github_profile?: string;
 }
 
@@ -13,7 +13,7 @@ interface User {
   email: string;
   nickname: string;
   role: string;
-  phone?: string;
+  // phone?: string;
   developer?: Developer;
 }
 
@@ -25,8 +25,8 @@ interface FormData {
   username: string;
   lastName: string;
   firstName: string;
-  middleName: string;
-  phone: string;
+  // middleName: string;
+  // phone: string;
   email: string;
   github: string;
 }
@@ -36,8 +36,8 @@ export default function ProfileTab({ user }: ProfileTabProps) {
     username: user.nickname || '',
     lastName: user.developer?.last_name || '',
     firstName: user.developer?.first_name || '',
-    middleName: user.developer?.middle_name || '',
-    phone: user.phone || '',
+    // middleName: user.developer?.middle_name || '',
+    // phone: user.phone || '',
     email: user.email || '',
     github: user.developer?.github_profile || ''
   });
@@ -77,6 +77,18 @@ export default function ProfileTab({ user }: ProfileTabProps) {
           </div>
 
           <div className="form-group">
+            <label htmlFor="email" className="form-label">Почта</label>
+            <input 
+              type="email" 
+              id="email" 
+              className="form-input" 
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Введите вашу почту"
+            />
+          </div>
+
+          <div className="form-group">
             <label htmlFor="lastName" className="form-label">Фамилия</label>
             <input 
               type="text" 
@@ -100,7 +112,7 @@ export default function ProfileTab({ user }: ProfileTabProps) {
             />
           </div>
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="middleName" className="form-label">Отчество</label>
             <input 
               type="text" 
@@ -110,9 +122,9 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               onChange={handleChange}
               placeholder="Введите ваше отчество"
             />
-          </div>
+          </div> */}
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="phone" className="form-label">Номер телефона</label>
             <input 
               type="tel" 
@@ -122,19 +134,7 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               onChange={handleChange}
               placeholder="Введите ваш номер телефона"
             />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">Почта</label>
-            <input 
-              type="email" 
-              id="email" 
-              className="form-input" 
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Введите вашу почту"
-            />
-          </div>
+          </div> */}
 
           <div className="form-group full-width">
             <label htmlFor="github" className="form-label">Ссылка на GitHub</label>

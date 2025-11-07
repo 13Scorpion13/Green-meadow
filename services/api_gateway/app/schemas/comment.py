@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 class CommentBase(BaseModel):
+    agent_id: UUID
     rating: int
     content: str
 
@@ -19,6 +20,8 @@ class CommentRead(CommentBase):
     agent_id: UUID
     user_id: UUID
     created_at: datetime
+    
+    author_nickname: Optional[str] = None
 
     class Config:
         from_attributes = True

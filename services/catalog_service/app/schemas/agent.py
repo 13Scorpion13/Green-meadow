@@ -49,9 +49,13 @@ class AgentRead(AgentBase):
     updated_at: datetime
 
 class AgentReadFull(AgentRead):
-    category: Optional['CategoryRead'] = None
-    comments: Optional[List['CommentRead']] = None
-    versions: Optional[List['VersionRead']] = None
+    id: UUID
+    user_id: UUID
+    created_at: datetime
+    updated_at: datetime
+    # category: Optional['CategoryRead'] = None
+    # comments: Optional[List['CommentRead']] = None
+    # versions: Optional[List['VersionRead']] = None
 
 from .category import CategoryRead
 from .comment import CommentRead

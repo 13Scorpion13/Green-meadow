@@ -27,7 +27,7 @@ async def add_comment_to_agent(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/{agent_id}/comments", response_model=list[CommentRead])
+@router.get("/{agent_id}/get_comments", response_model=list[CommentRead])
 async def get_comments_for_agent(
     agent_id: str,
     current_user: dict = Depends(get_current_user),

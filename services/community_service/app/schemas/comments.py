@@ -22,6 +22,7 @@ class CommentUpdate(BaseModel):
 
 class CommentRead(CommentBase):
     id: UUID
+    user_id: UUID
     created_at: datetime
     updated_at: datetime
 

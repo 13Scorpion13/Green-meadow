@@ -35,6 +35,7 @@ async def get_comments_by_agent_id_from_catalog_service(agent_id: str, token: st
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
 
+
 async def update_comment_in_catalog_service(comment_id: str, comment_update: dict, token: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:

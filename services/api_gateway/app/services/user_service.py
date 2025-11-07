@@ -66,6 +66,22 @@ async def get_developer_profile_from_user_service(token: str) -> dict:
     except Exception as e:
         raise Exception(f"User Service connection error: {str(e)}")
     
+async def get_users_nicknames_by_ids_from_user_service(user_ids: list[str], token: str) -> dict[str, str]:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{settings.USER_SERVICE_URL}/users/nicknames",
+                json={"user_ids": user_ids},
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            data: dict[str, str] = response.json()
+            return data
+    except httpx.HTTPStatusError as e:
+        raise Exception(f"User Service error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"User Service connection error: {str(e)}")
+    
 async def update_user_profile_in_user_service(user_update: dict, token: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:

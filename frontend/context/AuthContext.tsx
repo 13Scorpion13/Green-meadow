@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (data: LoginRequest) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/auth/login`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isDeveloper: boolean,
     devData?: DeveloperRegisterRequest
   ) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/users`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/users/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
@@ -106,7 +106,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (!loginResult.success) return loginResult;
       }
 
-      const devResponse = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/developers`, {
+      const devResponse = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/developers/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('access_token')}` },
         body: JSON.stringify(devData)

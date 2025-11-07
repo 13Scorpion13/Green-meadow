@@ -74,6 +74,18 @@ async def get_agents(
     agents = result.scalars().all()
     return agents
 
+@router.get("/my", response_model=list[AgentRead])
+async def get_my_agents(
+    current_user: dict = Depends(get_current_user),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, le=1000),
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(Agent).where(Agent.user_id == current_user["user_id"]).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    agents = result.scalars().all()
+    return agents
+
 @router.get("/{agent_id}", response_model=AgentReadFull)
 async def read_agent(agent_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Agent).where(Agent.id == agent_id))

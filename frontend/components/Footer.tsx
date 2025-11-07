@@ -10,14 +10,14 @@ export default function Footer() {
               <div className="logo-icon">
                 <div className="icon-white">🤖</div>
               </div>
-              <span className="logo-title">AI Market</span>
+              <span className="logo-title">AI Community</span>
             </div>
-            <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
+            <p className="footer-about-text">Лучшая площадка для поиска ИИ-агентов</p>
           </div>
           <div className="footer-links">
             <h3 className="footer-heading">Для клиентов</h3>
             <ul>
-              <li><a href="#">Как арендовать</a></li>
+              {/* <li><a href="#">Как арендовать</a></li> */}
               <li><a href="#">Гарантии</a></li>
               <li><a href="#">Поддержка</a></li>
             </ul>
@@ -40,7 +40,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="footer-copyright">
-          © 2025 AI Market. Все права защищены.
+          © 2025 AI Community. Все права защищены.
         </div>
       </div>
     </footer>

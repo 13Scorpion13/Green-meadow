@@ -19,6 +19,30 @@ async def create_agent_in_catalog(agent_data: dict, token: str) -> Dict[Any, Any
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
     
+async def get_user_agents_from_catalog_service(
+    user_id: str,
+    token: str,
+    skip: int = 0,
+    limit: int = 100
+) -> List[dict]:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{settings.CATALOG_SERVICE_URL}/agents/my",
+                params={
+                    "user_id": user_id,
+                    "skip": skip,
+                    "limit": limit
+                },
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"Catalog Service connection error: {str(e)}")
+    
 async def get_agents_from_catalog_service(
     skip: int = 0,
     limit: int = 100,
@@ -153,12 +177,28 @@ async def delete_agent_in_catalog_service(agent_id: str, token: str) -> dict:
         raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
-
-async def get_agent_by_id(agent_id: str) -> dict:
+    
+async def get_agent_by_id_from_catalog_service(agent_id: str, token: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}")
+            response = await client.get(
+                f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}",
+                headers={"Authorization": f"Bearer {token}"}
+            )
             response.raise_for_status()
             return response.json()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            raise Exception("Agent not found")
+        raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
     except Exception as e:
-        raise Exception(f"Catalog Service error: {str(e)}")
+        raise Exception(f"Catalog Service connection error: {str(e)}")
+
+# async def get_agent_by_id(agent_id: str) -> dict:
+#     try:
+#         async with httpx.AsyncClient() as client:
+#             response = await client.get(f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}")
+#             response.raise_for_status()
+#             return response.json()
+#     except Exception as e:
+#         raise Exception(f"Catalog Service error: {str(e)}")

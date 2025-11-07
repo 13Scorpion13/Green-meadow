@@ -1,9 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '../context/AuthContext';
 
 const AddAgentPage: React.FC = () => {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const [name, setName] = useState('');
+  const [author, setAuthor] = useState('');
+  const [shortDesc, setShortDesc] = useState('');
+  const [longDesc, setLongDesc] = useState('');
+  const [tags, setTags] = useState('');
+  const [installGuide, setInstallGuide] = useState('');
+  const [repoUrl, setRepoUrl] = useState('');
+  const [demoUrl, setDemoUrl] = useState('');
+  const [archiveFile, setArchiveFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const fileInputArchiveRef = useRef<HTMLInputElement>(null);
   const fileInputVideoRef = useRef<HTMLInputElement>(null);
 
@@ -88,10 +107,103 @@ const AddAgentPage: React.FC = () => {
     'Другое',
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Форма отправлена');
+
+    if (!user) {
+      setError("Требуется авторизация");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // 1. Сначала загружаем архив и видео на сервер (если нужно)
+      let archiveUrl = null;
+      let videoUrl = null;
+
+      if (archiveFile) {
+        const archiveFormData = new FormData();
+        archiveFormData.append('file', archiveFile);
+
+        const archiveRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/upload/archive`, {
+          method: 'POST',
+          body: archiveFormData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`
+          }
+        });
+
+        if (!archiveRes.ok) throw new Error("Ошибка загрузки архива");
+        const archiveData = await archiveRes.json();
+        archiveUrl = archiveData.url;
+      }
+
+      if (videoFile) {
+        const videoFormData = new FormData();
+        videoFormData.append('file', videoFile);
+
+        const videoRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/upload/video`, {
+          method: 'POST',
+          body: videoFormData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`
+          }
+        });
+
+        if (!videoRes.ok) throw new Error("Ошибка загрузки видео");
+        const videoData = await videoRes.json();
+        videoUrl = videoData.url;
+      }
+
+      // 2. Отправляем данные агента в API Gateway
+      const agentData = {
+        name,
+        slug: name.toLowerCase().replace(/\s+/g, '-'),  // ← генерируем slug
+        agent_url: demoUrl || null,
+        description: shortDesc,
+        requirements: installGuide,
+        tags: tags.split(',').map(tag => tag.trim()),
+        category_id: null,  // ← можно улучшить
+        article_id: null,  // ← если агент не связан со статьёй
+        price: null,  // ← или число, если цена указана
+        user_id: user.id  // ← добавляем user_id (хотя API Gateway должен сам извлечь из токена)
+      };
+
+      const token = localStorage.getItem('access_token');
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(agentData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Ошибка при создании агента");
+      }
+
+      const createdAgent = await response.json();
+      alert("Агент успешно добавлен!");
+      router.push('/profile'); // ← перенаправить обратно в профиль
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Неизвестная ошибка");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   console.log('Форма отправлена');
+  // };
+
+  
 
   return (
     <div id="root">
@@ -104,8 +216,8 @@ const AddAgentPage: React.FC = () => {
                   <img src="images/logos/Bot.svg" alt="AI Market Logo" />
                 </div>
                 <div>
-                  <h1 className="logo-title">AI Market</h1>
-                  <p className="logo-subtitle">Маркетплейс агентов</p>
+                  <h1 className="logo-title">AI Community</h1>
+                  <p className="logo-subtitle">Сообщество разработчиков</p>
                 </div>
               </div>
               <nav className="main-nav">
@@ -116,14 +228,8 @@ const AddAgentPage: React.FC = () => {
               </nav>
             </div>
             <div className="header-right">
-              <button className="icon-button">
-                <img src="images/icons/ui/ShoppingCart.svg" alt="Shopping Cart" />
-              </button>
               <button className="icon-button" id="user-profile-button">
                 <img src="images/icons/ui/UserProfile.svg" alt="User Profile" />
-              </button>
-              <button className="btn btn--primary login-button">
-                Войти/Зарегистрироваться
               </button>
               <button className="menu-button">
                 <img src="images/icons/ui/Menu.svg" alt="Menu" />
@@ -142,7 +248,7 @@ const AddAgentPage: React.FC = () => {
           <div className="agent-details-page">
             <div className="agent-details-main">
               <h1 className="agent-name">Добавить нового агента</h1>
-              <form className="agent-form" autoComplete="off" onSubmit={handleSubmit}>
+              <form className="agent-form" onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label className="form-label" htmlFor="agentName">
                     Название агента
@@ -151,13 +257,14 @@ const AddAgentPage: React.FC = () => {
                     className="form-input"
                     type="text"
                     id="agentName"
-                    name="agentName"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Введите название"
                     required
                   />
                 </div>
 
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label className="form-label" htmlFor="agentAuthor">
                     Автор
                   </label>
@@ -165,11 +272,12 @@ const AddAgentPage: React.FC = () => {
                     className="form-input"
                     type="text"
                     id="agentAuthor"
-                    name="agentAuthor"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
                     placeholder="Имя или команда"
                     required
                   />
-                </div>
+                </div> */}
 
                 <div className="form-group">
                   <label className="form-label" htmlFor="agentDescription">
@@ -178,7 +286,8 @@ const AddAgentPage: React.FC = () => {
                   <textarea
                     className="form-input"
                     id="agentDescription"
-                    name="agentDescription"
+                    value={shortDesc}
+                    onChange={(e) => setShortDesc(e.target.value)}
                     rows={3}
                     placeholder="Опишите агента"
                     required
@@ -192,53 +301,11 @@ const AddAgentPage: React.FC = () => {
                   <textarea
                     className="form-input"
                     id="agentLongDescription"
-                    name="agentLongDescription"
+                    value={longDesc}
+                    onChange={(e) => setLongDesc(e.target.value)}
                     rows={6}
                     placeholder="Детальное описание возможностей, технологий и преимуществ"
-                    required
                   />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label" htmlFor="agentCategories">
-                    Категории
-                  </label>
-                  <div className="dropdown-multiselect" id="dropdownCategories" ref={dropdownRef}>
-                    <button
-                      type="button"
-                      className="dropdown-btn form-input"
-                      id="dropdownBtn"
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    >
-                      <span id="dropdownSelected">
-                        {selectedCategories.length > 0 ? selectedCategories.join(', ') : 'Выберите категории'}
-                      </span>
-                      <span className="dropdown-arrow">▼</span>
-                    </button>
-                    <div className="dropdown-list" id="dropdownList" style={{ display: isDropdownOpen ? 'block' : 'none' }}>
-                      {categories.map(category => (
-                        <label key={category} className="dropdown-option">
-                          <input
-                            type="checkbox"
-                            value={category}
-                            checked={selectedCategories.includes(category)}
-                            onChange={() => toggleCategory(category)}
-                          />
-                          {category}
-                        </label>
-                      ))}
-                    </div>
-                    <input
-                      type="hidden"
-                      name="agentCategories"
-                      id="agentCategoriesHidden"
-                      value={selectedCategories.join(', ')}
-                      required
-                    />
-                  </div>
-                  <small style={{ color: 'var(--text-tertiary)', display: 'block', marginTop: '0.5rem' }}>
-                    Выберите до 3 категорий
-                  </small>
                 </div>
 
                 <div className="form-group">
@@ -249,9 +316,9 @@ const AddAgentPage: React.FC = () => {
                     className="form-input"
                     type="text"
                     id="agentTags"
-                    name="agentTags"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
                     placeholder="Например: React, Python, Node.js"
-                    required
                   />
                 </div>
 
@@ -262,10 +329,10 @@ const AddAgentPage: React.FC = () => {
                   <textarea
                     className="form-input"
                     id="agentInstallGuide"
-                    name="agentInstallGuide"
+                    value={installGuide}
+                    onChange={(e) => setInstallGuide(e.target.value)}
                     rows={5}
                     placeholder="Инструкции для пользователей"
-                    required
                   />
                 </div>
 
@@ -277,8 +344,9 @@ const AddAgentPage: React.FC = () => {
                     className="form-input"
                     type="url"
                     id="agentRepo"
-                    name="agentRepo"
-                    placeholder="https://github.com/your-agent  "
+                    value={repoUrl}
+                    onChange={(e) => setRepoUrl(e.target.value)}
+                    placeholder="https://github.com/your-agent"
                   />
                 </div>
 
@@ -290,7 +358,8 @@ const AddAgentPage: React.FC = () => {
                     className="form-input"
                     type="url"
                     id="agentDemo"
-                    name="agentDemo"
+                    value={demoUrl}
+                    onChange={(e) => setDemoUrl(e.target.value)}
                     placeholder="Ссылка на демо или видео"
                   />
                 </div>
@@ -303,15 +372,11 @@ const AddAgentPage: React.FC = () => {
                     className="form-input"
                     type="file"
                     id="agentArchive"
-                    name="agentArchive"
                     accept=".zip"
-                    required
-                    onChange={handleArchiveChange}
+                    onChange={(e) => setArchiveFile(e.target.files?.[0] || null)}
                     ref={fileInputArchiveRef}
                   />
-                  <small style={{ color: 'var(--text-tertiary)', display: 'block', marginTop: '0.5rem' }}>
-                    Загрузите архив с файлами агента (только .zip)
-                  </small>
+                  <small>Загрузите архив с файлами агента (только .zip)</small>
                 </div>
 
                 <div className="form-group">
@@ -322,22 +387,20 @@ const AddAgentPage: React.FC = () => {
                     className="form-input"
                     type="file"
                     id="agentVideo"
-                    name="agentVideo"
                     accept="video/mp4"
-                    required
-                    onChange={handleVideoChange}
+                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
                     ref={fileInputVideoRef}
                   />
-                  <small style={{ color: 'var(--text-tertiary)', display: 'block', marginTop: '0.5rem' }}>
-                    Загрузите видео демо агента (только .mp4)
-                  </small>
+                  <small>Загрузите видео демо агента (только .mp4)</small>
                 </div>
 
                 <div className="form-group">
-                  <button className="btn btn--primary btn--large" type="submit">
-                    Добавить агента
+                  <button className="btn btn--primary btn--large" type="submit" disabled={loading}>
+                    {loading ? "Отправка..." : "Добавить агента"}
                   </button>
                 </div>
+
+                {error && <div className="error-message">{error}</div>}
               </form>
             </div>
 
@@ -363,14 +426,13 @@ const AddAgentPage: React.FC = () => {
                   <div className="logo-icon">
                     <img src="images/logos/Bot.svg" alt="AI Market Logo" />
                   </div>
-                  <span className="logo-title">AI Market</span>
+                  <span className="logo-title">AI Community</span>
                 </div>
-                <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
+                <p className="footer-about-text">Лучшая площадка для поиска ИИ-агентов</p>
               </div>
               <div className="footer-links">
                 <h3 className="footer-heading">Для клиентов</h3>
                 <ul>
-                  <li><a href="#">Как арендовать</a></li>
                   <li><a href="#">Гарантии</a></li>
                   <li><a href="#">Поддержка</a></li>
                 </ul>
@@ -392,7 +454,7 @@ const AddAgentPage: React.FC = () => {
                 </ul>
               </div>
             </div>
-            <div className="footer-copyright">© 2025 AI Market. Все права защищены.</div>
+            <div className="footer-copyright">© 2025 AI Community. Все права защищены.</div>
           </div>
         </footer>
       </div>

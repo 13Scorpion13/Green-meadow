@@ -6,10 +6,14 @@ from app.services.catalog_service import (
     get_agents_by_user_id_from_catalog_service,
     update_agent_in_catalog_service,
     delete_agent_in_catalog_service,
-    get_agents_with_developers_from_catalog_service
+    get_agents_with_developers_from_catalog_service,
+    get_user_agents_from_catalog_service,
+    get_agent_by_id_from_catalog_service
 )
+from app.services.community_service import get_discussions_by_agent_id_from_community_service
 from app.services.user_service import verify_user_exists
 from app.schemas.agent import AgentCreate, AgentRead, AgentUpdate, AgentReadFull
+from app.schemas.content import ContentRead
 
 router = APIRouter()
 
@@ -50,6 +54,24 @@ async def get_agents_list(
         return agents
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/my", response_model=List[AgentRead])
+async def get_my_agents(
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, le=1000)
+):
+    try:
+        agents = await get_user_agents_from_catalog_service(
+            user_id=str(current_user["user_id"]),
+            token=token,
+            skip=skip,
+            limit=limit
+        )
+        return agents
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/users/{user_id}/agents", response_model=list[AgentRead])
 async def get_user_agents(
@@ -59,6 +81,30 @@ async def get_user_agents(
     try:
         agents = await get_agents_by_user_id_from_catalog_service(user_id)
         return agents
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/{agent_id}", response_model=AgentReadFull)
+async def get_agent_details(
+    agent_id: str,
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        agent = await get_agent_by_id_from_catalog_service(agent_id, token)
+        return agent
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/{agent_id}/discussions", response_model=list[ContentRead])
+async def get_agent_discussions(
+    agent_id: str,
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        discussions = await get_discussions_by_agent_id_from_community_service(agent_id, token)
+        return discussions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -86,24 +132,3 @@ async def delete_my_agent(
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# @router.get("/{agent_id}")
-# async def get_agent(agent_id: str, current_user: dict = Depends(get_current_user)):
-#     try:
-#         agent_data = await get_agent_by_id(agent_id)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-#     user_id = agent_data.get("user_id")
-#     if user_id:
-#         try:
-#             user_info = await get_user_profile(user_id)
-#             agent_data["developer"] = {
-#                 "first_name": user_info.get("first_name"),
-#                 "last_name": user_info.get("last_name"),
-#                 "github_profile": user_info.get("github_profile")
-#             }
-#         except Exception:
-#             agent_data["developer"] = None
-
-#     return agent_data

@@ -56,6 +56,24 @@ async def get_contents_from_community_service(skip: int, limit: int, content_typ
         raise Exception(f"Community Service error: {e.response.status_code} - {e.response.text}")
     except Exception as e:
         raise Exception(f"Community Service connection error: {str(e)}")
+    
+async def get_discussions_by_agent_id_from_community_service(agent_id: str, token: str) -> list[dict]:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{settings.COMMUNITY_SERVICE_URL}/contents/",
+                params={
+                    "agent_id": agent_id,
+                    "content_type_name": "discussion"
+                },
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        raise Exception(f"Community Service error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"Community Service connection error: {str(e)}")
 
 async def update_content_in_community_service(content_id: str, content_update: dict, token: str) -> dict:
     try:
