@@ -2,36 +2,93 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+// Типы данных согласно твоему API (см. ProjectsTab)
+interface Agent {
+  id: string; // UUID
+  name: string;
+  slug?: string; // если есть — используем, иначе id
+  description: string;
+  category?: string | null;
+  price?: number | null;
+  avg_raiting?: number | null; // ← опечатка в API, да — "raiting"
+  reviews_count?: number | null;
+  created_at: string;
+  updated_at: string;
+  is_recommended?: boolean;
+  tags?: string[]; // ← если бэк не даёт — эмулируем
+}
 
 const HomePage: React.FC = () => {
-  const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
+  const router = useRouter();
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Эмуляция клика по агенту (например, CodeMaster Pro)
-  const handleAgentClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDisclaimerOpen(true);
-  };
-
-  const handleContinue = () => {
-    setIsDisclaimerOpen(false);
-    // Здесь можно редиректнуть: router.push('/agent-details')
-    alert('Переход на страницу агента (временно)');
-  };
-
-  const handleCancel = () => {
-    setIsDisclaimerOpen(false);
-  };
-
-  // Опционально: имитация анимации при монтировании (например, fade-in)
-  const [isMounted, setIsMounted] = useState(false);
+  // Загрузка агентов
   useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
+    const fetchAgents = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+          // cache: 'no-store', // для SSR/ISR — можно добавить при необходимости
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data: Agent[] = await response.json();
+        setAgents(data);
+      } catch (err: any) {
+        console.error('Ошибка загрузки агентов:', err);
+        setError(err.message || 'Не удалось загрузить агентов');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgents();
   }, []);
+
+  // Генерация аватара: первые 1-2 буквы имени, заглавные
+  const getAvatarInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase() || 'AI';
+  };
+
+  // Генерация тегов (если API не возвращает `tags`)
+  // Можно заменить на `agent.tags` позже
+  const extractTags = (description: string, category?: string | null): string[] => {
+    const tags: string[] = [];
+    if (category && category !== 'null') tags.push(category);
+    // Простая эвристика: ключевые слова из описания
+    const keywords = ['React', 'Python', 'Node.js', 'OCR', 'Фитнес', 'Здоровье', 'Документы', 'Автоматизация'];
+    keywords.forEach(kw => {
+      if (description.toLowerCase().includes(kw.toLowerCase())) {
+        tags.push(kw);
+      }
+    });
+    return [...new Set(tags)].slice(0, 4); // уникальные, до 4 штук
+  };
+
+  const handleAgentClick = (agent: Agent) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    const slug = agent.slug || agent.id;
+    router.push(`/agent/${slug}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Header — без изменений */}
       <header className="main-header">
         <div className="container header-container">
           <div className="header-left">
@@ -45,10 +102,10 @@ const HomePage: React.FC = () => {
               </div>
             </div>
             <nav className="main-nav">
-              <Link href="/">Каталог</Link>
+              <Link href="/HomePage">Каталог</Link>
               <a href="#">Как работает</a>
-              <a href="#">Для разработчиков</a>
-              <a href="#">Сообщество</a>
+              <a href="/articles">Статьи</a>
+              <a href="/DiscussionsListPage">Сообщество</a>
             </nav>
           </div>
           <div className="header-right">
@@ -66,7 +123,7 @@ const HomePage: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section — без изменений */}
       <section className="hero-section">
         <div className="hero-background">
           <div className="hero-gradient"></div>
@@ -151,7 +208,7 @@ const HomePage: React.FC = () => {
 
             <div className="stats-container">
               <div className="stat-card">
-                <div className="stat-value-primary">1000+</div>
+                <div className="stat-value-primary">{loading ? '---' : `${agents.length}+`}</div>
                 <div className="stat-label">ИИ-агентов</div>
               </div>
               <div className="stat-card">
@@ -169,7 +226,7 @@ const HomePage: React.FC = () => {
 
       {/* Main Content */}
       <main className="main-content">
-        {/* Categories */}
+        {/* Categories (можно оставить статику, или загрузить /categories позже) */}
         <section className="categories-section">
           <div className="container">
             <h2 className="section-title">
@@ -184,12 +241,12 @@ const HomePage: React.FC = () => {
                 <img src="/images/icons/categories/Programming.svg" alt="Programming" />
                 <span>Программирование</span>
               </button>
-              {/* Можно добавить остальные категории по шаблону */}
+              {/* Добавь остальные категории по мере необходимости */}
             </div>
           </div>
         </section>
 
-        {/* Top Agents */}
+        {/* Top Agents — динамически из API */}
         <section className="top-ai-agents-section">
           <div className="container">
             <div className="section-header">
@@ -201,148 +258,99 @@ const HomePage: React.FC = () => {
               </p>
             </div>
 
-            <div className="agents-grid">
-              {/* CodeMaster Pro */}
-              <a
-                href="#"
-                className="ai-card gradient-border animate-fadeIn"
-                onClick={handleAgentClick}
-              >
-                <div className="recomended-badge">
-                  <img src="/images/icons/ui/Zap.svg" alt="Zap Icon" />
-                  Рекомендуем
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary mx-auto"></div>
+                  <p className="mt-3 text-gray-500">Загрузка агентов...</p>
                 </div>
-                <div className="agent-header">
-                  <div className="agent-avatar">C</div>
-                  <div className="agent-info">
-                    <h3 className="agent-name">CodeMaster Pro</h3>
-                    <p className="agent-category">Программирование</p>
-                  </div>
-                </div>
-                <p className="agent-description">
-                  Профессиональный ИИ-разработчик, специализирующийся на React, Node.js и Python. Создает
-                  качественный код с тестами и документацией.
-                </p>
-                <div className="agent-tags">
-                  <div className="tag">React</div>
-                  <div className="tag">Python</div>
-                  <div className="tag">Node.js</div>
-                </div>
-                <div className="agent-stats">
-                  <div className="stat">
-                    <img src="/images/icons/ui/Star.svg" alt="Star Icon" />
-                    <span>4.9</span>
-                    <span>(234)</span>
-                  </div>
-                  <div className="stat">
-                    <img src="/images/icons/ui/Clock.svg" alt="Clock Icon" />
-                    <span>5 мин</span>
-                  </div>
-                  <div className="stat">
-                    <img src="/images/icons/ui/Users.svg" alt="Users Icon" />
-                    <span>1250</span>
-                  </div>
-                </div>
-                <div className="agent-footer">
-                  <div className="agent-price">
-                    <p className="price"> </p>
-                    <p className="price-period"> </p>
-                  </div>
-                  <button className="rent-button">Подробнее</button>
-                </div>
-              </a>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12 text-red-500">
+                <p>❌ {error}</p>
+                <button
+                  className="btn btn--primary mt-4"
+                  onClick={() => window.location.reload()}
+                >
+                  Повторить
+                </button>
+              </div>
+            ) : agents.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <p>Пока нет доступных агентов.</p>
+              </div>
+            ) : (
+              <div className="agents-grid">
+                {agents.map((agent) => {
+                  const avatar = getAvatarInitials(agent.name);
+                  const tags = extractTags(agent.description, agent.category);
+                  const rating = agent.avg_raiting ?? 0;
+                  const reviews = agent.reviews_count ?? 0;
 
-              {/* AI Archivist */}
-              <a href="/ai-archivist-details.html" className="ai-card gradient-border animate-fadeIn">
-                <div className="agent-header">
-                  <div className="agent-avatar">A</div>
-                  <div className="agent-info">
-                    <h3 className="agent-name">AI Archivist</h3>
-                    <p className="agent-category">Документооборот</p>
-                  </div>
-                </div>
-                <p className="agent-description">
-                  Интеллектуальный агент для автоматизации работы с документами: классификация, извлечение
-                  данных, поиск и архивирование.
-                </p>
-                <div className="agent-tags">
-                  <div className="tag">Документы</div>
-                  <div className="tag">OCR</div>
-                  <div className="tag">Поиск</div>
-                  <div className="tag">Автоматизация</div>
-                </div>
-                <div className="agent-stats">
-                  <div className="stat">
-                    <img src="/images/icons/ui/Star.svg" alt="Star Icon" />
-                    <span>4.7</span>
-                    <span>(180)</span>
-                  </div>
-                  <div className="stat">
-                    <img src="/images/icons/ui/Clock.svg" alt="Clock Icon" />
-                    <span>10 мин</span>
-                  </div>
-                  <div className="stat">
-                    <img src="/images/icons/ui/Users.svg" alt="Users Icon" />
-                    <span>800</span>
-                  </div>
-                </div>
-                <div className="agent-footer">
-                  <div className="agent-price">
-                    <p className="price"> </p>
-                    <p className="price-period"> </p>
-                  </div>
-                  <button className="rent-button">Подробнее</button>
-                </div>
-              </a>
-
-              {/* Fitness AI */}
-              <a href="/fitness-ai-details.html" className="ai-card gradient-border animate-fadeIn">
-                <div className="agent-header">
-                  <div className="agent-avatar">F</div>
-                  <div className="agent-info">
-                    <h3 className="agent-name">Fitness AI</h3>
-                    <p className="agent-category">Здоровье и Фитнес</p>
-                  </div>
-                </div>
-                <p className="agent-description">
-                  Персональный ИИ-тренер, который разрабатывает индивидуальные программы тренировок и питания,
-                  отслеживает прогресс и дает рекомендации.
-                </p>
-                <div className="agent-tags">
-                  <div className="tag">Фитнес</div>
-                  <div className="tag">Здоровье</div>
-                  <div className="tag">Тренировки</div>
-                  <div className="tag">Питание</div>
-                </div>
-                <div className="agent-stats">
-                  <div className="stat">
-                    <img src="/images/icons/ui/Star.svg" alt="Star Icon" />
-                    <span>4.8</span>
-                    <span>(310)</span>
-                  </div>
-                  <div className="stat">
-                    <img src="/images/icons/ui/Clock.svg" alt="Clock Icon" />
-                    <span>3 мин</span>
-                  </div>
-                  <div className="stat">
-                    <img src="/images/icons/ui/Users.svg" alt="Users Icon" />
-                    <span>1500</span>
-                  </div>
-                </div>
-                <div className="agent-footer">
-                  <div className="agent-price">
-                    <p className="price"> </p>
-                    <p className="price-period"> </p>
-                  </div>
-                  <button className="rent-button">Подробнее</button>
-                </div>
-              </a>
-            </div>
+                  return (
+                    <a
+                      key={agent.id}
+                      href={`/agent/${agent.slug || agent.id}`}
+                      className="ai-card gradient-border animate-fadeIn"
+                      onClick={handleAgentClick(agent)}
+                    >
+                      {agent.is_recommended && (
+                        <div className="recomended-badge">
+                          <img src="/images/icons/ui/Zap.svg" alt="Zap Icon" />
+                          Рекомендуем
+                        </div>
+                      )}
+                      <div className="agent-header">
+                        <div className="agent-avatar">{avatar}</div>
+                        <div className="agent-info">
+                          <h3 className="agent-name">{agent.name}</h3>
+                          <p className="agent-category">
+                            {agent.category || 'Без категории'}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="agent-description">{agent.description}</p>
+                      <div className="agent-tags">
+                        {tags.map((tag, i) => (
+                          <div key={i} className="tag">
+                            {tag}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="agent-stats">
+                        <div className="stat">
+                          <img src="/images/icons/ui/Star.svg" alt="Star Icon" />
+                          <span>{rating > 0 ? rating.toFixed(1) : '—'}</span>
+                          <span>({reviews})</span>
+                        </div>
+                        <div className="stat">
+                          <img src="/images/icons/ui/Clock.svg" alt="Clock Icon" />
+                          <span>—</span> {/* ← бэк не даёт время ответа — заглушка */}
+                        </div>
+                        <div className="stat">
+                          <img src="/images/icons/ui/Users.svg" alt="Users Icon" />
+                          <span>{reviews}</span>
+                        </div>
+                      </div>
+                      <div className="agent-footer">
+                        <div className="agent-price">
+                          <p className="price">
+                            {agent.price != null ? `₽${agent.price}` : 'Бесплатно'}
+                          </p>
+                          <p className="price-period"></p>
+                        </div>
+                        <button className="rent-button">Подробнее</button>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </section>
       </main>
 
-      {/* Footer */}
+      {/* Footer — без изменений */}
       <footer className="main-footer">
         <div className="container footer-container">
           <div className="footer-grid">
@@ -358,43 +366,25 @@ const HomePage: React.FC = () => {
             <div className="footer-links">
               <h3 className="footer-heading">Для клиентов</h3>
               <ul>
-                <li>
-                  <a href="#">Как арендовать</a>
-                </li>
-                <li>
-                  <a href="#">Гарантии</a>
-                </li>
-                <li>
-                  <a href="#">Поддержка</a>
-                </li>
+                <li><a href="#">Как арендовать</a></li>
+                <li><a href="#">Гарантии</a></li>
+                <li><a href="#">Поддержка</a></li>
               </ul>
             </div>
             <div className="footer-links">
               <h3 className="footer-heading">Для разработчиков</h3>
               <ul>
-                <li>
-                  <a href="#">Разместить агента</a>
-                </li>
-                <li>
-                  <a href="#">API документация</a>
-                </li>
-                <li>
-                  <a href="#">Комиссии</a>
-                </li>
+                <li><a href="#">Разместить агента</a></li>
+                <li><a href="#">API документация</a></li>
+                <li><a href="#">Комиссии</a></li>
               </ul>
             </div>
             <div className="footer-links">
               <h3 className="footer-heading">Компания</h3>
               <ul>
-                <li>
-                  <a href="#">О нас</a>
-                </li>
-                <li>
-                  <a href="#">Блог</a>
-                </li>
-                <li>
-                  <a href="#">Контакты</a>
-                </li>
+                <li><a href="#">О нас</a></li>
+                <li><a href="#">Блог</a></li>
+                <li><a href="#">Контакты</a></li>
               </ul>
             </div>
           </div>

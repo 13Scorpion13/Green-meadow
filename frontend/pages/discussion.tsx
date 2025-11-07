@@ -1,33 +1,143 @@
-import React, { useState } from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
-const mockDiscussion = {
-  topic: 'Какой фреймворк лучше для создания AI-агентов?',
-  author: 'Сергей Кузнецов',
-  date: '5 ноября 2025',
-  avatar: '/images/icons/ui/UserProfile.svg',
-  description: 'Давайте обсудим, какой стек технологий и фреймворк лучше всего подходит для разработки современных AI-агентов. Делитесь опытом и советами!',
-};
+interface Comment {
+  id: number;
+  author: string;
+  avatar: string;
+  text: string;
+  created_at?: string; // необязательное поле
+}
 
-const initialComments = [
-  { id: 1, author: 'Ольга', avatar: '/images/icons/ui/UserProfile.svg', text: 'Я использую FastAPI и довольна.' },
-  { id: 2, author: 'Дмитрий', avatar: '/images/icons/ui/UserProfile.svg', text: 'А кто пробовал LangChain?' },
-];
+interface Discussion {
+  id: string;
+  title: string;
+  content: string;
+  user_id: string;
+  created_at: string;
+}
 
 const DiscussionPage: React.FC = () => {
-  const [comments, setComments] = useState(initialComments);
+  const { user } = useAuth();
+  const router = useRouter();
+  const [discussion, setDiscussion] = useState<Discussion | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  const contentId = typeof window !== 'undefined'
+    ? sessionStorage.getItem('selectedDiscussionId') || ''
+    : '';
+
+  // Защита от прямого захода без ID
+  useEffect(() => {
+    if (!contentId) {
+      router.push('/community/discussions');
+      return;
+    }
+  }, [contentId, router]);
+
+  // Загрузка данных — ТОЛЬКО GET
+  useEffect(() => {
+    if (!contentId) return;
+
+    const fetchData = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        // 1. Получаем обсуждение
+        const discussionRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/contents/${contentId}`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!discussionRes.ok) throw new Error(`HTTP ${discussionRes.status}`);
+        const discussionData: Discussion = await discussionRes.json();
+
+        // Форматируем дату
+        const formattedDate = discussionData.created_at
+          ? new Date(discussionData.created_at).toLocaleDateString('ru-RU', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+          : 'Сегодня';
+
+        setDiscussion({ ...discussionData, created_at: formattedDate });
+
+        // 2. Получаем комментарии
+        const commentsRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/contents/${contentId}/comments`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!commentsRes.ok) throw new Error(`HTTP ${commentsRes.status}`);
+        const rawComments: any[] = await commentsRes.json();
+
+        const formattedComments = rawComments.map((c, idx) => ({
+          id: c.id || idx + 1,
+          author: c.user_id === user?.id
+            ? (user?.nickname || 'Вы')
+            : (c.author_nickname || 'Пользователь'),
+          avatar: c.author_avatar || '/images/icons/ui/UserProfile.svg',
+          text: c.content || c.text || '',
+        }));
+
+        setComments(formattedComments);
+      } catch (err: any) {
+        setError(err.message || 'Не удалось загрузить данные');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [contentId, user]);
+
+  // Локальное добавление комментария — БЕЗ отправки на сервер
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (commentText.trim()) {
+    if (commentText.trim() && discussion) {
       setComments([
         ...comments,
-        { id: comments.length + 1, author: 'Вы', avatar: '/images/icons/ui/UserProfile.svg', text: commentText },
+        {
+          id: comments.length + 1,
+          author: user?.nickname || 'Вы',
+          avatar: '/images/icons/ui/UserProfile.svg',
+          text: commentText,
+        },
       ]);
       setCommentText('');
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-lg">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center text-red-500">
+          <p>❌ {error}</p>
+          <button className="btn btn--primary mt-4" onClick={() => window.location.reload()}>
+            Повторить
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!discussion) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,54 +154,136 @@ const DiscussionPage: React.FC = () => {
               </div>
             </div>
             <nav className="main-nav">
-              <Link href="/">Каталог</Link>
+              <Link href="/HomePage">Каталог</Link>
               <a href="#">Как работает</a>
-              <a href="#">Для разработчиков</a>
-              <a href="#">Сообщество</a>
+              <a href="/articles">Статьи</a>
+              <a href="/DiscussionsListPage">Сообщество</a>
             </nav>
+          </div>
+
+          <div className="header-right">
+            <button className="icon-button">
+              <img src="/images/icons/ui/ShoppingCart.svg" alt="Shopping Cart" />
+            </button>
+            <button className="icon-button" id="user-profile-button">
+              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
+            </button>
+            <button className="btn btn--primary login-button">Войти/Зарегистрироваться</button>
+            <button className="menu-button">
+              <img src="/images/icons/ui/Menu.svg" alt="Menu" />
+            </button>
           </div>
         </div>
       </header>
 
       <main className="main-content container">
-        <div className="discussion-page" style={{ maxWidth: 600, margin: '2rem auto', background: 'var(--background-secondary, #181a20)', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.25)', padding: '2rem', color: 'var(--text-primary, #f3f3f3)' }}>
-          <div className="discussion-question-card" style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem', background: 'var(--background-tertiary, #23242a)', borderRadius: 12, padding: '1.5rem', boxShadow: '0 1px 4px rgba(0,0,0,0.10)' }}>
-            <img src={mockDiscussion.avatar} alt="author" style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 16, background: '#222', border: '1px solid #333' }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--text-primary, #fff)' }}>{mockDiscussion.author}</div>
-              <div style={{ color: 'var(--text-tertiary, #aaa)', fontSize: '0.95rem', marginBottom: 4 }}>{mockDiscussion.date}</div>
-              <div className="discussion-title" style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-primary, #fff)' }}>{mockDiscussion.topic}</div>
-              <div className="discussion-description" style={{ color: 'var(--text-secondary, #b3b3b3)', fontSize: '1rem' }}>{mockDiscussion.description}</div>
+        <div className="back-to-catalog">
+          <Link href="/community/discussions" className="btn btn--secondary">
+            Назад к обсуждениям
+          </Link>
+        </div>
+
+        <div className="discussion-page">
+          <div className="agent-card-detailed discussion-card">
+            <div className="agent-header">
+              <div className="agent-avatar" style={{ width: 48, height: 48 }}>
+                <img src="/images/icons/ui/UserProfile.svg" alt="author" className="avatar-img" />
+              </div>
+              <div className="agent-info">
+                <h2 className="agent-name">
+                  {discussion.user_id === user?.id
+                    ? (user?.nickname || 'Вы')
+                    : 'Пользователь'}
+                </h2>
+                <span className="agent-date">{discussion.created_at}</span>
+              </div>
+            </div>
+
+            <h3 className="discussion-title">{discussion.title}</h3>
+            <p className="discussion-description">{discussion.content}</p>
+          </div>
+
+          <div className="comments-section-outer">
+            <h2>Ответы ({comments.length})</h2>
+            <div className="comments-section">
+              <div className="comments-list">
+                {comments.map((c) => (
+                  <div key={c.id} className="comment-item">
+                    <div className="comment-header">
+                      <div className="comment-author-info">
+                        <img src={c.avatar} alt="User Avatar" className="comment-avatar" />
+                        <span className="comment-author">{c.author}:</span>
+                      </div>
+                      <div className="comment-date">недавно</div>
+                    </div>
+                    <div className="comment-text">{c.text}</div>
+                    <button className="reply-button">Ответить</button>
+                  </div>
+                ))}
+              </div>
+
+              <h3>Оставить ответ</h3>
+              <div className="comment-form">
+                <textarea
+                  placeholder="Напишите ваш комментарий..."
+                  rows={4}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                />
+                <button
+                  className="btn btn--primary"
+                  onClick={handleAddComment}
+                  disabled={!commentText.trim()}
+                >
+                  Отправить ответ
+                </button>
+              </div>
             </div>
           </div>
-          <section className="comments-section" style={{ marginTop: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary, #fff)' }}>Ответы</h2>
-            <ul className="comments-list" style={{ listStyle: 'none', padding: 0 }}>
-              {comments.map((c) => (
-                <li key={c.id} className="comment" style={{ display: 'flex', alignItems: 'flex-start', background: 'var(--background-tertiary, #23242a)', borderRadius: 8, padding: '1rem', marginBottom: '1rem', boxShadow: '0 1px 4px rgba(0,0,0,0.10)', color: 'var(--text-primary, #f3f3f3)' }}>
-                  <img src={c.avatar} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%', marginRight: 12, background: '#222', border: '1px solid #333' }} />
-                  <div>
-                    <span className="comment-author" style={{ fontWeight: 600, marginRight: 8, color: 'var(--text-secondary, #b3b3b3)' }}>{c.author}:</span> {c.text}
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <form className="comment-form" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }} onSubmit={handleAddComment}>
-              <img src="/images/icons/ui/UserProfile.svg" alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%', background: '#222', border: '1px solid #333' }} />
-              <textarea
-                className="form-input"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Ваш ответ..."
-                rows={2}
-                required
-                style={{ resize: 'vertical', borderRadius: 8, border: '1px solid #333', padding: '0.75rem', fontSize: '1rem', flex: 1, background: '#181a20', color: '#f3f3f3' }}
-              />
-              <button type="submit" className="btn btn--primary" style={{ minWidth: 100 }}>Ответить</button>
-            </form>
-          </section>
         </div>
       </main>
+
+      <footer className="main-footer">
+        <div className="container footer-container">
+          <div className="footer-grid">
+            <div className="footer-about">
+              <div className="logo">
+                <div className="logo-icon">
+                  <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
+                </div>
+                <span className="logo-title">AI Market</span>
+              </div>
+              <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
+            </div>
+            {/* остальное без изменений */}
+            <div className="footer-links">
+              <h3 className="footer-heading">Для клиентов</h3>
+              <ul>
+                <li><a href="#">Как арендовать</a></li>
+                <li><a href="#">Гарантии</a></li>
+                <li><a href="#">Поддержка</a></li>
+              </ul>
+            </div>
+            <div className="footer-links">
+              <h3 className="footer-heading">Для разработчиков</h3>
+              <ul>
+                <li><a href="#">Разместить агента</a></li>
+                <li><a href="#">API документация</a></li>
+                <li><a href="#">Комиссии</a></li>
+              </ul>
+            </div>
+            <div className="footer-links">
+              <h3 className="footer-heading">Компания</h3>
+              <ul>
+                <li><a href="#">О нас</a></li>
+                <li><a href="#">Блог</a></li>
+                <li><a href="#">Контакты</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="footer-copyright">© 2025 AI Market. Все права защищены.</div>
+        </div>
+      </footer>
     </div>
   );
 };

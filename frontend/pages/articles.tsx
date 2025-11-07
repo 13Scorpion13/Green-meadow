@@ -76,10 +76,10 @@ const ArticlesPage = () => {
               </div>
             </div>
             <nav className="main-nav">
-              <Link href="/">Каталог</Link>
+              <Link href="/HomePage">Каталог</Link>
               <a href="#">Как работает</a>
-              <a href="#">Для разработчиков</a>
-              <a href="#">Сообщество</a>
+              <a href="/articles">Статьи</a>
+              <a href="/DiscussionsListPage">Сообщество</a>
             </nav>
           </div>
           <div className="header-right">

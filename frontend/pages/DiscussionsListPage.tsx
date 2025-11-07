@@ -1,74 +1,77 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-
-// Mock-данные
-const mockDiscussions = [
-  {
-    id: 1,
-    title: "Какой фреймворк лучше для создания AI-агентов?",
-    excerpt: "Давайте обсудим, какой стек технологий и фреймворк лучше всего подходит для разработки современных AI-агентов.",
-    author: "Сергей Кузнецов",
-    avatar: "/images/icons/ui/UserProfile.svg",
-    date: "5 ноября 2025",
-    replies: 7,
-    likes: 12,
-  },
-  {
-    id: 2,
-    title: "Проблема с токенизацией в LangChain",
-    excerpt: "При использовании CustomDocumentLoader сталкиваюсь с ошибкой при чанкировании...",
-    author: "Анна В.",
-    avatar: "/images/icons/ui/UserProfile.svg",
-    date: "4 ноября 2025",
-    replies: 3,
-    likes: 5,
-  },
-  {
-    id: 3,
-    title: "Интеграция CodeMaster Pro с VS Code — нет подсветки?",
-    excerpt: "У кого-то получилось настроить подсветку сгенерированного кода в редакторе?",
-    author: "Дмитрий",
-    avatar: "/images/icons/ui/UserProfile.svg",
-    date: "3 ноября 2025",
-    replies: 12,
-    likes: 28,
-  },
-  {
-    id: 4,
-    title: "Кто использует агенты в продакшене? Делитесь кейсами!",
-    excerpt: "Хочу понять, как другие внедряют агентов в реальные бизнес-процессы.",
-    author: "Мария Л.",
-    avatar: "/images/icons/ui/UserProfile.svg",
-    date: "1 ноября 2025",
-    replies: 5,
-    likes: 9,
-  },
-  {
-    id: 5,
-    title: "Предложение: добавить поддержку WebSockets в API",
-    excerpt: "Было бы удобно получать стриминг в реальном времени, а не polling.",
-    author: "Олег",
-    avatar: "/images/icons/ui/UserProfile.svg",
-    date: "30 октября 2025",
-    replies: 0,
-    likes: 17,
-  },
-];
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 const DiscussionsListPage: React.FC = () => {
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"all" | "active" | "unanswered">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [discussions, setDiscussions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const filteredDiscussions = mockDiscussions.filter((d) => {
+  // Загрузка данных
+  useEffect(() => {
+    const fetchDiscussions = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/contents/`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        
+        const formattedData = data.map((item: any) => ({
+          id: item.id,
+          title: item.title || "Без заголовка",
+          excerpt: item.content 
+            ? `${item.content.substring(0, 150)}${item.content.length > 150 ? '...' : ''}`
+            : "Нет описания",
+          userId: item.user_id,
+          avatar: "/images/icons/ui/UserProfile.svg",
+          date: item.created_at 
+            ? new Date(item.created_at).toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+              })
+            : "Сегодня",
+          replies: 0,
+          likes: 0,
+        }));
+
+        setDiscussions(formattedData);
+      } catch (err: any) {
+        setError(err.message || "Не удалось загрузить обсуждения");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDiscussions();
+  }, []);
+
+  const filteredDiscussions = discussions.filter((d) => {
     if (activeTab === "unanswered") return d.replies === 0;
     if (activeTab === "active") return d.replies > 5;
     return true;
   });
+
+  // 👇 Обработчик клика по карточке — сохраняем id и переходим
+  const handleCardClick = (contentId: string) => () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('selectedDiscussionId', contentId);
+    }
+    router.push('/discussion');
+  };
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => {
@@ -80,42 +83,51 @@ const DiscussionsListPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) return;
-
-    // 🚀 здесь будет отправка на бэкенд
-    console.log("Новое обсуждение:", { title, description });
-
-    // Имитация успешной публикации
-    alert(`✅ Обсуждение создано!\n\n"${title}"\n\nОписание: ${description.substring(0, 50)}...`);
+    alert(`✅ Обсуждение создано!\n\n"${title}"`);
     handleCloseModal();
   };
 
-  // Закрытие по Esc
-  React.useEffect(() => {
+  // ... (остальные useEffect — без изменений)
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") handleCloseModal();
     };
-    if (isModalOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
+    if (isModalOpen) window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen]);
 
-  // Закрытие по клику вне модалки
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
         handleCloseModal();
       }
     };
-    if (isModalOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    if (isModalOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isModalOpen]);
 
+  if (loading) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-lg">Загрузка обсуждений...</p>
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center text-red-500">
+        <p>❌ Ошибка загрузки: {error}</p>
+        <button className="btn btn--primary mt-4" onClick={() => window.location.reload()}>
+          Попробовать снова
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="main-header">
         <div className="container header-container">
           <div className="header-left">
@@ -129,10 +141,10 @@ const DiscussionsListPage: React.FC = () => {
               </div>
             </div>
             <nav className="main-nav">
-              <Link href="/">Каталог</Link>
+              <Link href="/HomePage">Каталог</Link>
               <a href="#">Как работает</a>
-              <a href="#">Для разработчиков</a>
-              <a href="#">Сообщество</a>
+              <a href="/articles">Статьи</a>
+              <a href="/DiscussionsListPage">Сообщество</a>
             </nav>
           </div>
 
@@ -152,14 +164,12 @@ const DiscussionsListPage: React.FC = () => {
       </header>
 
       <main className="main-content container">
-        {/* Back + Title + Action */}
         <div className="discussions-header">
           <div className="back-to-catalog">
             <Link href="/community" className="btn btn--secondary">
               Назад в сообщество
             </Link>
           </div>
-
           <div className="discussions-title-bar">
             <h1 className="page-title">Обсуждения</h1>
             <button className="btn btn--primary" onClick={handleOpenModal}>
@@ -168,38 +178,37 @@ const DiscussionsListPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="agent-tabs" style={{ marginBottom: "2rem" }}>
-          <button
-            className={`tab-button ${activeTab === "all" ? "active" : ""}`}
-            onClick={() => setActiveTab("all")}
-          >
+          <button className={`tab-button ${activeTab === "all" ? "active" : ""}`} onClick={() => setActiveTab("all")}>
             Все обсуждения
           </button>
-          <button
-            className={`tab-button ${activeTab === "active" ? "active" : ""}`}
-            onClick={() => setActiveTab("active")}
-          >
+          <button className={`tab-button ${activeTab === "active" ? "active" : ""}`} onClick={() => setActiveTab("active")}>
             Активные
           </button>
-          <button
-            className={`tab-button ${activeTab === "unanswered" ? "active" : ""}`}
-            onClick={() => setActiveTab("unanswered")}
-          >
+          <button className={`tab-button ${activeTab === "unanswered" ? "active" : ""}`} onClick={() => setActiveTab("unanswered")}>
             Без ответов
           </button>
         </div>
 
-        {/* List */}
         <div className="discussions-list-grid">
           {filteredDiscussions.length > 0 ? (
             filteredDiscussions.map((d) => (
-              <Link href={`/discussions/${d.id}`} key={d.id} className="discussion-item-card">
+              // 👇 Заменили Link на div + onClick
+              <div 
+                key={d.id} 
+                className="discussion-item-card"
+                onClick={handleCardClick(d.id)}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="discussion-header">
                   <div className="discussion-meta">
                     <div className="discussion-author-info">
                       <img src={d.avatar} alt="Author" className="discussion-avatar" />
-                      <span className="discussion-author">{d.author}</span>
+                      <span className="discussion-author">
+                        {d.userId === user?.id 
+                          ? (user?.nickname || "Вы") 
+                          : "Пользователь"}
+                      </span>
                     </div>
                     <span className="discussion-date">{d.date}</span>
                   </div>
@@ -214,10 +223,9 @@ const DiscussionsListPage: React.FC = () => {
                     </span>
                   </div>
                 </div>
-
                 <h3 className="discussion-title">{d.title}</h3>
                 <p className="discussion-excerpt">{d.excerpt}</p>
-              </Link>
+              </div>
             ))
           ) : (
             <div className="empty-state">
@@ -231,76 +239,50 @@ const DiscussionsListPage: React.FC = () => {
           )}
         </div>
 
-        {/* Pagination (stub) */}
         {filteredDiscussions.length > 0 && (
           <div className="pagination">
-            <button className="btn btn--outline" disabled>
-              Назад
-            </button>
+            <button className="btn btn--outline" disabled>Назад</button>
             <span className="pagination-info">Страница 1 из 1</span>
-            <button className="btn btn--outline" disabled>
-              Вперёд
-            </button>
+            <button className="btn btn--outline" disabled>Вперёд</button>
           </div>
         )}
       </main>
 
-      {/* Modal */}
+      {/* Modal — без изменений */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content" ref={modalRef}>
             <div className="modal-header">
               <h2 className="modal-title">Начать новое обсуждение</h2>
-              <button className="modal-close" onClick={handleCloseModal}>
-                ✕
-              </button>
+              <button className="modal-close" onClick={handleCloseModal}>✕</button>
             </div>
-
             <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group">
-                <label htmlFor="discussion-title" className="form-label">
-                  Заголовок обсуждения
-                </label>
+                <label htmlFor="discussion-title" className="form-label">Заголовок обсуждения</label>
                 <input
                   id="discussion-title"
                   type="text"
                   className="form-input"
-                  placeholder="Кратко опишите суть — например, «Проблема с токенизацией в LangChain»"
+                  placeholder="Кратко опишите суть..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
                 />
-                <p className="form-hint">
-                  Это будет видно в ленте. Старайтесь быть конкретным — так вы получите больше ответов.
-                </p>
               </div>
-
               <div className="form-group">
-                <label htmlFor="discussion-desc" className="form-label">
-                  Подробное описание
-                </label>
+                <label htmlFor="discussion-desc" className="form-label">Подробное описание</label>
                 <textarea
                   id="discussion-desc"
                   className="form-input"
                   rows={6}
-                  placeholder="Опишите проблему, контекст, что уже пробовали, и что ожидаете от ответа…"
+                  placeholder="Опишите проблему..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
                 />
-                <p className="form-hint">
-                  Чем подробнее — тем выше шанс получить полезный ответ 👍
-                </p>
               </div>
-
               <div className="modal-actions">
-                <button
-                  type="button"
-                  className="btn btn--outline"
-                  onClick={handleCloseModal}
-                >
-                  Отмена
-                </button>
+                <button type="button" className="btn btn--outline" onClick={handleCloseModal}>Отмена</button>
                 <button type="submit" className="btn btn--primary" disabled={!title.trim() || !description.trim()}>
                   Опубликовать обсуждение
                 </button>
@@ -310,7 +292,6 @@ const DiscussionsListPage: React.FC = () => {
         </div>
       )}
 
-      {/* Footer */}
       <footer className="main-footer">
         <div className="container footer-container">
           <div className="footer-grid">
@@ -323,7 +304,7 @@ const DiscussionsListPage: React.FC = () => {
               </div>
               <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
             </div>
-
+            {/* другие блоки footer — без изменений */}
             <div className="footer-links">
               <h3 className="footer-heading">Для клиентов</h3>
               <ul>
@@ -332,7 +313,6 @@ const DiscussionsListPage: React.FC = () => {
                 <li><a href="#">Поддержка</a></li>
               </ul>
             </div>
-
             <div className="footer-links">
               <h3 className="footer-heading">Для разработчиков</h3>
               <ul>
@@ -341,7 +321,6 @@ const DiscussionsListPage: React.FC = () => {
                 <li><a href="#">Комиссии</a></li>
               </ul>
             </div>
-
             <div className="footer-links">
               <h3 className="footer-heading">Компания</h3>
               <ul>
@@ -351,10 +330,7 @@ const DiscussionsListPage: React.FC = () => {
               </ul>
             </div>
           </div>
-
-          <div className="footer-copyright">
-            © 2025 AI Market. Все права защищены.
-          </div>
+          <div className="footer-copyright">© 2025 AI Market. Все права защищены.</div>
         </div>
       </footer>
     </div>

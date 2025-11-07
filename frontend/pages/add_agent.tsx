@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 
@@ -221,10 +222,10 @@ const AddAgentPage: React.FC = () => {
                 </div>
               </div>
               <nav className="main-nav">
-                <a href="index.html">Каталог</a>
-                <a href="#">Как работает</a>
-                <a href="#">Для разработчиков</a>
-                <a href="#">Сообщество</a>
+              <Link href="/HomePage">Каталог</Link>
+              <a href="#">Как работает</a>
+              <a href="/articles">Статьи</a>
+              <a href="/DiscussionsListPage">Сообщество</a>
               </nav>
             </div>
             <div className="header-right">
