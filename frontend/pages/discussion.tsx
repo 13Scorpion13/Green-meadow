@@ -149,8 +149,8 @@ const DiscussionPage: React.FC = () => {
                 <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
               </div>
               <div>
-                <h1 className="logo-title">AI Market</h1>
-                <p className="logo-subtitle">Маркетплейс агентов</p>
+                <h1 className="logo-title">AI Community</h1>
+                <p className="logo-subtitle">Сообщество разработчиков</p>
               </div>
             </div>
             <nav className="main-nav">
@@ -162,13 +162,10 @@ const DiscussionPage: React.FC = () => {
           </div>
 
           <div className="header-right">
-            <button className="icon-button">
-              <img src="/images/icons/ui/ShoppingCart.svg" alt="Shopping Cart" />
-            </button>
             <button className="icon-button" id="user-profile-button">
               <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
             </button>
-            <button className="btn btn--primary login-button">Войти/Зарегистрироваться</button>
+            <button className="btn btn--primary login-button">Выйти</button>
             <button className="menu-button">
               <img src="/images/icons/ui/Menu.svg" alt="Menu" />
             </button>
@@ -251,15 +248,14 @@ const DiscussionPage: React.FC = () => {
                 <div className="logo-icon">
                   <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
                 </div>
-                <span className="logo-title">AI Market</span>
+                <span className="logo-title">AI Community</span>
               </div>
-              <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
+              <p className="footer-about-text">Лучшая площадка для поиска ИИ-агентов</p>
             </div>
             {/* остальное без изменений */}
             <div className="footer-links">
               <h3 className="footer-heading">Для клиентов</h3>
               <ul>
-                <li><a href="#">Как арендовать</a></li>
                 <li><a href="#">Гарантии</a></li>
                 <li><a href="#">Поддержка</a></li>
               </ul>
@@ -281,7 +277,7 @@ const DiscussionPage: React.FC = () => {
               </ul>
             </div>
           </div>
-          <div className="footer-copyright">© 2025 AI Market. Все права защищены.</div>
+          <div className="footer-copyright">© 2025 AI Community. Все права защищены.</div>
         </div>
       </footer>
     </div>
