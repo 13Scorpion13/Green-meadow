@@ -97,22 +97,25 @@ const HomePage: React.FC = () => {
                 <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
               </div>
               <div>
-                <h1 className="logo-title">AI Community</h1>
-                <p className="logo-subtitle">Сообщество разработчиков</p>
+                <h1 className="logo-title">AI Market</h1>
+                <p className="logo-subtitle">Маркетплейс агентов</p>
               </div>
             </div>
             <nav className="main-nav">
-              <Link href="/HomePage">Каталог</Link>
+              <Link href="/">Каталог</Link>
               <a href="#">Как работает</a>
               <a href="/articles">Статьи</a>
               <a href="/DiscussionsListPage">Сообщество</a>
             </nav>
           </div>
           <div className="header-right">
+            <button className="icon-button">
+              <img src="/images/icons/ui/ShoppingCart.svg" alt="Shopping Cart" />
+            </button>
             <button className="icon-button" id="user-profile-button">
               <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
             </button>
-            <button className="btn btn--primary login-button">Выйти</button>
+            <button className="btn btn--primary login-button">Войти/Зарегистрироваться</button>
             <button className="menu-button">
               <img src="/images/icons/ui/Menu.svg" alt="Menu" />
             </button>
@@ -180,7 +183,7 @@ const HomePage: React.FC = () => {
         <div className="container hero-container-inner">
           <div className="hero-content">
             <h1 className="hero-title">
-              Попробуйте <span className="text-gradient">ИИ-агентов</span>
+              Арендуйте <span className="text-gradient">ИИ-агентов</span>
               <br />
               для ваших задач
             </h1>
@@ -251,7 +254,7 @@ const HomePage: React.FC = () => {
                 Топ <span className="text-gradient">ИИ-агентов</span>
               </h2>
               <p className="section-subtitle">
-                Самые популярные и эффективные ИИ-агенты, проверенные тысячами пользователей
+                Самые популярные и эффективные ИИ-агенты, проверенные пользователями
               </p>
             </div>
 
@@ -330,12 +333,12 @@ const HomePage: React.FC = () => {
                         </div>
                       </div>
                       <div className="agent-footer">
-                        <div className="agent-price">
+                        {/* <div className="agent-price">
                           <p className="price">
                             {agent.price != null ? `₽${agent.price}` : 'Бесплатно'}
                           </p>
                           <p className="price-period"></p>
-                        </div>
+                        </div> */}
                         <button className="rent-button">Подробнее</button>
                       </div>
                     </a>
@@ -356,13 +359,14 @@ const HomePage: React.FC = () => {
                 <div className="logo-icon">
                   <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
                 </div>
-                <span className="logo-title">AI Community</span>
+                <span className="logo-title">AI Market</span>
               </div>
-              <p className="footer-about-text">Лучшая площадка для поиска ИИ-агентов</p>
+              <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
             </div>
             <div className="footer-links">
               <h3 className="footer-heading">Для клиентов</h3>
               <ul>
+                <li><a href="#">Как арендовать</a></li>
                 <li><a href="#">Гарантии</a></li>
                 <li><a href="#">Поддержка</a></li>
               </ul>
@@ -384,7 +388,7 @@ const HomePage: React.FC = () => {
               </ul>
             </div>
           </div>
-          <div className="footer-copyright">© 2025 AI Community. Все права защищены.</div>
+          <div className="footer-copyright">© 2025 AI Market. Все права защищены.</div>
         </div>
       </footer>
     </div>

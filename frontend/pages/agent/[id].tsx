@@ -12,6 +12,7 @@ interface Developer {
   support_phone: string | null;
   public_contact: boolean;
   created_at: string;
+  nickname: string;
 }
 
 interface Agent {
@@ -174,7 +175,7 @@ export default function AgentDetailsPage() {
   if (!agent) return <div>Агент не найден</div>;
 
   const developerName = agent.developer
-    ? `${agent.developer.first_name} ${agent.developer.last_name}`
+    ? `${agent.developer.nickname}`
     : "Неизвестный разработчик";
 
   return (
@@ -192,7 +193,7 @@ export default function AgentDetailsPage() {
               </div>
             </div>
             <nav className="main-nav">
-              <Link href="/HomePage">Каталог</Link>
+              <Link href="/">Каталог</Link>
               <a href="#">Как работает</a>
               <a href="/articles">Статьи</a>
               <a href="/DiscussionsListPage">Сообщество</a>
@@ -273,7 +274,7 @@ export default function AgentDetailsPage() {
             <div className="tab-content">
               {activeTab === "description" && (
                 <div className={`tab-pane ${activeTab === "description" ? "active" : ""}`} id="description">
-                  <h2>Описание {agent.name}</h2>
+                  <h2>Описание</h2>
                   <p>{agent.description}</p>
                   {agent.requirements && (
                     <>
@@ -326,8 +327,8 @@ export default function AgentDetailsPage() {
                 {agent.tags && (
                     <>
                       <div className="tags-list">
-                        {agent.tags.map((tag, i) => (
-                          <span key={i} className="tag">{tag}</span>
+                        {(Array.isArray(agent.tags) ? agent.tags : []).map(tag => (
+                          <span key={tag} className="tag">{tag}</span>
                         ))}
                       </div>
                     </>

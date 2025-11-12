@@ -15,6 +15,8 @@ export default function SettingsTab() {
     feedbackNotifications: true
   });
 
+  const [showPasswordForm, setShowPasswordForm] = useState(false); // Управление видимостью формы
+
   const handleToggle = (setting: SettingKey) => {
     setSettings(prev => ({
       ...prev,
@@ -25,6 +27,8 @@ export default function SettingsTab() {
   const handlePasswordSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Логика смены пароля
+    console.log('Пароль отправлен на смену');
+    setShowPasswordForm(false); // После отправки можно скрыть форму
   };
 
   return (
@@ -44,40 +48,62 @@ export default function SettingsTab() {
                 <h4 className="setting-title">Смена пароля</h4>
                 <p className="setting-description">Обновите ваш пароль для защиты аккаунта</p>
               </div>
+              {!showPasswordForm ? (
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  onClick={() => setShowPasswordForm(true)}
+                >
+                  Изменить пароль
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn--danger"
+                  onClick={() => setShowPasswordForm(false)}
+                >
+                  Отмена
+                </button>
+              )}
             </div>
-            
-            <form className="password-form" onSubmit={handlePasswordSubmit}>
-              <div className="form-group">
-                <label htmlFor="currentPassword" className="form-label">Текущий пароль</label>
-                <input 
-                  type="password" 
-                  id="currentPassword" 
-                  className="form-input" 
-                  placeholder="Введите текущий пароль"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="newPassword" className="form-label">Новый пароль</label>
-                <input 
-                  type="password" 
-                  id="newPassword" 
-                  className="form-input" 
-                  placeholder="Введите новый пароль"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="confirmPassword" className="form-label">Подтвердите пароль</label>
-                <input 
-                  type="password" 
-                  id="confirmPassword" 
-                  className="form-input" 
-                  placeholder="Повторите новый пароль"
-                />
-              </div>
-              <div className="form-actions">
-                <button type="submit" className="btn btn--primary">Сохранить пароль</button>
-              </div>
-            </form>
+
+            {showPasswordForm && (
+              <form className="password-form" onSubmit={handlePasswordSubmit}>
+                <div className="form-group">
+                  <label htmlFor="currentPassword" className="form-label">Текущий пароль</label>
+                  <input 
+                    type="password" 
+                    id="currentPassword" 
+                    className="form-input" 
+                    placeholder="Введите текущий пароль"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="newPassword" className="form-label">Новый пароль</label>
+                  <input 
+                    type="password" 
+                    id="newPassword" 
+                    className="form-input" 
+                    placeholder="Введите новый пароль"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="confirmPassword" className="form-label">Подтвердите пароль</label>
+                  <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    className="form-input" 
+                    placeholder="Повторите новый пароль"
+                    required
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="submit" className="btn btn--primary">Обновить пароль</button>
+                </div>
+              </form>
+            )}
 
             <div className="setting-item">
               <div className="setting-info">
