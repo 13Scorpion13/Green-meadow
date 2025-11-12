@@ -160,12 +160,12 @@ export default function SettingsTab() {
 
         {/* Account Actions */}
         <section className="settings-section">
-          <h3 className="section-title">Действия с аккаунтом</h3>
+          <h3 className="section-title">Удаление аккаунта</h3>
           <div className="settings-grid">
             <div className="setting-item">
               <div className="setting-info">
-                <h4 className="setting-title danger">Удаление аккаунта</h4>
-                <p className="setting-description danger">Безвозвратно удалить аккаунт и все данные</p>
+                {/* <h4 className="setting-title danger">Удаление аккаунта</h4> */}
+                <h4 className="setting-description danger">Вы можете безвозвратно удалить свой аккаунт. Это действие нельзя отменить.</h4>
               </div>
               <button className="btn btn--danger">Удалить аккаунт</button>
             </div>
