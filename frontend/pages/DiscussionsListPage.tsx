@@ -168,7 +168,7 @@ const DiscussionsListPage: React.FC = () => {
             </Link>
           </div>
           <div className="discussions-title-bar">
-            <h1 className="page-title">Обсуждения</h1>
+            <h1 className="page-title">Обсуждения ({`${discussions.length}`})</h1>
             <button className="btn btn--primary" onClick={handleOpenModal}>
               + Начать обсуждение
             </button>
