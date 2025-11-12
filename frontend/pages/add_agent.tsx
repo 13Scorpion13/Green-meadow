@@ -222,7 +222,7 @@ const AddAgentPage: React.FC = () => {
                 </div>
               </div>
               <nav className="main-nav">
-              <Link href="/HomePage">Каталог</Link>
+              <Link href="/">Каталог</Link>
               <a href="#">Как работает</a>
               <a href="/articles">Статьи</a>
               <a href="/DiscussionsListPage">Сообщество</a>
