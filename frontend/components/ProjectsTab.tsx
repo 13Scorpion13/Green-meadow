@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 
 interface Agent {
-  id: string;  // ← UUID
+  id: string;
   name: string;
   slug: string;
   agent_url: string;
@@ -14,72 +13,33 @@ interface Agent {
   reviews_count: number | null;
   created_at: string;
   updated_at: string;
-  // developer: object | null;  // ← если включено
+  // developer: object | null;
 }
 
-export default function ProjectsTab() {
+interface ProjectsTabProps {
+  projects: Agent[];
+  loading: boolean;
+}
+
+export default function ProjectsTab({ projects, loading }: ProjectsTabProps) {
   const { user } = useAuth();
-  const router = useRouter();  // ← добавь router
-  const [projects, setProjects] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchUserProjects = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          throw new Error("Токен не найден");
-        }
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/my`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-
-        const data: Agent[] = await response.json();
-        setProjects(data);
-
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Неизвестная ошибка");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProjects();
-  }, [user]);
-
+  const router = useRouter();
+  
   if (loading) {
     return <div className="loading">Загрузка проектов...</div>;
   }
 
-  if (error) {
-    return <div className="error">Ошибка: {error}</div>;
-  }
-
-  // Временно: преобразуем API-ответ в формат, ожидаемый UI
   const uiProjects = projects.map(p => ({
-    id: 1, // ← ЗАГЛУШКА: API возвращает UUID, но UI ожидает number
+    id: 1,
     agent_id: p.id,
     name: p.name,
-    category: p.category || "Нет категории", // ← ЗАГЛУШКА: API не возвращает category
-    status: "active" as const, // ← ЗАГЛУШКА: API не возвращает статус проверки
+    category: p.category || "Нет категории",
+    status: "active" as const,
     description: p.description,
     rating: p.avg_raiting || "Нет оценки",
-    reviews: p.reviews_count ?? "Нет отзывов", // ← условно: downloads = reviews_count
+    reviews: p.reviews_count ?? "Нет отзывов",
     price: p.price ? `₽${p.price}` : "Бесплатно",
-    avatar: p.name.substring(0, 2).toUpperCase(), // ← первые 2 буквы названия
+    avatar: p.name.substring(0, 2).toUpperCase(),
   }));
 
   const getStatusClass = (status: 'active' | 'rejected' | 'waiting'): string => {
@@ -112,7 +72,7 @@ export default function ProjectsTab() {
     <div className="tab-content" id="projects-tab">
       <div className="tab-header">
         <h2 className="tab-title">Мои проекты</h2>
-        <p className="tab-subtitle">Управление вашими ИИ-агентами на маркетплейсе</p>
+        <p className="tab-subtitle">Управление проектами</p>
         <button 
           className="btn btn--primary new-project-btn"
           onClick={handleNewProjectClick}

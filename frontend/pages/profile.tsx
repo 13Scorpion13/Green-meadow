@@ -1,17 +1,67 @@
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProfileTab from '../components/ProfileTab';
 import ProjectsTab from '../components/ProjectsTab';
 import SettingsTab from '../components/SettingsTab';
 import Footer from '../components/Footer';
 
+interface Agent {
+  id: string;
+  name: string;
+  slug: string;
+  agent_url: string;
+  description: string;
+  category: null;
+  price: number | null;
+  avg_raiting: number | null;
+  reviews_count: number | null;
+  created_at: string;
+  updated_at: string;
+  // developer: object | null;
+}
+
 export default function ProfilePage() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
+  const [projects, setProjects] = useState<Agent[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUserProjects = async () => {
+      setLoadingProjects(true);
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          throw new Error("Токен не найден");
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/my`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+
+        const agents: Agent[] = await response.json();
+        setProjects(agents);
+
+      } catch (err) {
+        console.error("Не удалось получить проекты:", err);
+        setProjects([]);
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    fetchUserProjects();
+  }, [user]);
+  
   if (loading) return <div className="loading">Загрузка...</div>;
 
   if (!user) {
@@ -76,10 +126,6 @@ export default function ProfilePage() {
                     <span className="stat-value">{new Date().toLocaleDateString()}</span>
                     <span className="stat-label">Зарегистрирован</span>
                   </div>
-                  {/* <div className="stat">
-                    <span className="stat-value">2</span>
-                    <span className="stat-label">проекта</span>
-                  </div> */}
                 </div>
               </div>
             </div>
@@ -97,7 +143,7 @@ export default function ProfilePage() {
                 onClick={() => setActiveTab('projects')}
               >
                 <div className="icon-white">📁</div>
-                <span>Проекты</span>
+                <span>Проекты ({loadingProjects ? "Загрузка..." : projects.length})</span>
               </button>
               <button 
                 className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
@@ -115,7 +161,7 @@ export default function ProfilePage() {
             )}
 
             {activeTab === 'projects' && (
-              <ProjectsTab />
+              <ProjectsTab projects={projects} loading={loadingProjects} />
             )}
 
             {activeTab === 'settings' && (
