@@ -89,18 +89,6 @@ export default function ProfileTab({ user }: ProfileTabProps) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="lastName" className="form-label">Фамилия</label>
-            <input 
-              type="text" 
-              id="lastName" 
-              className="form-input" 
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Введите вашу фамилию"
-            />
-          </div>
-
-          <div className="form-group">
             <label htmlFor="firstName" className="form-label">Имя</label>
             <input 
               type="text" 
@@ -109,6 +97,18 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               value={formData.firstName}
               onChange={handleChange}
               placeholder="Введите ваше имя"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="lastName" className="form-label">Фамилия</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              className="form-input" 
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Введите вашу фамилию"
             />
           </div>
 
