@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 
 interface Agent {
-  id: string;  // ← UUID
+  id: string;
   name: string;
   slug: string;
   agent_url: string;
@@ -14,12 +14,12 @@ interface Agent {
   reviews_count: number | null;
   created_at: string;
   updated_at: string;
-  // developer: object | null;  // ← если включено
+  // developer: object | null;
 }
 
 export default function ProjectsTab() {
   const { user } = useAuth();
-  const router = useRouter();  // ← добавь router
+  const router = useRouter();
   const [projects, setProjects] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function ProjectsTab() {
 
     fetchUserProjects();
   }, [user]);
-
+  console.log("after fetchUserProjects")
   if (loading) {
     return <div className="loading">Загрузка проектов...</div>;
   }
@@ -68,18 +68,17 @@ export default function ProjectsTab() {
     return <div className="error">Ошибка: {error}</div>;
   }
 
-  // Временно: преобразуем API-ответ в формат, ожидаемый UI
   const uiProjects = projects.map(p => ({
-    id: 1, // ← ЗАГЛУШКА: API возвращает UUID, но UI ожидает number
+    id: 1,
     agent_id: p.id,
     name: p.name,
-    category: p.category || "Нет категории", // ← ЗАГЛУШКА: API не возвращает category
-    status: "active" as const, // ← ЗАГЛУШКА: API не возвращает статус проверки
+    category: p.category || "Нет категории",
+    status: "active" as const,
     description: p.description,
     rating: p.avg_raiting || "Нет оценки",
-    reviews: p.reviews_count ?? "Нет отзывов", // ← условно: downloads = reviews_count
+    reviews: p.reviews_count ?? "Нет отзывов",
     price: p.price ? `₽${p.price}` : "Бесплатно",
-    avatar: p.name.substring(0, 2).toUpperCase(), // ← первые 2 буквы названия
+    avatar: p.name.substring(0, 2).toUpperCase(),
   }));
 
   const getStatusClass = (status: 'active' | 'rejected' | 'waiting'): string => {

@@ -1,17 +1,65 @@
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProfileTab from '../components/ProfileTab';
 import ProjectsTab from '../components/ProjectsTab';
 import SettingsTab from '../components/SettingsTab';
 import Footer from '../components/Footer';
 
+interface Agent {
+  id: string;
+  name: string;
+  slug: string;
+  agent_url: string;
+  description: string;
+  category: null;
+  price: number | null;
+  avg_raiting: number | null;
+  reviews_count: number | null;
+  created_at: string;
+  updated_at: string;
+  // developer: object | null;
+}
+
 export default function ProfilePage() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
+  const [projectCount, setProjectCount] = useState<number | null>(null);
+  const [loadingCount, setLoadingCount] = useState(true);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchProjectCount = async () => {
+      setLoadingCount(true);
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) throw new Error("Токен не найден");
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/my`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+
+        const agents: Agent[] = await response.json();
+        setProjectCount(agents.length);
+
+      } catch (err) {
+        console.error("Ошибка получения количества проектов:", err);
+        setProjectCount(0);
+      } finally {
+        setLoadingCount(false);
+      }
+    };
+
+    fetchProjectCount();
+  }, [user]);
+  console.log("after fetchProjectCount");
   if (loading) return <div className="loading">Загрузка...</div>;
 
   if (!user) {
@@ -76,10 +124,10 @@ export default function ProfilePage() {
                     <span className="stat-value">{new Date().toLocaleDateString()}</span>
                     <span className="stat-label">Зарегистрирован</span>
                   </div>
-                  {/* <div className="stat">
-                    <span className="stat-value">2</span>
+                  <div className="stat">
+                    <span className="stat-value">{projectCount}</span>
                     <span className="stat-label">проекта</span>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
