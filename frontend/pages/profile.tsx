@@ -26,17 +26,19 @@ export default function ProfilePage() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
-  const [projectCount, setProjectCount] = useState<number | null>(null);
-  const [loadingCount, setLoadingCount] = useState(true);
+  const [projects, setProjects] = useState<Agent[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
 
   useEffect(() => {
     if (!user) return;
 
-    const fetchProjectCount = async () => {
-      setLoadingCount(true);
+    const fetchUserProjects = async () => {
+      setLoadingProjects(true);
       try {
         const token = localStorage.getItem('access_token');
-        if (!token) throw new Error("Токен не найден");
+        if (!token) {
+          throw new Error("Токен не найден");
+        }
 
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/my`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -47,19 +49,19 @@ export default function ProfilePage() {
         }
 
         const agents: Agent[] = await response.json();
-        setProjectCount(agents.length);
+        setProjects(agents);
 
       } catch (err) {
-        console.error("Ошибка получения количества проектов:", err);
-        setProjectCount(0);
+        console.error("Не удалось получить проекты:", err);
+        setProjects([]);
       } finally {
-        setLoadingCount(false);
+        setLoadingProjects(false);
       }
     };
 
-    fetchProjectCount();
+    fetchUserProjects();
   }, [user]);
-  console.log("after fetchProjectCount");
+  
   if (loading) return <div className="loading">Загрузка...</div>;
 
   if (!user) {
@@ -124,10 +126,6 @@ export default function ProfilePage() {
                     <span className="stat-value">{new Date().toLocaleDateString()}</span>
                     <span className="stat-label">Зарегистрирован</span>
                   </div>
-                  <div className="stat">
-                    <span className="stat-value">{projectCount}</span>
-                    <span className="stat-label">проекта</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -145,7 +143,7 @@ export default function ProfilePage() {
                 onClick={() => setActiveTab('projects')}
               >
                 <div className="icon-white">📁</div>
-                <span>Проекты</span>
+                <span>Проекты ({loadingProjects ? "Загрузка..." : projects.length})</span>
               </button>
               <button 
                 className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
@@ -163,7 +161,7 @@ export default function ProfilePage() {
             )}
 
             {activeTab === 'projects' && (
-              <ProjectsTab />
+              <ProjectsTab projects={projects} loading={loadingProjects} />
             )}
 
             {activeTab === 'settings' && (

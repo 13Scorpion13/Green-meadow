@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 
@@ -17,55 +16,17 @@ interface Agent {
   // developer: object | null;
 }
 
-export default function ProjectsTab() {
+interface ProjectsTabProps {
+  projects: Agent[];
+  loading: boolean;
+}
+
+export default function ProjectsTab({ projects, loading }: ProjectsTabProps) {
   const { user } = useAuth();
   const router = useRouter();
-  const [projects, setProjects] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchUserProjects = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          throw new Error("Токен не найден");
-        }
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/my`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-
-        const data: Agent[] = await response.json();
-        setProjects(data);
-
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Неизвестная ошибка");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProjects();
-  }, [user]);
-  console.log("after fetchUserProjects")
+  
   if (loading) {
     return <div className="loading">Загрузка проектов...</div>;
-  }
-
-  if (error) {
-    return <div className="error">Ошибка: {error}</div>;
   }
 
   const uiProjects = projects.map(p => ({
@@ -111,7 +72,7 @@ export default function ProjectsTab() {
     <div className="tab-content" id="projects-tab">
       <div className="tab-header">
         <h2 className="tab-title">Мои проекты</h2>
-        <p className="tab-subtitle">Управление вашими ИИ-агентами на маркетплейсе</p>
+        <p className="tab-subtitle">Управление проектами</p>
         <button 
           className="btn btn--primary new-project-btn"
           onClick={handleNewProjectClick}
