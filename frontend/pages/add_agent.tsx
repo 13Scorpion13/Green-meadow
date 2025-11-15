@@ -3,11 +3,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 
+const VIDEO_MAX_SIZE = 100 * 1024 * 1024;
+const VIDEO_MAX_DURATION = 180;
+
 const AddAgentPage: React.FC = () => {
   const router = useRouter();
   const { user } = useAuth();
 
   const [name, setName] = useState('');
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [author, setAuthor] = useState('');
   const [shortDesc, setShortDesc] = useState('');
   const [longDesc, setLongDesc] = useState('');
@@ -21,11 +25,36 @@ const AddAgentPage: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [previewPhoto, setPreviewPhoto] = useState<File | null>(null);
+  const dropAreaRef = useRef<HTMLDivElement>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [videoError, setVideoError] = useState<string | null>(null);
+
   const fileInputArchiveRef = useRef<HTMLInputElement>(null);
   const fileInputVideoRef = useRef<HTMLInputElement>(null);
+
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      const url = URL.createObjectURL(file);
+
+      video.addEventListener('loadedmetadata', () => {
+        URL.revokeObjectURL(url);
+        resolve(video.duration);
+      });
+
+      video.addEventListener('error', (e) => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Не удалось загрузить видео для проверки'));
+      });
+
+      video.src = url;
+    });
+  };
 
   const toggleCategory = (category: string) => {
     setSelectedCategories(prev => {
@@ -52,6 +81,34 @@ const AddAgentPage: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (previewPhoto) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [previewPhoto]);
+
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closePreview();
+      }
+    };
+
+    if (previewPhoto) {
+      document.addEventListener('keydown', handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [previewPhoto]);
+
   const handleArchiveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -74,26 +131,89 @@ const AddAgentPage: React.FC = () => {
       .catch(err => alert('Ошибка: ' + err));
   };
 
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    setVideoError(null);
+    
     if (!file) return;
 
     if (file.type !== 'video/mp4' && !file.name.endsWith('.mp4')) {
-      alert('Можно загружать только .mp4 видео');
+      setVideoError('Можно загружать только .mp4 видео');
       if (fileInputVideoRef.current) fileInputVideoRef.current.value = '';
       return;
     }
 
-    const formData = new FormData();
-    formData.append('video', file);
+    if (file.size > VIDEO_MAX_SIZE) {
+      setVideoError(`Файл слишком большой. Максимальный размер: ${VIDEO_MAX_SIZE / (1024 * 1024)}MB`);
+      if (fileInputVideoRef.current) fileInputVideoRef.current.value = '';
+      return;
+    }
 
-    fetch('/upload-agent-video', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(res => (res.ok ? res.text() : Promise.reject('Ошибка загрузки')))
-      .then(() => alert('Видео успешно загружено!'))
-      .catch(err => alert('Ошибка: ' + err));
+    try {
+      const duration = await getVideoDuration(file);
+      if (duration > VIDEO_MAX_DURATION) {
+        setVideoError(`Видео слишком длинное. Максимальная продолжительность: ${VIDEO_MAX_DURATION / 60} минут`);
+        if (fileInputVideoRef.current) fileInputVideoRef.current.value = '';
+        return;
+      }
+    } catch (error) {
+      console.error('Ошибка проверки длительности видео:', error);
+      setVideoError('Не удалось проверить длительность видео. Попробуйте другой файл.');
+      if (fileInputVideoRef.current) fileInputVideoRef.current.value = '';
+      return;
+    }
+
+    setVideoFile(file);
+    setVideoError(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const files = Array.from(e.dataTransfer.files).filter(file =>
+      file.type.startsWith('image/')
+    );
+
+    if (files.length > 0) {
+      setPhotos(prev => [...prev, ...files]);
+    }
+  };
+
+  const handlePhotoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    console.log('[DEBUG] Выбранные файлы:', files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    console.log('[DEBUG] Отфильтровано:', imageFiles);
+    setPhotos(prev => [...prev, ...imageFiles]);
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const openPreview = (photo: File) => {
+    console.log('[DEBUG] Тип:', typeof photo);
+    console.log('[DEBUG] Это File?', photo instanceof File);
+    console.log('[DEBUG] Имя:', photo?.name);
+    console.log('[DEBUG] Размер:', photo?.size);
+    console.log('[DEBUG] Тип MIME:', photo?.type);
+
+    if (!(photo instanceof File)) {
+      console.error('❌ Это НЕ File!', photo);
+      return;
+    }
+
+    setPreviewPhoto(photo);
+  };
+
+  const closePreview = () => {
+    setPreviewPhoto(null);
   };
 
   const categories = [
@@ -120,7 +240,6 @@ const AddAgentPage: React.FC = () => {
     setError(null);
 
     try {
-      // 1. Сначала загружаем архив и видео на сервер (если нужно)
       let archiveUrl = null;
       let videoUrl = null;
 
@@ -158,18 +277,17 @@ const AddAgentPage: React.FC = () => {
         videoUrl = videoData.url;
       }
 
-      // 2. Отправляем данные агента в API Gateway
       const agentData = {
         name,
-        slug: name.toLowerCase().replace(/\s+/g, '-'),  // ← генерируем slug
+        slug: name.toLowerCase().replace(/\s+/g, '-'),
         agent_url: demoUrl || null,
         description: shortDesc,
         requirements: installGuide,
         tags: tags.split(',').map(tag => tag.trim()),
-        category_id: null,  // ← можно улучшить
-        article_id: null,  // ← если агент не связан со статьёй
-        price: null,  // ← или число, если цена указана
-        user_id: user.id  // ← добавляем user_id (хотя API Gateway должен сам извлечь из токена)
+        category_id: null,
+        article_id: null,
+        price: null,
+        user_id: user.id
       };
 
       const token = localStorage.getItem('access_token');
@@ -190,7 +308,7 @@ const AddAgentPage: React.FC = () => {
 
       const createdAgent = await response.json();
       alert("Агент успешно добавлен!");
-      router.push('/profile'); // ← перенаправить обратно в профиль
+      router.push('/profile');
 
     } catch (err) {
       setError(err instanceof Error ? err.message : "Неизвестная ошибка");
@@ -198,13 +316,6 @@ const AddAgentPage: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   console.log('Форма отправлена');
-  // };
-
-  
 
   return (
     <div id="root">
@@ -222,10 +333,10 @@ const AddAgentPage: React.FC = () => {
                 </div>
               </div>
               <nav className="main-nav">
-              <Link href="/">Каталог</Link>
-              <a href="#">Как работает</a>
-              <a href="/articles">Статьи</a>
-              <a href="/DiscussionsListPage">Сообщество</a>
+                <Link href="/HomePage">Каталог</Link>
+                <a href="#">Как работает</a>
+                <a href="/articles">Статьи</a>
+                <a href="/DiscussionsListPage">Сообщество</a>
               </nav>
             </div>
             <div className="header-right">
@@ -265,21 +376,6 @@ const AddAgentPage: React.FC = () => {
                   />
                 </div>
 
-                {/* <div className="form-group">
-                  <label className="form-label" htmlFor="agentAuthor">
-                    Автор
-                  </label>
-                  <input
-                    className="form-input"
-                    type="text"
-                    id="agentAuthor"
-                    value={author}
-                    onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="Имя или команда"
-                    required
-                  />
-                </div> */}
-
                 <div className="form-group">
                   <label className="form-label" htmlFor="agentDescription">
                     Краткое описание
@@ -307,6 +403,48 @@ const AddAgentPage: React.FC = () => {
                     rows={6}
                     placeholder="Детальное описание возможностей, технологий и преимуществ"
                   />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" htmlFor="agentCategories">
+                    Категории
+                  </label>
+                  <div className="dropdown-multiselect" id="dropdownCategories" ref={dropdownRef}>
+                    <button
+                      type="button"
+                      className="dropdown-btn form-input"
+                      id="dropdownBtn"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    >
+                      <span id="dropdownSelected">
+                        {selectedCategories.length > 0 ? selectedCategories.join(', ') : 'Выберите категории'}
+                      </span>
+                      <span className="dropdown-arrow">▼</span>
+                    </button>
+                    <div className="dropdown-list" id="dropdownList" style={{ display: isDropdownOpen ? 'block' : 'none' }}>
+                      {categories.map(category => (
+                        <label key={category} className="dropdown-option">
+                          <input
+                            type="checkbox"
+                            value={category}
+                            checked={selectedCategories.includes(category)}
+                            onChange={() => toggleCategory(category)}
+                          />
+                          {category}
+                        </label>
+                      ))}
+                    </div>
+                    <input
+                      type="hidden"
+                      name="agentCategories"
+                      id="agentCategoriesHidden"
+                      value={selectedCategories.join(', ')}
+                      required
+                    />
+                  </div>
+                  <small style={{ color: 'var(--text-tertiary)', display: 'block', marginTop: '0.5rem' }}>
+                    Выберите до 3 категорий
+                  </small>
                 </div>
 
                 <div className="form-group">
@@ -389,10 +527,165 @@ const AddAgentPage: React.FC = () => {
                     type="file"
                     id="agentVideo"
                     accept="video/mp4"
-                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                    onChange={handleVideoChange}
                     ref={fileInputVideoRef}
                   />
-                  <small>Загрузите видео демо агента (только .mp4)</small>
+                  <small style={{ color: 'var(--text-tertiary)', display: 'block', marginTop: '0.5rem' }}>
+                    Максимальный размер: {VIDEO_MAX_SIZE / (1024 * 1024)}MB, 
+                    максимальная длительность: {VIDEO_MAX_DURATION / 60} минут
+                    {videoFile && ` (Текущий файл: ${videoFile.name})`}
+                  </small>
+                  
+                  {videoError && (
+                    <div style={{ 
+                      color: 'red', 
+                      fontSize: '0.875rem', 
+                      marginTop: '0.5rem',
+                      padding: '0.5rem',
+                      backgroundColor: '#ffe6e6',
+                      borderRadius: '4px'
+                    }}>
+                      {videoError}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Фотографии (необязательно)</label>
+                  <div
+                    ref={dropAreaRef}
+                    className="form-input"
+                    style={{
+                      borderStyle: 'dashed',
+                      borderWidth: '2px',
+                      borderColor: '#d1d5db',
+                      borderRadius: '8px',
+                      padding: '24px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      backgroundColor: '#fafafa',
+                    }}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onClick={() => document.getElementById('photoInput')?.click()}
+                  >
+                    <div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="icon"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        style={{ width: '32px', height: '32px', margin: '0 auto 12px', color: '#6b7280' }}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                        />
+                      </svg>
+                      <p style={{ color: '#4b5563', fontSize: '1rem', marginBottom: '4px' }}>
+                        Перетащите изображения сюда или кликните для выбора
+                      </p>
+                      <p className="text-sm" style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
+                        Поддерживаются: JPG, PNG, GIF и др.
+                      </p>
+                    </div>
+                    <input
+                      id="photoInput"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handlePhotoInputChange}
+                    />
+                  </div>
+
+                  {photos.length > 0 && (
+                    <div style={{ marginTop: '16px' }}>
+                      <p className="text-sm" style={{ color: '#6b7280', marginBottom: '8px' }}>
+                        Выбрано изображений: {photos.length}
+                      </p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                        {photos.map((photo, index) => (
+                          <div
+                            key={index}
+                            draggable
+                            onDragStart={() => setDragIndex(index)}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                            }}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              if (dragIndex === null || dragIndex === index) return;
+
+                              setPhotos(prev => {
+                                const newPhotos = [...prev];
+                                const [moved] = newPhotos.splice(dragIndex, 1);
+                                newPhotos.splice(index, 0, moved);
+                                return newPhotos;
+                              });
+                              setDragIndex(null);
+                            }}
+                            style={{
+                              position: 'relative',
+                              width: '64px',
+                              height: '64px',
+                              cursor: 'grab',
+                            }}
+                          >
+                            <img
+                              src={URL.createObjectURL(photo)}
+                              alt={`preview ${index}`}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                borderRadius: '6px',
+                                border: '1px solid #e5e7eb',
+                                cursor: 'pointer',
+                              }}
+                              onClick={() => openPreview(photo)}
+                            />
+                            <button
+                              type="button"
+                              className="btn btn--cancel"
+                              style={{
+                                position: 'absolute',
+                                top: '-8px',
+                                right: '-8px',
+                                width: '20px',
+                                height: '20px',
+                                padding: '0',
+                                minWidth: 'auto',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#000000',
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removePhoto(index);
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="12"
+                                height="12"
+                                fill="currentColor"
+                                viewBox="0 0 16 16"
+                                style={{ flexShrink: 0 }}
+                              >
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -418,6 +711,81 @@ const AddAgentPage: React.FC = () => {
             </div>
           </div>
         </main>
+
+        {previewPhoto && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.95)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: '20px',
+              boxSizing: 'border-box'
+            }}
+            onClick={closePreview}
+          >
+            <div
+              style={{
+                position: 'relative',
+                maxWidth: '95vw',
+                maxHeight: '95vh',
+                backgroundColor: '#fff',
+                borderRadius: '12px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                style={{
+                  position: 'absolute',
+                  top: '4px',
+                  right: '4px',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'rgba(0, 0, 0, 0.7)',
+                  borderRadius: '0.375rem',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                  fontSize: '20px',
+                  fontWeight: 'bold'
+                }}
+                onClick={closePreview}
+                aria-label="Закрыть"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                </svg>
+              </button>
+
+              <img
+                src={URL.createObjectURL(previewPhoto)}
+                alt="Предпросмотр"
+                style={{
+                  display: 'block',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  padding: '40px'
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         <footer className="main-footer">
           <div className="container footer-container">
