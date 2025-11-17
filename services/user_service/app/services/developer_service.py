@@ -3,11 +3,27 @@ from sqlalchemy import select
 from app.models.developer import Developer
 from app.models.user import User
 from app.schemas.developer import DeveloperCreate, DeveloperUpdate
+from app.utils.cache import (
+    get_developer_from_cache,
+    set_developer_in_cache,
+    delete_developer_from_cache
+)
 from typing import Optional
 
 async def get_developer_by_user_id(db: AsyncSession, user_id: str) -> Optional[Developer]:
+    cached_dev = await get_developer_from_cache(user_id)
+    if cached_dev:
+        from app.schemas.developer import DeveloperOut
+        return DeveloperOut.model_validate(cached_dev)
+    
     result = await db.execute(select(Developer).where(Developer.user_id == user_id))
-    return result.scalar_one_or_none()
+    dev = result.scalar_one_or_none()
+    if not dev:
+        return None
+    
+    await set_developer_in_cache(user_id, dev.model_dump(mode='json'))
+    
+    return dev
 
 async def create_developer(db: AsyncSession, user_id: str, dev_in: DeveloperCreate) -> Developer:
     existing = await get_developer_by_user_id(db, user_id)
@@ -26,6 +42,9 @@ async def create_developer(db: AsyncSession, user_id: str, dev_in: DeveloperCrea
     db.add(db_dev)
     await db.commit()
     await db.refresh(db_dev)
+    
+    await delete_developer_from_cache(user_id)
+    
     return db_dev
 
 async def update_developer(db: AsyncSession, user_id: str, dev_update: DeveloperUpdate) -> Optional[Developer]:
@@ -39,6 +58,9 @@ async def update_developer(db: AsyncSession, user_id: str, dev_update: Developer
 
     await db.commit()
     await db.refresh(db_dev)
+    
+    await delete_developer_from_cache(user_id)
+    
     return db_dev
 
 async def delete_developer(db: AsyncSession, user_id: str) -> bool:
@@ -48,4 +70,7 @@ async def delete_developer(db: AsyncSession, user_id: str) -> bool:
 
     await db.delete(db_dev)
     await db.commit()
+    
+    await delete_developer_from_cache(user_id)
+    
     return True

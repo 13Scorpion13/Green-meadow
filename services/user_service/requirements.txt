@@ -11,3 +11,4 @@ alembic
 pydantic
 pydantic-settings
 email-validator
+redis[asyncio]>=5.0.0
