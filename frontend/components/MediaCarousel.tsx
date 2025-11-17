@@ -1,4 +1,3 @@
-// src/components/MediaCarousel.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,8 +11,8 @@ export interface MediaItem {
 interface MediaCarouselProps {
   media: MediaItem[];
   autoPlay?: boolean;
-  interval?: number; // ms, default 5000
-  height?: string | number; // например "400px" или 300
+  interval?: number;
+  height?: string | number;
 }
 
 export default function MediaCarousel({
@@ -24,10 +23,7 @@ export default function MediaCarousel({
 }: MediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Защита от пустого массива
-  if (!media || media.length === 0) {
-    return null;
-  }
+  if (!media || media.length === 0) return null;
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % media.length);
@@ -43,7 +39,6 @@ export default function MediaCarousel({
 
   const currentSlide = media[currentIndex];
 
-  // Автопрокрутка (опционально)
   useEffect(() => {
     if (!autoPlay) return;
 
@@ -52,11 +47,10 @@ export default function MediaCarousel({
     }, interval);
 
     return () => clearInterval(timer);
-  }, [autoPlay, interval, currentIndex]);
+  }, [autoPlay, interval]);
 
   return (
     <div className="media-carousel" style={{ margin: "1.5rem 0", position: "relative" }}>
-      {/* Слайд */}
       <div
         className="carousel-slide"
         style={{
@@ -68,6 +62,7 @@ export default function MediaCarousel({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          position: "relative",
         }}
       >
         {currentSlide.type === "image" ? (
@@ -97,7 +92,6 @@ export default function MediaCarousel({
         )}
       </div>
 
-      {/* Стрелки */}
       {media.length > 1 && (
         <>
           <button
@@ -105,7 +99,7 @@ export default function MediaCarousel({
             className="carousel-arrow carousel-arrow--prev"
             style={{
               position: "absolute",
-              top: "50%",
+              top: "40%",
               left: "10px",
               transform: "translateY(-50%)",
               background: "rgba(0,0,0,0.5)",
@@ -123,14 +117,16 @@ export default function MediaCarousel({
             }}
             aria-label="Предыдущий слайд"
           >
-            ‹
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+            </svg>
           </button>
           <button
             onClick={nextSlide}
             className="carousel-arrow carousel-arrow--next"
             style={{
               position: "absolute",
-              top: "50%",
+              top: "40%",
               right: "10px",
               transform: "translateY(-50%)",
               background: "rgba(0,0,0,0.5)",
@@ -148,37 +144,74 @@ export default function MediaCarousel({
             }}
             aria-label="Следующий слайд"
           >
-            ›
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+            </svg>
           </button>
         </>
       )}
 
-      {/* Индикаторы (только если >1 слайд) */}
+      {/* Миниатюры (Thumbnails) — как в Steam */}
       {media.length > 1 && (
         <div
-          className="carousel-dots"
+          className="carousel-thumbnails"
           style={{
             display: "flex",
             justifyContent: "center",
             gap: "8px",
             marginTop: "12px",
+            flexWrap: "wrap",
+            padding: "8px 0",
+            overflowX: "auto",
+            maxWidth: "100%",
+            scrollbarWidth: "thin",
+            scrollbarColor: "#ccc #f0f0f0",
           }}
         >
-          {media.map((_, idx) => (
+          {media.map((item, index) => (
             <button
-              key={idx}
-              onClick={() => goToSlide(idx)}
+              key={index}
+              onClick={() => goToSlide(index)}
               style={{
-                width: "10px",
-                height: "10px",
-                borderRadius: "50%",
-                background: idx === currentIndex ? "#4a90e2" : "#ccc",
-                border: "none",
+                width: "100px",
+                height: "60px",
+                borderRadius: "6px",
+                overflow: "hidden",
+                border: currentIndex === index ? "2px solid #4a90e2" : "2px solid transparent",
                 cursor: "pointer",
-                padding: 0,
+                position: "relative",
+                transition: "border 0.2s ease",
+                flexShrink: 0,
               }}
-              aria-label={`Перейти к слайду ${idx + 1}`}
-            />
+              aria-label={`Перейти к слайду ${index + 1}`}
+            >
+              {item.type === "image" ? (
+                <img
+                  src={item.src}
+                  alt={item.alt || `Миниатюра ${index + 1}`}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "#000",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  ▶️
+                </div>
+              )}
+            </button>
           ))}
         </div>
       )}
