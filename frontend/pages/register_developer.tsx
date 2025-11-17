@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext';
-import { DeveloperRegisterRequest } from '../types';
+import { useAuth } from '@/context/AuthContext';
+import { DeveloperRegisterRequest } from '@/types';
 import Link from 'next/link';
 
 export default function DeveloperRegisterPage() {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext';
-import { RegisterRequest } from '../types';
+import { useAuth } from '@/context/AuthContext';
+import { RegisterRequest } from '@/types';
 import Link from 'next/link';
 
 export default function RegisterPage() {
@@ -21,7 +21,7 @@ export default function RegisterPage() {
 
     if (isDeveloper) {
       sessionStorage.setItem('tempUserData', JSON.stringify(userData));
-      router.push('/register-developer');
+      router.push('/register_developer');
     } else {
       const result = await register(userData, false);
       if (result.success) {

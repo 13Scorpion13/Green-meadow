@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import Header from '@/components/Header';
 
 interface Comment {
   id: number;
@@ -141,37 +142,7 @@ const DiscussionPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="main-header">
-        <div className="container header-container">
-          <div className="header-left">
-            <div className="logo">
-              <div className="logo-icon">
-                <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
-              </div>
-              <div>
-                <h1 className="logo-title">AI Community</h1>
-                <p className="logo-subtitle">Сообщество разработчиков</p>
-              </div>
-            </div>
-            <nav className="main-nav">
-              <Link href="/">Каталог</Link>
-              <a href="#">Как работает</a>
-              <a href="/articles">Статьи</a>
-              <a href="/DiscussionsListPage">Сообщество</a>
-            </nav>
-          </div>
-
-          <div className="header-right">
-            <button className="icon-button" id="user-profile-button">
-              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
-            </button>
-            <button className="btn btn--primary login-button">Выйти</button>
-            <button className="menu-button">
-              <img src="/images/icons/ui/Menu.svg" alt="Menu" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="main-content container">
         <div className="back-to-catalog">

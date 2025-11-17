@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 
 // Типы данных согласно твоему API (см. ProjectsTab)
 interface Agent {
@@ -33,7 +34,7 @@ const HomePage: React.FC = () => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/`, {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
           // cache: 'no-store', // для SSR/ISR — можно добавить при необходимости
         });
@@ -82,46 +83,13 @@ const HomePage: React.FC = () => {
 
   const handleAgentClick = (agent: Agent) => (e: React.MouseEvent) => {
     e.preventDefault();
-    const slug = agent.slug || agent.id;
+    const slug = agent.slug || agent.id; // реализовать переход к агенту по slug
     router.push(`/agent/${slug}`);
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header — без изменений */}
-      <header className="main-header">
-        <div className="container header-container">
-          <div className="header-left">
-            <div className="logo">
-              <div className="logo-icon">
-                <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
-              </div>
-              <div>
-                <h1 className="logo-title">AI Market</h1>
-                <p className="logo-subtitle">Маркетплейс агентов</p>
-              </div>
-            </div>
-            <nav className="main-nav">
-              <Link href="/">Каталог</Link>
-              <a href="#">Как работает</a>
-              <a href="/articles">Статьи</a>
-              <a href="/DiscussionsListPage">Сообщество</a>
-            </nav>
-          </div>
-          <div className="header-right">
-            <button className="icon-button">
-              <img src="/images/icons/ui/ShoppingCart.svg" alt="Shopping Cart" />
-            </button>
-            <button className="icon-button" id="user-profile-button">
-              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
-            </button>
-            <button className="btn btn--primary login-button">Войти/Зарегистрироваться</button>
-            <button className="menu-button">
-              <img src="/images/icons/ui/Menu.svg" alt="Menu" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section — без изменений */}
       <section className="hero-section">
@@ -290,7 +258,7 @@ const HomePage: React.FC = () => {
                   return (
                     <a
                       key={agent.id}
-                      href={`/agent/${agent.slug || agent.id}`}
+                      href={`/agent/${agent.slug || agent.id}`} // реализовать переход к агенту по slug
                       className="ai-card gradient-border animate-fadeIn"
                       onClick={handleAgentClick(agent)}
                     >
