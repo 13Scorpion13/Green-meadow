@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
-    POSTGRES_PORT: str
+    POSTGRES_EXTERNAL_PORT: str
     API_GATEWAY_URL: str
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
