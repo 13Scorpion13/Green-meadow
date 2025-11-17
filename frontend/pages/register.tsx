@@ -21,7 +21,7 @@ export default function RegisterPage() {
 
     if (isDeveloper) {
       sessionStorage.setItem('tempUserData', JSON.stringify(userData));
-      router.push('/register-developer');
+      router.push('/register_developer');
     } else {
       const result = await register(userData, false);
       if (result.success) {
