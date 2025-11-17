@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, LoginRequest, RegisterRequest, DeveloperRegisterRequest } from '../types';
+import { User, LoginRequest, RegisterRequest, DeveloperRegisterRequest } from '@/types';
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +11,7 @@ interface AuthContextType {
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   loading: boolean;
+  updateAvatar: (avatarUrl: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -127,12 +128,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
+  const updateAvatar = (newAvatarUrl: string) => {
+    if (user) {
+      // Обновляем только avatar_url, остальное — как есть
+      setUser({
+        ...user,
+        avatar_url: newAvatarUrl
+      });
+    }
+  };
+
   const value = {
     user,
     login,
     register,
     logout,
-    loading
+    loading,
+    updateAvatar,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
