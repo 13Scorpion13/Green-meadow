@@ -60,19 +60,19 @@ async def get_agents(
 #     agents = result.scalars().all()
 #     return agents
 
-@router.get("/user", response_model=list[AgentRead])
-async def get_agents(
-    user_id: str = Query(None),
-    #current_user: dict = Depends(get_current_user),  # ← проверяет токен
-    db: AsyncSession = Depends(get_db)
-):
-    query = select(Agent)
-    if user_id:
-        query = query.where(Agent.user_id == user_id)
+# @router.get("/user", response_model=list[AgentRead])
+# async def get_agents(
+#     user_id: str = Query(None),
+#     #current_user: dict = Depends(get_current_user),  # ← проверяет токен
+#     db: AsyncSession = Depends(get_db)
+# ):
+#     query = select(Agent)
+#     if user_id:
+#         query = query.where(Agent.user_id == user_id)
 
-    result = await db.execute(query)
-    agents = result.scalars().all()
-    return agents
+#     result = await db.execute(query)
+#     agents = result.scalars().all()
+#     return agents
 
 @router.get("/my", response_model=list[AgentRead])
 async def get_my_agents(

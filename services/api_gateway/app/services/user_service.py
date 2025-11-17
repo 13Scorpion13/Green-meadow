@@ -50,21 +50,21 @@ async def get_other_profile_from_user_service(user_id: str) -> dict:
     except Exception as e:
         raise Exception(f"User Service connection error: {str(e)}")
     
-async def get_developer_profile_from_user_service(token: str) -> dict:
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{settings.USER_SERVICE_URL}/developers/me",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            response.raise_for_status()
-            return response.json()
-    except httpx.HTTPStatusError as e:
-        if e.response.status_code == 404:
-            raise Exception("Developer profile not found")
-        raise Exception(f"User Service error: {e.response.status_code} - {e.response.text}")
-    except Exception as e:
-        raise Exception(f"User Service connection error: {str(e)}")
+# async def get_developer_profile_from_user_service(token: str) -> dict:
+#     try:
+#         async with httpx.AsyncClient() as client:
+#             response = await client.get(
+#                 f"{settings.USER_SERVICE_URL}/developers/me",
+#                 headers={"Authorization": f"Bearer {token}"}
+#             )
+#             response.raise_for_status()
+#             return response.json()
+#     except httpx.HTTPStatusError as e:
+#         if e.response.status_code == 404:
+#             raise Exception("Developer profile not found")
+#         raise Exception(f"User Service error: {e.response.status_code} - {e.response.text}")
+#     except Exception as e:
+#         raise Exception(f"User Service connection error: {str(e)}")
     
 async def get_users_nicknames_by_ids_from_user_service(user_ids: list[str], token: str) -> dict[str, str]:
     try:

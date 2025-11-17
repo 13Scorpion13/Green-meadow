@@ -5,9 +5,11 @@ from app.services.user_service import (
     register_user_in_user_service,
     get_user_profile_from_user_service,
     get_other_profile_from_user_service,
-    get_developer_profile_from_user_service,
     update_user_profile_in_user_service,
     delete_user_account_in_user_service
+)
+from app.services.developer_service import (
+    get_developer_profile_from_user_service
 )
 from app.schemas.user import UserWithDeveloper, UserUpdate
 

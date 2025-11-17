@@ -53,7 +53,7 @@ async def delete_user_full_from_cache(user_id: str):
     key = f"user:profile:full:{user_id}"
     await redis_client.delete(key)
 
-# --- Функции для кэширования разработчиков (если нужно отдельно) ---
+# --- Функции для кэширования разработчиков ---
 
 async def get_developer_from_cache(user_id: str) -> Optional[Dict[str, Any]]:
     """
