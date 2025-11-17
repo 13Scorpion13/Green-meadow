@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext';
-import { RegisterRequest } from '../types';
+import { useAuth } from '@/context/AuthContext';
+import { RegisterRequest } from '@/types';
 import Link from 'next/link';
 
 export default function RegisterPage() {

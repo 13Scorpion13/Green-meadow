@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+import Header from '@/components/Header';
 
 const VIDEO_MAX_SIZE = 100 * 1024 * 1024;
 const VIDEO_MAX_DURATION = 180;
@@ -320,35 +321,7 @@ const AddAgentPage: React.FC = () => {
   return (
     <div id="root">
       <div className="min-h-screen bg-background">
-        <header className="main-header">
-          <div className="container header-container">
-            <div className="header-left">
-              <div className="logo">
-                <div className="logo-icon">
-                  <img src="images/logos/Bot.svg" alt="AI Market Logo" />
-                </div>
-                <div>
-                  <h1 className="logo-title">AI Community</h1>
-                  <p className="logo-subtitle">Сообщество разработчиков</p>
-                </div>
-              </div>
-              <nav className="main-nav">
-                <Link href="/HomePage">Каталог</Link>
-                <a href="#">Как работает</a>
-                <a href="/articles">Статьи</a>
-                <a href="/DiscussionsListPage">Сообщество</a>
-              </nav>
-            </div>
-            <div className="header-right">
-              <button className="icon-button" id="user-profile-button">
-                <img src="images/icons/ui/UserProfile.svg" alt="User Profile" />
-              </button>
-              <button className="menu-button">
-                <img src="images/icons/ui/Menu.svg" alt="Menu" />
-              </button>
-            </div>
-          </div>
-        </header>
+        <Header />
 
         <main className="main-content container">
           <div className="back-to-catalog">

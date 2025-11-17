@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from 'next/router';
-import { formatDate } from '../../utils/date';
+import { formatDate } from '@/utils/date';
+import MediaCarousel from '@/components/MediaCarousel';
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 
 interface Developer {
   first_name: string;
@@ -180,40 +183,7 @@ export default function AgentDetailsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="main-header">
-        <div className="container header-container">
-          <div className="header-left">
-            <div className="logo">
-              <div className="logo-icon">
-                <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
-              </div>
-              <div>
-                <h1 className="logo-title">AI Community</h1>
-                <p className="logo-subtitle">Сообщество разработчиков</p>
-              </div>
-            </div>
-            <nav className="main-nav">
-              <Link href="/">Каталог</Link>
-              <a href="#">Как работает</a>
-              <a href="/articles">Статьи</a>
-              <a href="/DiscussionsListPage">Сообщество</a>
-            </nav>
-          </div>
-
-          <div className="header-right">
-            <button className="icon-button">
-              <img src="/images/icons/ui/ShoppingCart.svg" alt="Shopping Cart" />
-            </button>
-            <button className="icon-button" id="user-profile-button">
-              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
-            </button>
-            <button className="btn btn--primary login-button">Войти/Зарегистрироваться</button>
-            <button className="menu-button">
-              <img src="/images/icons/ui/Menu.svg" alt="Menu" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="main-content container">
         <div className="back-to-catalog">
@@ -275,6 +245,31 @@ export default function AgentDetailsPage() {
               {activeTab === "description" && (
                 <div className={`tab-pane ${activeTab === "description" ? "active" : ""}`} id="description">
                   <h2>Описание</h2>
+
+                  {/* 🎞️ Карусель — теперь с заглушками или реальными данными */}
+                  <MediaCarousel
+                    media={[
+                      {
+                        type: "video",
+                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                        alt: "Демонстрация работы",
+                      },
+                      {
+                        type: "image",
+                        src: "https://bipbap.ru/wp-content/uploads/2017/04/priroda_kartinki_foto_03.jpg",
+                        alt: "Превью агента",
+                      },
+                      {
+                        type: "image",
+                        src: "https://img.goodfon.ru/wallpaper/big/8/4e/badfon-full-hd-cvety-priroda-vesna.webp",
+                        alt: "Архитектура агента",
+                      },
+                    ]}
+                    autoPlay={false} // можно true для автопрокрутки
+                    interval={4000}
+                    height="350px"
+                  />
+
                   <p>{agent.description}</p>
                   {agent.requirements && (
                     <>
@@ -325,14 +320,14 @@ export default function AgentDetailsPage() {
               <h3>Теги</h3>
               <div className="agent-tags">
                 {agent.tags && (
-                    <>
-                      <div className="tags-list">
-                        {(Array.isArray(agent.tags) ? agent.tags : []).map(tag => (
-                          <span key={tag} className="tag">{tag}</span>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <>
+                    <div className="tags-list">
+                      {(Array.isArray(agent.tags) ? agent.tags : []).map(tag => (
+                        <span key={tag} className="tag">{tag}</span>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -379,51 +374,7 @@ export default function AgentDetailsPage() {
         </div>
       </main>
 
-      <footer className="main-footer">
-        <div className="container footer-container">
-          <div className="footer-grid">
-            <div className="footer-about">
-              <div className="logo">
-                <div className="logo-icon">
-                  <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
-                </div>
-                <span className="logo-title">AI Community</span>
-              </div>
-              <p className="footer-about-text">Лучшая площадка для поиска ИИ-агентов</p>
-            </div>
-
-            <div className="footer-links">
-              <h3 className="footer-heading">Для клиентов</h3>
-              <ul>
-                <li><a href="#">Гарантии</a></li>
-                <li><a href="#">Поддержка</a></li>
-              </ul>
-            </div>
-
-            <div className="footer-links">
-              <h3 className="footer-heading">Для разработчиков</h3>
-              <ul>
-                <li><a href="#">Разместить агента</a></li>
-                <li><a href="#">API документация</a></li>
-                <li><a href="#">Комиссии</a></li>
-              </ul>
-            </div>
-
-            <div className="footer-links">
-              <h3 className="footer-heading">Компания</h3>
-              <ul>
-                <li><a href="#">О нас</a></li>
-                <li><a href="#">Блог</a></li>
-                <li><a href="#">Контакты</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="footer-copyright">
-            © 2025 AI Community. Все права защищены.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

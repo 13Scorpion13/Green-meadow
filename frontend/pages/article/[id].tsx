@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useAuth } from '../../context/AuthContext';
-import { formatDate } from '../../utils/date';
+import { useAuth } from '@/context/AuthContext';
+import { formatDate } from '@/utils/date';
+import Header from '@/components/Header';
 
 interface Article {
   id: string;
@@ -134,27 +135,7 @@ const ArticlePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="main-header">
-        <div className="container header-container">
-          <div className="header-left">
-            <div className="logo">
-              <div className="logo-icon">
-                <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
-              </div>
-              <div>
-                <h1 className="logo-title">AI Community</h1>
-                <p className="logo-subtitle">Сообщество разработчиков</p>
-              </div>
-            </div>
-            <nav className="main-nav">
-              <Link href="/">Каталог</Link>
-              <a href="#">Как работает</a>
-              <a href="/articles">Статьи</a>
-              <a href="/DiscussionsListPage">Сообщество</a>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="main-content container">
         <div className="article-page" style={{ maxWidth: 800, margin: '0 auto', background: 'var(--background-secondary, #181a20)', borderRadius: 16, boxShadow: '0 2px 16px rgba(0,0,0,0.25)', padding: '2rem', color: 'var(--text-primary, #f3f3f3)' }}>
