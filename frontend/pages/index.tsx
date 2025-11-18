@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 // Типы данных согласно твоему API (см. ProjectsTab)
 interface Agent {
@@ -296,29 +297,30 @@ const HomePage: React.FC = () => {
                         ))}
                       </div>
                       <div className="agent-stats">
+                        {/* Рейтинг + количество отзывов */}
                         <div className="stat">
                           <img src="/images/icons/ui/Star.svg" alt="Star Icon" />
-                          <span>{rating > 0 ? rating.toFixed(1) : '—'}</span>
-                          <span>({reviews})</span>
+                          <span>—</span> {/* рейтинг: заглушка */}
+                          <span>(0)</span> {/* количество отзывов: заглушка */}
                         </div>
-                        <div className="stat">
-                          <img src="/images/icons/ui/Clock.svg" alt="Clock Icon" />
-                          <span>—</span> {/* ← бэк не даёт время ответа — заглушка */}
-                        </div>
-                        <div className="stat">
+
+                        {/* Пользователи — немного правее */}
+                        <div className="stat stat-users">
                           <img src="/images/icons/ui/Users.svg" alt="Users Icon" />
-                          <span>{reviews}</span>
+                          <span>0</span> {/* количество пользователей: заглушка */}
                         </div>
+
+                        {/* Кнопка "Подробнее" — левее (не в самом правом углу) */}
+                        <button className="rent-button">Подробнее</button>
                       </div>
-                      <div className="agent-footer">
-                        {/* <div className="agent-price">
+                      {/* <div className="agent-footer"> */}
+                      {/* <div className="agent-price">
                           <p className="price">
                             {agent.price != null ? `₽${agent.price}` : 'Бесплатно'}
                           </p>
                           <p className="price-period"></p>
                         </div> */}
-                        <button className="rent-button">Подробнее</button>
-                      </div>
+                      {/* </div> */}
                     </a>
                   );
                 })}
@@ -329,46 +331,7 @@ const HomePage: React.FC = () => {
       </main>
 
       {/* Footer — без изменений */}
-      <footer className="main-footer">
-        <div className="container footer-container">
-          <div className="footer-grid">
-            <div className="footer-about">
-              <div className="logo">
-                <div className="logo-icon">
-                  <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
-                </div>
-                <span className="logo-title">AI Market</span>
-              </div>
-              <p className="footer-about-text">Лучший маркетплейс для аренды ИИ-агентов</p>
-            </div>
-            <div className="footer-links">
-              <h3 className="footer-heading">Для клиентов</h3>
-              <ul>
-                <li><a href="#">Как арендовать</a></li>
-                <li><a href="#">Гарантии</a></li>
-                <li><a href="#">Поддержка</a></li>
-              </ul>
-            </div>
-            <div className="footer-links">
-              <h3 className="footer-heading">Для разработчиков</h3>
-              <ul>
-                <li><a href="#">Разместить агента</a></li>
-                <li><a href="#">API документация</a></li>
-                <li><a href="#">Комиссии</a></li>
-              </ul>
-            </div>
-            <div className="footer-links">
-              <h3 className="footer-heading">Компания</h3>
-              <ul>
-                <li><a href="#">О нас</a></li>
-                <li><a href="#">Блог</a></li>
-                <li><a href="#">Контакты</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-copyright">© 2025 AI Market. Все права защищены.</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

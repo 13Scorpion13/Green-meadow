@@ -121,14 +121,22 @@
 
 .agent-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: auto auto 1fr;
+  gap: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
   border-top: 1px solid hsl(var(--border) / 0.5);
   border-bottom: 1px solid hsl(var(--border) / 0.5);
   font-size: 0.75rem;
   color: hsl(var(--muted-foreground));
+
+  /* 👇 Ключевое изменение: поднимаем нижнюю границу */
+  margin-bottom: -1rem;
+}
+
+.rent-button {
+  justify-self: end;
+  /* ← кнопка прижата к левому краю своей ячейки */
 }
 
 .stat {
