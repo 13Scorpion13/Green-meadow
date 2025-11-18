@@ -306,7 +306,7 @@ const HomePage: React.FC = () => {
 
                         {/* Пользователи — немного правее */}
                         <div className="stat stat-users">
-                          <img src="/images/icons/ui/Users.svg" alt="Users Icon" />
+                          <img src="/images/icons/ui/Download.svg" alt="Download Icon" />
                           <span>0</span> {/* количество пользователей: заглушка */}
                         </div>
 
