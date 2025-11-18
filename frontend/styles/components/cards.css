@@ -158,7 +158,7 @@
   filter: invert(56%) sepia(98%) saturate(308%) hue-rotate(138deg) brightness(98%) contrast(94%);
 }
 
-.stat img[alt="Users Icon"] {
+.stat img[alt="Download Icon"] {
   filter: invert(25%) sepia(100%) saturate(2870%) hue-rotate(260deg) brightness(98%) contrast(93%);
 }
 
