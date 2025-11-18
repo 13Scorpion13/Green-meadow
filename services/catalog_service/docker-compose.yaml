@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT_TWO}"
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INLAND_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -16,5 +16,22 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7.4-alpine
+    container_name: catalog_service_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-""}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-""}
+    ports:
+      - "${REDIS_EXTERNAL_PORT}:${REDIS_INLAND_PORT}"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
 volumes:
   postgres_data:
+  redis_data:

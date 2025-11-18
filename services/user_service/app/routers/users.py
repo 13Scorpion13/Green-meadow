@@ -7,16 +7,19 @@ from app.schemas.user import (
     UserCreate,
     UserOut,
     UserUpdate,
-    UserFullOut
+    UserFullOut,
+    ChangePasswordRequest
 )
 from app.services.user_service import (
     create_user,
+    get_user_by_id,
     get_user_full,
     update_user,
-    delete_user
+    delete_user,
+    change_user_password
 )
 from app.services.developer_service import delete_developer
-from app.routers.deps import get_current_user
+from app.dependencies.auth import get_current_user
 
 router = APIRouter()
 
@@ -28,6 +31,23 @@ async def register_user(
     user = await create_user(db, user_in)
     return user
 
+@router.post("/change-password")
+async def change_password(
+    change_password_request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        await change_user_password(
+            db,
+            str(current_user.id),
+            change_password_request.old_password,
+            change_password_request.new_password
+        )
+        return {"message": "Password changed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.get("/me", response_model=UserOut)
 async def get_my_profile(
     current_user: User = Depends(get_current_user),
@@ -35,32 +55,12 @@ async def get_my_profile(
 ):
     return current_user
 
-# @router.post("/profile", response_model=UserOut)
-# async def get_user_profile_by_id(
-#     request: dict,
-#     current_user: User = Depends(get_current_user),
-#     db: AsyncSession = Depends(get_db)
-# ):
-#     user_id = request.get("user_id")
-#     if not user_id:
-#         raise HTTPException(status_code=400, detail="user_id is required")
-
-#     stmt = select(User).where(User.id == user_id)
-#     result = await db.execute(stmt)
-#     user = result.scalar_one_or_none()
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     return user
-
 @router.get("/{user_id}", response_model=UserOut)
 async def get_user(
     user_id: str,
     db: AsyncSession = Depends(get_db)
 ):
-    stmt = select(User).where(User.id == user_id)
-    result = await db.execute(stmt)
-    user = result.scalar_one_or_none()
+    user = await get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user

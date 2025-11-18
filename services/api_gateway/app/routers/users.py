@@ -1,13 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.utils.auth import get_current_user, get_token_from_header
-from app.schemas.user import UserCreate, UserOut
+from app.schemas.user import UserCreate, UserOut, ChangePasswordRequest
 from app.services.user_service import (
     register_user_in_user_service,
     get_user_profile_from_user_service,
     get_other_profile_from_user_service,
-    get_developer_profile_from_user_service,
     update_user_profile_in_user_service,
-    delete_user_account_in_user_service
+    delete_user_account_in_user_service,
+    change_password_in_user_service
+)
+from app.services.developer_service import (
+    get_developer_profile_from_user_service
 )
 from app.schemas.user import UserWithDeveloper, UserUpdate
 
@@ -55,6 +58,18 @@ async def update_my_profile(
     try:
         updated_profile = await update_user_profile_in_user_service(user_update.model_dump(mode='json'), token)
         return updated_profile
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/change-password")
+async def change_my_password(
+    change_password_request: ChangePasswordRequest,
+    current_user: dict = Depends(get_current_user),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        result = await change_password_in_user_service(change_password_request.model_dump(mode='json'), token)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     

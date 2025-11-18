@@ -6,7 +6,7 @@ from datetime import datetime
 class DeveloperBase(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
-    support_phone: Optional[str] = Field(None, max_length=20, pattern=r"^\+?[1-9]\d{1,14}$")
+    # support_phone: Optional[str] = Field(None, max_length=20, pattern=r"^\+?[1-9]\d{1,14}$")
     github_profile: Optional[str] = Field(None, max_length=255)
     
     @field_validator('github_profile', mode='before')
@@ -39,7 +39,7 @@ class DeveloperCreate(DeveloperBase):
 class DeveloperUpdate(DeveloperBase):
     first_name: str | None = Field(None, min_length=1, max_length=100)
     last_name: str | None = Field(None, min_length=1, max_length=100)
-    support_phone: str | None = Field(None, max_length=20)
+    # support_phone: str | None = Field(None, max_length=20)
     github_profile: str | None = Field(None, max_length=255)
 
 class DeveloperOut(DeveloperBase):

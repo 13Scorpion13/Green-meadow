@@ -4,6 +4,7 @@ from app.database import engine
 from app.models import Base
 from app.routers import users, developers, auth
 from app.config import get_settings
+from app.redis import redis_client
 
 settings = get_settings()
 
@@ -31,8 +32,14 @@ async def health_check():
 
 @app.on_event("startup")
 async def startup():
-    pass
+    try:
+        await redis_client.ping()
+        print("✅ Redis connected successfully")
+    except Exception as e:
+        print(f"❌ Redis connection failed: {e}")
+        raise
 
 @app.on_event("shutdown")
 async def shutdown():
+    await redis_client.close()
     await engine.dispose()
