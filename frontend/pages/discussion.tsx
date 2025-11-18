@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/Header';
+import { formatDate } from '@/utils/date';
 
 interface Comment {
   id: number;
   author: string;
   avatar: string;
   text: string;
-  created_at?: string; // необязательное поле
+  created_at?: string;
 }
 
 interface Discussion {
@@ -35,15 +36,13 @@ const DiscussionPage: React.FC = () => {
     ? sessionStorage.getItem('selectedDiscussionId') || ''
     : '';
 
-  // Защита от прямого захода без ID
   useEffect(() => {
     if (!contentId) {
-      router.push('/community/discussions');
+      router.push('/discussion_list_page');
       return;
     }
   }, [contentId, router]);
 
-  // Загрузка данных — ТОЛЬКО GET
   useEffect(() => {
     if (!contentId) return;
 
@@ -52,38 +51,43 @@ const DiscussionPage: React.FC = () => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-        // 1. Получаем обсуждение
         const discussionRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/contents/${contentId}`, {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         });
         if (!discussionRes.ok) throw new Error(`HTTP ${discussionRes.status}`);
         const discussionData: Discussion = await discussionRes.json();
 
-        // Форматируем дату
         const formattedDate = discussionData.created_at
           ? new Date(discussionData.created_at).toLocaleDateString('ru-RU', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
           : 'Сегодня';
 
         setDiscussion({ ...discussionData, created_at: formattedDate });
 
-        // 2. Получаем комментарии
         const commentsRes = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/contents/${contentId}/comments`, {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         });
+        // console.log(commentsRes.json())
         if (!commentsRes.ok) throw new Error(`HTTP ${commentsRes.status}`);
         const rawComments: any[] = await commentsRes.json();
 
         const formattedComments = rawComments.map((c, idx) => ({
           id: c.id || idx + 1,
-          author: c.user_id === user?.id
-            ? (user?.nickname || 'Вы')
-            : (c.author_nickname || 'Пользователь'),
+          // author: c.user_id === user?.id
+          //   ? (user?.nickname || 'Вы')
+          //   : (c.nickname || 'Пользователь'),
+          author: `Пользователь ${c.user_id.slice(0, 8)}...`,
           avatar: c.author_avatar || '/images/icons/ui/UserProfile.svg',
-          text: c.content || c.text || '',
+          text: c.comment || c.text || '',
+          created_at: c.created_at? new Date(discussionData.created_at).toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+          : 'Сегодня'
         }));
 
         setComments(formattedComments);
@@ -97,7 +101,6 @@ const DiscussionPage: React.FC = () => {
     fetchData();
   }, [contentId, user]);
 
-  // Локальное добавление комментария — БЕЗ отправки на сервер
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (commentText.trim() && discussion) {
@@ -182,7 +185,7 @@ const DiscussionPage: React.FC = () => {
                         <img src={c.avatar} alt="User Avatar" className="comment-avatar" />
                         <span className="comment-author">{c.author}:</span>
                       </div>
-                      <div className="comment-date">недавно</div>
+                      <div className="comment-date">{c.created_at}</div>
                     </div>
                     <div className="comment-text">{c.text}</div>
                     <button className="reply-button">Ответить</button>
@@ -223,7 +226,6 @@ const DiscussionPage: React.FC = () => {
               </div>
               <p className="footer-about-text">Лучшая площадка для поиска ИИ-агентов</p>
             </div>
-            {/* остальное без изменений */}
             <div className="footer-links">
               <h3 className="footer-heading">Для клиентов</h3>
               <ul>

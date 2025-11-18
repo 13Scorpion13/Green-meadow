@@ -34,7 +34,7 @@ export default function Header() {
               <Link href="/">Каталог</Link>
               <a href="#">Как работает</a>
               <a href="/articles">Статьи</a>
-              <a href="/discussions">Сообщество</a>
+              <a href="/discussions_list_page">Сообщество</a>
             </nav>
           </div>
 

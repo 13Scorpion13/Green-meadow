@@ -36,7 +36,7 @@ const DiscussionsListPage: React.FC = () => {
           excerpt: item.content 
             ? `${item.content.substring(0, 150)}${item.content.length > 150 ? '...' : ''}`
             : "Нет описания",
-          userId: item.user_id,
+          user_id: item.user_id,
           avatar: "/images/icons/ui/UserProfile.svg",
           date: item.created_at 
             ? new Date(item.created_at).toLocaleDateString('ru-RU', {
@@ -65,6 +65,7 @@ const DiscussionsListPage: React.FC = () => {
     if (activeTab === "active") return d.replies > 5;
     return true;
   });
+  console.log(filteredDiscussions)
 
   // 👇 Обработчик клика по карточке — сохраняем id и переходим
   const handleCardClick = (contentId: string) => () => {
@@ -173,9 +174,10 @@ const DiscussionsListPage: React.FC = () => {
                     <div className="discussion-author-info">
                       <img src={d.avatar} alt="Author" className="discussion-avatar" />
                       <span className="discussion-author">
-                        {d.userId === user?.id 
+                        {/* {d.userId === user?.id 
                           ? (user?.nickname || "Вы") 
-                          : "Пользователь"}
+                          : "Пользователь"} */}
+                        {`Пользователь ${d.user_id.slice(0, 8)}...`}
                       </span>
                     </div>
                     <span className="discussion-date">{d.date}</span>
