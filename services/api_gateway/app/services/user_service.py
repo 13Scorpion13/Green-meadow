@@ -50,6 +50,25 @@ async def get_other_profile_from_user_service(user_id: str) -> dict:
     except Exception as e:
         raise Exception(f"User Service connection error: {str(e)}")
     
+async def change_password_in_user_service(password_change_data: dict, token: str) -> dict:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{settings.USER_SERVICE_URL}/users/change-password",
+                json=password_change_data,
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 400:
+            raise Exception("Old password is incorrect or new password is same as old")
+        if e.response.status_code == 404:
+            raise Exception("User not found")
+        raise Exception(f"User Service error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"User Service connection error: {str(e)}")
+    
 # async def get_developer_profile_from_user_service(token: str) -> dict:
 #     try:
 #         async with httpx.AsyncClient() as client:

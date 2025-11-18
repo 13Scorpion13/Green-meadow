@@ -4,7 +4,8 @@ from sqlalchemy.orm import selectinload
 from app.models.user import User
 from app.models.developer import Developer
 from app.schemas.user import UserCreate, UserUpdate, UserFullOut, UserOut
-from app.utils.password import get_password_hash
+from app.utils.auth import delete_refresh_token
+from app.utils.password import get_password_hash, verify_password
 from app.utils.cache import (
     get_user_from_cache,
     set_user_in_cache,
@@ -107,6 +108,26 @@ async def update_user(db: AsyncSession, user_id: str, user_update: UserUpdate):
     await delete_user_from_cache(user_id)
     #await delete_user_full_from_cache(user_id)
     
+    return user
+
+async def change_user_password(db: AsyncSession, user_id: str, old_password: str, new_password: str):
+    stmt = select(User).where(User.id == user_id)
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+    if not user:
+        raise ValueError("User not found")
+
+    if not verify_password(old_password, user.password_hash):
+        raise ValueError("Incorrect old password")
+
+    hashed_new_password = get_password_hash(new_password)
+
+    user.password_hash = hashed_new_password
+    await db.commit()
+    await db.refresh(user)
+
+    await delete_refresh_token(user_id)
+
     return user
 
 async def delete_user(db: AsyncSession, user_id: str):

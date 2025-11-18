@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.developer import Developer
 from app.models.user import User
-from app.schemas.developer import DeveloperCreate, DeveloperUpdate
+from app.schemas.developer import DeveloperCreate, DeveloperUpdate, DeveloperOut
 from app.utils.cache import (
     get_developer_from_cache,
     set_developer_in_cache,
@@ -10,10 +10,9 @@ from app.utils.cache import (
 )
 from typing import Optional
 
-async def get_developer_by_user_id(db: AsyncSession, user_id: str) -> Optional[Developer]:
+async def get_developer_by_user_id(db: AsyncSession, user_id: str) -> Optional[DeveloperOut]:
     cached_dev = await get_developer_from_cache(user_id)
     if cached_dev:
-        from app.schemas.developer import DeveloperOut
         return DeveloperOut.model_validate(cached_dev)
     
     result = await db.execute(select(Developer).where(Developer.user_id == user_id))
@@ -21,7 +20,9 @@ async def get_developer_by_user_id(db: AsyncSession, user_id: str) -> Optional[D
     if not dev:
         return None
     
-    await set_developer_in_cache(user_id, dev.model_dump(mode='json'))
+    dev_out = DeveloperOut.model_validate(dev)
+    
+    await set_developer_in_cache(user_id, dev_out.model_dump(mode='json'))
     
     return dev
 

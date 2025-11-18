@@ -7,14 +7,16 @@ from app.schemas.user import (
     UserCreate,
     UserOut,
     UserUpdate,
-    UserFullOut
+    UserFullOut,
+    ChangePasswordRequest
 )
 from app.services.user_service import (
     create_user,
     get_user_by_id,
     get_user_full,
     update_user,
-    delete_user
+    delete_user,
+    change_user_password
 )
 from app.services.developer_service import delete_developer
 from app.dependencies.auth import get_current_user
@@ -28,6 +30,23 @@ async def register_user(
 ):
     user = await create_user(db, user_in)
     return user
+
+@router.post("/change-password")
+async def change_password(
+    change_password_request: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        await change_user_password(
+            db,
+            str(current_user.id),
+            change_password_request.old_password,
+            change_password_request.new_password
+        )
+        return {"message": "Password changed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/me", response_model=UserOut)
 async def get_my_profile(
