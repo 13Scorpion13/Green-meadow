@@ -214,7 +214,7 @@ export default function AgentDetailsPage() {
                   <span>({agent.reviews_count})</span>
                 </div>
                 <div className="stat">
-                  <img src="/images/icons/ui/Users.svg" alt="Users Icon" />
+                  <img src="/images/icons/ui/Download.svg" alt="Download Icon" />
                   <span>1250 пользователей</span>
                 </div>
               </div>
