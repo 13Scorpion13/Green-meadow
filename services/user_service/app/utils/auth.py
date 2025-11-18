@@ -1,11 +1,17 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
+from datetime import timedelta
 from app.config import get_settings
 from app.schemas.auth import TokenData
 from app.redis import redis_client
+from uuid import UUID
+import uuid
 
 settings = get_settings()
+redis_client = redis_client.from_url(settings.REDIS_URL, password=settings.REDIS_PASSWORD)
+
+RESET_TOKEN_TTL = 3600
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -53,3 +59,18 @@ def verify_token(token: str) -> Optional[TokenData]:
         return TokenData(user_id=user_id, role=role)
     except JWTError:
         return None
+    
+def generate_reset_token(user_id: str) -> str:
+    return str(uuid.uuid4())
+
+async def store_reset_token(user_id: UUID | str, token: str):
+    await redis_client.setex(f"reset_token:{token}", RESET_TOKEN_TTL, str(user_id))
+
+async def verify_reset_token(token: str) -> str | None:
+    user_id = await redis_client.get(f"reset_token:{token}")
+    if user_id:
+        return str(user_id) if not isinstance(user_id, str) else user_id
+    return None
+
+async def delete_reset_token(token: str):
+    await redis_client.delete(f"reset_token:{token}")
