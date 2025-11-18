@@ -176,7 +176,17 @@ const HomePage: React.FC = () => {
 
             <div className="stats-container">
               <div className="stat-card">
-                <div className="stat-value-primary">{loading ? '---' : `${agents.length}+`}</div>
+                <div className="stat-value-primary">
+                  {loading
+                    ? '---'
+                    : agents.length <= 10
+                      ? String(agents.length)
+                      : agents.length <= 50
+                        ? '10+'
+                        : agents.length <= 100
+                          ? '50+'
+                          : '100+'}
+                </div>
                 <div className="stat-label">ИИ-агентов</div>
               </div>
               <div className="stat-card">
