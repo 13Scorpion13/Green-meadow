@@ -1,4 +1,4 @@
-import { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 
 // Добавьте интерфейсы для типов
 interface Developer {
@@ -32,6 +32,7 @@ interface FormData {
 }
 
 export default function ProfileTab({ user }: ProfileTabProps) {
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     username: user.nickname || '',
     lastName: user.developer?.last_name || '',
@@ -42,10 +43,38 @@ export default function ProfileTab({ user }: ProfileTabProps) {
     github: user.developer?.github_profile || ''
   });
 
+  // Синхронизация formData при изменении `user` (например, при загрузке новых данных)
+  useEffect(() => {
+    setFormData({
+      username: user.nickname || '',
+      lastName: user.developer?.last_name || '',
+      firstName: user.developer?.first_name || '',
+      email: user.email || '',
+      github: user.developer?.github_profile || ''
+    });
+  }, [user]);
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancelClick = () => {
+    // Восстанавливаем исходные данные из `user`
+    setFormData({
+      username: user.nickname || '',
+      lastName: user.developer?.last_name || '',
+      firstName: user.developer?.first_name || '',
+      email: user.email || '',
+      github: user.developer?.github_profile || ''
+    });
+    setIsEditing(false);
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Здесь будет логика обновления профиля
     console.log('Update profile:', formData);
+    setIsEditing(false); // можно выйти из режима редактирования после сохранения
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +102,7 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               value={formData.username}
               onChange={handleChange}
               placeholder="Введите ваш никнейм"
+              readOnly={!isEditing}
             />
           </div>
 
@@ -85,6 +115,7 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               value={formData.email}
               onChange={handleChange}
               placeholder="Введите вашу почту"
+              readOnly={!isEditing}
             />
           </div>
 
@@ -97,8 +128,10 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               value={formData.firstName}
               onChange={handleChange}
               placeholder="Введите ваше имя"
+              readOnly={!isEditing}
             />
           </div>
+
 
           <div className="form-group">
             <label htmlFor="lastName" className="form-label">Фамилия</label>
@@ -109,33 +142,11 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               value={formData.lastName}
               onChange={handleChange}
               placeholder="Введите вашу фамилию"
+              readOnly={!isEditing}
             />
           </div>
 
-          {/* <div className="form-group">
-            <label htmlFor="middleName" className="form-label">Отчество</label>
-            <input 
-              type="text" 
-              id="middleName" 
-              className="form-input" 
-              value={formData.middleName}
-              onChange={handleChange}
-              placeholder="Введите ваше отчество"
-            />
-          </div> */}
-
-          {/* <div className="form-group">
-            <label htmlFor="phone" className="form-label">Номер телефона</label>
-            <input 
-              type="tel" 
-              id="phone" 
-              className="form-input" 
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Введите ваш номер телефона"
-            />
-          </div> */}
-
+          {/* GitHub */}
           <div className="form-group full-width">
             <label htmlFor="github" className="form-label">Ссылка на GitHub</label>
             <input 
@@ -145,17 +156,34 @@ export default function ProfileTab({ user }: ProfileTabProps) {
               value={formData.github}
               onChange={handleChange}
               placeholder="Введите ссылку на ваш GitHub"
+              readOnly={!isEditing}
             />
           </div>
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn btn--secondary">
-            Отменить
-          </button>
-          <button type="submit" className="btn btn--primary">
-            Сохранить изменения
-          </button>
+          {isEditing ? (
+            <>
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={handleCancelClick}
+              >
+                Отменить
+              </button>
+              <button type="submit" className="btn btn--primary">
+                Сохранить изменения
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={handleEditClick}
+            >
+              Редактировать профиль
+            </button>
+          )}
         </div>
       </form>
     </div>
