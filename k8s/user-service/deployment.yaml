@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      initContainers:
+      - name: wait-for-redis
+        image: busybox
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for Redis..."
+          until nc -z redis 6379; do sleep 1; done
+          echo "Redis is ready"
+
+      containers:
+      - name: user-service
+        image: qummach/user-service:latest
+        ports:
+        - containerPort: 8001
+
+        # Корректный запуск через shell как в Dockerfile + формируем REDIS_URL
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            export REDIS_URL="redis://:${REDIS_PASSWORD}@redis:6379/0"
+            echo "Using REDIS_URL: $REDIS_URL"
+            exec uvicorn main:app --host 0.0.0.0 --port 8001
+
+        env:
+
+        # POSTGRES
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: user-postgres-secret
+              key: db-name
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: user-postgres-secret
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: user-postgres-secret
+              key: password
+        - name: POSTGRES_HOST
+          value: "user-postgres"
+        - name: POSTGRES_PORT
+          value: "5432"
+
+        # REDIS
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: password
+
+        # API & frontend
+        - name: API_GATEWAY_URL
+          value: "http://api-gateway:8000"
+        - name: FRONTEND_URL
+          value: "http://frontend:3000"
+
+        # JWT
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: user-service-secrets
+              key: secret-key
+        - name: ALGORITHM
+          value: "HS256"
+        - name: ACCESS_TOKEN_EXPIRE_MINUTES
+          value: "30"
+
+        # SMTP
+        - name: SMTP_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: user-service-config
+              key: smtp-host
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: user-service-secrets
+              key: smtp-username
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: user-service-secrets
+              key: smtp-password
+        - name: SMTP_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: user-service-secrets
+              key: smtp-from-email
