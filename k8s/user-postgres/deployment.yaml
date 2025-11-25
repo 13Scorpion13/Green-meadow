@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-postgres
+  template:
+    metadata:
+      labels:
+        app: user-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_DB
+          value: "ums_db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: user-postgres-secret
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: user-postgres-secret
+              key: password
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: user-postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: user-postgres-storage
+        persistentVolumeClaim:
+          claimName: user-postgres-pvc
