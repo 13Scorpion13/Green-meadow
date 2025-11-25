@@ -108,6 +108,7 @@ export default function AgentDetailsPage() {
           setComments([]);
         } else {
           const commentsData: Comment[] = await commentsResponse.json();
+          console.log(commentsData);
           setComments(commentsData);
 
         }
@@ -187,7 +188,7 @@ export default function AgentDetailsPage() {
 
       <main className="main-content container">
         <div className="back-to-catalog">
-          <Link href="/" className="btn btn--secondary">&lt; Назад в каталог</Link>
+          <Link href="/" className="btn btn--secondary">Назад в каталог</Link>
         </div>
 
         <div className="agent-details-page">
@@ -203,19 +204,19 @@ export default function AgentDetailsPage() {
                 </div>
               </div>
 
-              <p className="agent-description">
+              {/* <p className="agent-description">
                 {agent.description}
-              </p>
+              </p> */}
 
               <div className="agent-stats">
                 <div className="stat">
                   <img src="/images/icons/ui/Star.svg" alt="Star Icon" />
-                  <span>{agent.avg_raiting}</span>
-                  <span>({agent.reviews_count})</span>
+                  <span>5.0</span>
+                  <span>(2)</span>
                 </div>
                 <div className="stat">
                   <img src="/images/icons/ui/Download.svg" alt="Download Icon" />
-                  <span>1250 пользователей</span>
+                  <span>2 пользователя</span>
                 </div>
               </div>
             </div>
@@ -246,35 +247,121 @@ export default function AgentDetailsPage() {
                 <div className={`tab-pane ${activeTab === "description" ? "active" : ""}`} id="description">
                   <h2>Описание</h2>
 
-                  {/* 🎞️ Карусель — теперь с заглушками или реальными данными */}
+                  {/* 🎞️ Карусель — не трогаем */}
                   <MediaCarousel
                     media={[
                       {
                         type: "video",
-                        src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                        src: "/videos/archivarius.mp4",
                         alt: "Демонстрация работы",
                       },
                       {
                         type: "image",
-                        src: "https://bipbap.ru/wp-content/uploads/2017/04/priroda_kartinki_foto_03.jpg",
+                        src: "/images/2.png",
                         alt: "Превью агента",
                       },
                       {
                         type: "image",
-                        src: "https://img.goodfon.ru/wallpaper/big/8/4e/badfon-full-hd-cvety-priroda-vesna.webp",
+                        src: "/images/1.png",
                         alt: "Архитектура агента",
                       },
                     ]}
-                    autoPlay={false} // можно true для автопрокрутки
+                    autoPlay={false}
                     interval={4000}
                     height="350px"
                   />
 
-                  <p>{agent.description}</p>
+                  {/* 🔽 ЗАМЕНА: вместо <p>{agent.description}</p> → полное описание проекта */}
+                  <div className="agent-full-description prose max-w-none">
+                    <h3>📁 Агент-архивариус<br /><em>Интеллектуальный поисковик по внутренним документам компании</em></h3>
+
+                    <p><strong>Агент-архивариус</strong> — это программный агент, построенный на основе современных методов обработки естественного языка (NLP) и векторного поиска, предназначенный для автоматической индексации, хранения и семантического поиска по внутренним корпоративным документам.</p>
+
+                    <p>Он решает ключевую проблему устаревших систем хранения: сотрудники тратят часы (а иногда и дни) на поиск нужных документов в десятках папок, архивах и почтовых переписках. Агент делает <strong>корпоративную память доступной в один клик</strong>.</p>
+
+                    <h4>🔍 Основные функции</h4>
+                    <ul>
+                      <li><strong>📄 Автоматическая индексация</strong> документов в форматах: <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>, <code>.pptx</code>, <code>.txt</code>, <code>.rtf</code>, <code>.odt</code>, <code>.html</code>, <code>.xml</code>, <code>.json</code></li>
+                      <li><strong>🔎 Семантический поиск по естественному языку</strong>:<br />
+                        <em>&quot;Найди все приказы об отпусках за 2023 год&quot;</em><br />
+                        <em>&quot;Какие у нас условия с поставщиком X в договоре от 2022 года?&quot;</em><br />
+                        <em>&quot;Кто утверждал бюджет на 2024?&quot;</em></li>
+                      <li><strong>📁 Поддержка иерархической структуры файлов</strong> (отражение путей, метаданных: дата, автор, тип)</li>
+                      <li><strong>🏷️ Автоматическая классификация</strong> по типам (приказ, договор, протокол, регламент)</li>
+                      <li><strong>📊 Фильтрация</strong> по дате, автору, типу, сущностям (ФИО, организации, номера)</li>
+                      <li><strong>📤 Экспорт результатов</strong>: PDF / CSV / JSON</li>
+                    </ul>
+
+                    <h4>💡 Бизнес-ценность</h4>
+                    <table className="border-collapse border border-gray-300 w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          <th className="border border-gray-300 px-3 py-2">Преимущество</th>
+                          <th className="border border-gray-300 px-3 py-2">Описание</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="border border-gray-300 px-3 py-2 font-medium">⏱️ Экономия времени</td>
+                          <td className="border border-gray-300 px-3 py-2">Сокращение времени поиска с часов до секунд</td>
+                        </tr>
+                        <tr>
+                          <td className="border border-gray-300 px-3 py-2 font-medium">🧠 Корпоративная память</td>
+                          <td className="border border-gray-300 px-3 py-2">Знания остаются даже при уходе сотрудников</td>
+                        </tr>
+                        <tr>
+                          <td className="border border-gray-300 px-3 py-2 font-medium">📉 Снижение рисков</td>
+                          <td className="border border-gray-300 px-3 py-2">Быстрый доступ к действующим регламентам и обязательствам</td>
+                        </tr>
+                        <tr>
+                          <td className="border border-gray-300 px-3 py-2 font-medium">📈 Поддержка решений</td>
+                          <td className="border border-gray-300 px-3 py-2">Анализ истории приказов и изменений в политике</td>
+                        </tr>
+                        <tr>
+                          <td className="border border-gray-300 px-3 py-2 font-medium">🔐 Контроль и аудит</td>
+                          <td className="border border-gray-300 px-3 py-2">Полная прослеживаемость запросов</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Требования (если есть) — оставляем как fallback */}
                   {agent.requirements && (
                     <>
                       <h3>Требования:</h3>
-                      <p>{agent.requirements}</p>
+                      {/* <p>{agent.requirements}</p> */}
+                      <h3>⚙️ Технические требования</h3>
+                      <table className="border-collapse border border-gray-300 w-full text-sm">
+                        <thead>
+                          <tr className="bg-gray-50">
+                            <th className="border border-gray-300 px-3 py-2">Компонент</th>
+                            <th className="border border-gray-300 px-3 py-2">Минимум</th>
+                            <th className="border border-gray-300 px-3 py-2">Рекомендуется</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="border border-gray-300 px-3 py-2">ОС</td>
+                            <td className="border border-gray-300 px-3 py-2">Ubuntu 20.04+, Win10/11 (WSL2), macOS 12+</td>
+                            <td className="border border-gray-300 px-3 py-2">Ubuntu 22.04 LTS</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-300 px-3 py-2">CPU</td>
+                            <td className="border border-gray-300 px-3 py-2">4 ядра</td>
+                            <td className="border border-gray-300 px-3 py-2">8+ ядер</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-300 px-3 py-2">RAM</td>
+                            <td className="border border-gray-300 px-3 py-2">8 ГБ</td>
+                            <td className="border border-gray-300 px-3 py-2">16–32 ГБ</td>
+                          </tr>
+                          <tr>
+                            <td className="border border-gray-300 px-3 py-2">Диск</td>
+                            <td className="border border-gray-300 px-3 py-2">50 ГБ (HDD)</td>
+                            <td className="border border-gray-300 px-3 py-2">SSD, 200+ ГБ</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </>
                   )}
                 </div>
@@ -283,7 +370,76 @@ export default function AgentDetailsPage() {
               {activeTab === "guide" && (
                 <div className={`tab-pane ${activeTab === "guide" ? "active" : ""}`} id="guide">
                   <h2>Руководство по установке и запуску</h2>
-                  <p>Руководство будет позже</p>
+
+                  {/* 🔽 ЗАМЕНА: вместо <p>Руководство будет позже</p> → подробное руководство */}
+                  <div className="installation-guide prose max-w-none">
+                    <p>Агент разработан на <strong>Python 3.10+</strong>. Ниже — пошаговая инструкция для развертывания локально.</p>
+
+
+
+                    <h3>📦 Зависимости (Python)</h3>
+                    <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto text-sm">
+                      {`# Обработка документов
+python-docx==1.1.2
+PyPDF2==3.0.1
+unstructured[all-docs]==0.15.4
+pdfplumber==0.11.0
+
+# NLP и поиск
+sentence-transformers==3.0.1
+faiss-cpu==1.8.0
+spacy==3.7.4
+ru_core_news_lg (модель для русского)
+
+# Веб / API
+fastapi==0.111.0
+uvicorn==0.29.0
+
+# Прочее
+pandas numpy tqdm python-dotenv`}
+                    </pre>
+
+                    <h3>🛠️ Установка и запуск</h3>
+
+                    <h4>1. Подготовка окружения</h4>
+                    <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto text-sm">
+                      {`git clone https://github.com/your-org/archivist-agent.git
+cd archivist-agent
+python -m venv venv
+source venv/bin/activate   # Linux/macOS
+pip install -r requirements.txt`}
+                    </pre>
+
+                    <h4>2. Настройка (<code>.env</code>)</h4>
+                    <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto text-sm">
+                      {`DOCUMENTS_ROOT="/path/to/company/docs"
+INDEX_PATH="./data/faiss_index.bin"
+METADATA_DB="./data/metadata.db"
+EMBEDDING_MODEL="intfloat/multilingual-e5-small"
+HOST="0.0.0.0"
+PORT=8000`}
+                    </pre>
+
+                    <h4>3. Индексация документов</h4>
+                    <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto text-sm">
+                      {`python -m scripts.index_documents --rebuild`}
+                    </pre>
+
+                    <h4>4. Запуск API</h4>
+                    <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto text-sm">
+                      {`uvicorn app.main:app --host 0.0.0.0 --port 8000`}
+                    </pre>
+                    <p>API будет доступен по: <code>http://localhost:8000/docs</code> (Swagger UI)</p>
+
+                    <h4>5. (Опционально) systemd-сервис</h4>
+                    <p>Создайте <code>/etc/systemd/system/archivist.service</code> и активируйте автозапуск:</p>
+                    <pre className="bg-gray-800 text-green-400 p-4 rounded overflow-x-auto text-sm">
+                      {`sudo systemctl enable archivist
+sudo systemctl start archivist`}
+                    </pre>
+
+                    <p>✅ Готово! Теперь вы можете искать документы простым языком — мгновенно и без копания в папках.</p>
+                  </div>
                 </div>
               )}
 
@@ -313,7 +469,7 @@ export default function AgentDetailsPage() {
             <div className="sidebar-widget">
               <h3>Категории</h3>
               <div className="agent-categories">
-                <a href="#" className="category-link">Программирование</a>
+                <a href="#" className="category-link">Документ</a>
               </div>
             </div>
             <div className="sidebar-widget">
@@ -360,7 +516,7 @@ export default function AgentDetailsPage() {
                   <div className="comment-header">
                     <div className="comment-author-info">
                       <img src="/images/icons/ui/UserProfile.svg" alt="User Avatar" className="comment-avatar" />
-                      <a href="#" className="comment-author">{c.user_id ? `Пользователь ${c.user_id.slice(0, 8)}...` : "Unknown User"}</a>
+                      <a href="#" className="comment-author">{c.author ? `Пользователь ${c.user_id.slice(0, 8)}...` : "Unknown User"}</a>
                     </div>
                     <div className="comment-date">{formatDate(c.created_at)}</div>
                   </div>

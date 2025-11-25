@@ -84,7 +84,7 @@ const HomePage: React.FC = () => {
 
   const handleAgentClick = (agent: Agent) => (e: React.MouseEvent) => {
     e.preventDefault();
-    const slug = agent.slug || agent.id; // реализовать переход к агенту по slug
+    const slug = agent.id; // реализовать переход к агенту по slug agent.slug || agent.id;
     router.push(`/agent/${slug}`);
   };
 
@@ -152,9 +152,9 @@ const HomePage: React.FC = () => {
         <div className="container hero-container-inner">
           <div className="hero-content">
             <h1 className="hero-title">
-              Арендуйте <span className="text-gradient">ИИ-агентов</span>
+              Находите <span className="text-gradient">ИИ-агентов</span>
               <br />
-              для ваших задач
+              для решения ваших задач
             </h1>
             <p className="hero-subtitle">
               Найдите идеального ИИ-агента для автоматизации бизнеса, творчества и повседневных задач
@@ -218,7 +218,7 @@ const HomePage: React.FC = () => {
               </button>
               <button className="category-button">
                 <img src="/images/icons/categories/Programming.svg" alt="Programming" />
-                <span>Программирование</span>
+                <span>Документ</span>
               </button>
               {/* Добавь остальные категории по мере необходимости */}
             </div>
@@ -269,7 +269,7 @@ const HomePage: React.FC = () => {
                   return (
                     <a
                       key={agent.id}
-                      href={`/agent/${agent.slug || agent.id}`} // реализовать переход к агенту по slug
+                      href={`/agent/${agent.id}`} // реализовать переход к агенту по slug  href={`/agent/${agent.slug || agent.id}`}
                       className="ai-card gradient-border animate-fadeIn"
                       onClick={handleAgentClick(agent)}
                     >
@@ -284,7 +284,7 @@ const HomePage: React.FC = () => {
                         <div className="agent-info">
                           <h3 className="agent-name">{agent.name}</h3>
                           <p className="agent-category">
-                            {agent.category || 'Без категории'}
+                            {'Документ'}
                           </p>
                         </div>
                       </div>
@@ -300,14 +300,14 @@ const HomePage: React.FC = () => {
                         {/* Рейтинг + количество отзывов */}
                         <div className="stat">
                           <img src="/images/icons/ui/Star.svg" alt="Star Icon" />
-                          <span>—</span> {/* рейтинг: заглушка */}
-                          <span>(0)</span> {/* количество отзывов: заглушка */}
+                          <span>5.0</span> {/* рейтинг: заглушка */}
+                          <span>(2)</span> {/* количество отзывов: заглушка */}
                         </div>
 
                         {/* Пользователи — немного правее */}
                         <div className="stat stat-users">
                           <img src="/images/icons/ui/Download.svg" alt="Download Icon" />
-                          <span>0</span> {/* количество пользователей: заглушка */}
+                          <span>2</span> {/* количество пользователей: заглушка */}
                         </div>
 
                         {/* Кнопка "Подробнее" — левее (не в самом правом углу) */}
