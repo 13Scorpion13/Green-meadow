@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+
 // Типы данных согласно твоему API (см. ProjectsTab)
 interface Agent {
   id: string; // UUID

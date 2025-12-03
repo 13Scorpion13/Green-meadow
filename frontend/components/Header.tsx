@@ -4,14 +4,35 @@
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext'; // ← путь может отличаться — смотри ниже!
 import { useRouter } from 'next/navigation'; // ⚠️ важно: next/navigation для App Router
+import { useState, useEffect, useRef } from 'react';
 
 export default function Header() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Этот хук будет закрывать меню, если кликнуть вне его
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    // Добавляем слушатель, когда компонент монтируется
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Убираем слушатель, когда компонент размонтируется
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
   const handleLogout = () => {
+    if (window.confirm('Вы уверены, что хотите выйти?')) {
     logout();
     router.push('/'); // или router.push('/login')
+    }
   };
 
   // Пока идёт загрузка — показываем "Войти/Зарегистрироваться" (нейтрально)
@@ -73,26 +94,52 @@ export default function Header() {
           </nav>
         </div>
 
-        <div className="header-right">
-
+        <div className="header-right" ref={dropdownRef}>
           {user ? (
-            <Link href="/profile" className="icon-button" id="user-profile-button">
-              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
-            </Link>
+            <>
+              {/* Кнопка-иконка, которая теперь открывает меню */}
+              <button
+                className="icon-button"
+                id="user-profile-button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Переключаем состояние меню
+              >
+                <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
+              </button>
+          
+              {/* Само выпадающее меню, которое появляется при isDropdownOpen === true */}
+              {isDropdownOpen && (
+                <div className="profile-dropdown">
+                  <div className="dropdown-user-info">
+                    <p className="dropdown-user-name">
+                      {user.developer
+                        ? `${user.developer.first_name} ${user.developer.last_name}`
+                        : user.nickname}
+                    </p>
+                    <p className="dropdown-user-email">{user.email}</p>
+                  </div>
+                  <ul className="dropdown-menu">
+                    <li>
+                      <Link href="/profile" onClick={() => setIsDropdownOpen(false)}>
+                        <div className='icon-with-text'>
+                        <img src="/images/icons/ui/editProfile.svg" alt="Профиль" className="menu-item-icon" />
+                        Профиль
+                        </div>
+                      </Link>
+                    </li>
+                    <li>
+                      <button onClick={handleLogout}>
+                      <div className='icon-with-text'>
+                        <img src="/images/icons/ui/logoutProfile.svg" alt="Выйти из аккаунта" className="menu-item-icon" />
+                          Выйти
+                        </div>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </>
           ) : (
-            <button className="icon-button" id="user-profile-button" disabled>
-              <img src="/images/icons/ui/UserProfile.svg" alt="User Profile" />
-            </button>
-          )}
-
-          {user ? (
-            <button
-              className="btn btn--primary login-button"
-              onClick={handleLogout}
-            >
-              Выйти
-            </button>
-          ) : (
+            // Если пользователь не авторизован, показываем кнопку входа
             <Link href="/login" className="btn btn--primary login-button">
               Войти/Зарегистрироваться
             </Link>

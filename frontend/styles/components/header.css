@@ -95,3 +95,119 @@
     display: none;
   }
 }
+
+/* Анимация появления */
+@keyframes fadeInSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-right {
+  position: relative; 
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 12px;
+  min-width: 240px;
+  z-index: 1001;
+
+  background: var(--gradient-card-no-transparent);
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border) / 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  transition: var(--transition-smooth);
+  overflow: hidden;
+
+  animation: fadeInSlideDown 0.2s ease-out;
+}
+
+.dropdown-user-info {
+  padding: 16px 20px; 
+  border-bottom: 1px solid var(--border-color, #3a3a3a);
+  text-align: left;
+}
+
+.dropdown-user-name {
+  font-weight: 600; 
+  font-size: 1.05rem; 
+  color: var(--text-primary, #fff);
+  margin-bottom: 4px;
+}
+
+.dropdown-user-email {
+  font-size: 0.8rem; 
+  color: var(--text-secondary, #aaa);
+}
+
+.dropdown-menu {
+  list-style: none;
+  padding: 8px;
+  margin: 0;
+}
+
+.dropdown-menu li {
+  margin: 0;
+}
+
+.dropdown-menu a,
+.dropdown-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px; 
+  border-radius: 6px; 
+
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary, #fff);
+  text-decoration: none;
+  transition: background-color 0.15s ease-out;
+  font-size: 0.95rem;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+  background-color: var(--hover-bg, #3a3a3a); 
+}
+
+.dropdown-menu button {
+  color: inherit;
+}
+
+.icon-with-text {
+  display: flex;
+  align-items: center;
+}
+
+/* Стили для SVG-иконок в выпадающем меню */
+.menu-item-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px; 
+  filter: invert(60%) sepia(0%) saturate(1%) hue-rotate(185deg) brightness(80%) contrast(90%);
+  transition: filter 0.2s ease;
+}
+
+.dropdown-menu a:hover .menu-item-icon,
+.dropdown-menu button:hover .menu-item-icon {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(249deg) brightness(102%) contrast(101%);
+}
+
+.dropdown-menu button:last-child:hover .menu-item-icon {
+  filter: invert(27%) sepia(86%) saturate(3089%) hue-rotate(338deg) brightness(97%) contrast(98%);
+}
+
+.dropdown-menu button:last-child:hover {
+  color: var(--danger-color, #d73a49);
+}
