@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { formatDate } from '@/utils/date';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 interface ContentBase {
   content_type_id: number;
@@ -17,6 +18,7 @@ interface ContentRead extends ContentBase {
   created_at: string; // ISO 8601
   updated_at: string;
   tags?: string[];
+  image_url?: string; // Добавлено: URL изображения для карточки
 }
 
 
@@ -26,6 +28,11 @@ const ArticlesPage = () => {
   const [articles, setArticles] = useState<ContentRead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -47,7 +54,61 @@ const ArticlesPage = () => {
         }
 
         const data: ContentRead[] = await response.json();
-        setArticles(data);
+
+        const placeholders: ContentRead[] = [
+         {
+            id: 'stub-1',
+            content_type_id: 1,
+            user_id: 'stub_user_1',
+            title: 'Как выбрать идеального ИИ-агента для вашего бизнеса?',
+            content: 'Подробное руководство по выбору ИИ-агента, который максимально соответствует потребностям вашей компании.',
+            agent_id: null,
+            created_at: '2025-11-01T00:00:00Z',
+            updated_at: '2025-11-01T00:00:00Z',
+            tags: ['гайды', 'выбор'],
+            image_url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+         },
+         {
+            id: 'stub-2',
+            content_type_id: 1,
+            user_id: 'stub_user_2',
+            title: 'ТОП-10 ИИ-агентов для автоматизации маркетинга',
+            content: 'Обзор лучших искусственных интеллектов для повышения эффективности маркетинговых кампаний.',
+            agent_id: null,
+            created_at: '2025-10-28T00:00:00Z',
+            updated_at: '2025-10-28T00:00:00Z',
+            tags: ['обзоры', 'маркетинг'],
+            image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+         },
+         {
+            id: 'stub-3',
+            content_type_id: 1,
+            user_id: 'stub_user_3',
+            title: 'Безопасность при работе с ИИ-агентами',
+            content: 'Важные аспекты защиты данных и конфиденциальности при использовании AI-технологий.',
+            agent_id: null,
+            created_at: '2025-10-25T00:00:00Z',
+            updated_at: '2025-10-25T00:00:00Z',
+            tags: ['безопасность', 'гайды'],
+            image_url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+         },
+         {
+            id: 'stub-4',
+            content_type_id: 1,
+            user_id: 'stub_user_4',
+            title: 'Будущее ИИ-агентов: тренды 2025 года',
+            content: 'Анализ перспективных направлений развития искусственного интеллекта и автоматизации.',
+            agent_id: null,
+            created_at: '2025-10-20T00:00:00Z',
+            updated_at: '2025-10-20T00:00:00Z',
+            tags: ['тренды', 'будущее'],
+            image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+         },
+        ];
+
+        const combined = [...placeholders, ...data];
+
+        setArticles(combined);
 
       } catch (err) {
         setError(err instanceof Error ? err.message : "Неизвестная ошибка");
@@ -59,96 +120,154 @@ const ArticlesPage = () => {
     fetchArticles();
   }, []);
 
+  const allTags = articles.reduce((acc, article) => {
+    if (article.tags) {
+      article.tags.forEach(tag => {
+        if (!acc.includes(tag)) {
+          acc.push(tag);
+        }
+      });
+    }
+    return acc;
+  }, [] as string[]);
+
+  // Применяем фильтрацию и сортировку
+  const filteredArticles = articles
+    .filter(article => {
+      // Фильтр по поисковому запросу
+      const matchesSearch = article.title
+        ? article.title.toLowerCase().includes(searchQuery.toLowerCase())
+        : true;
+
+      // Фильтр по тегам (мультивыбор)
+      const matchesTags = selectedTags.length === 0
+        ? true // Если теги не выбраны, показываем все статьи
+        : (article.tags && selectedTags.some(tag => article.tags?.includes(tag)));
+        // Если выбраны теги, статья должна содержать хотя бы один из выбранных тегов
+
+      return matchesSearch && matchesTags;
+    })
+    .sort((a, b) => {
+      // Сортировка по дате
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+
   if (loading) return <div>Загрузка статей...</div>;
   if (error) return <div>Ошибка: {error}</div>;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background articles-page-body">
       <Header />
 
-      <main className="main-content container">
-        <div className="articles-list-page" style={{ maxWidth: 800, margin: '0 auto', padding: '2rem' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '2rem', color: 'var(--text-primary, #fff)' }}>
-            Статьи
-          </h1>
+      {/* Hero Section */}
+      <section className="articles-hero">
+        <div className="articles-page-container">
+          <h1>Статьи о <span className="hero-text-gradient">ИИ-агентах</span></h1>
+          <p>Полезные материалы, гайды и кейсы по работе с искусственным интеллектом</p>
+        </div>
+      </section>
 
-          <div className="search-bar" style={{ marginBottom: '2rem' }}>
-            <input
-                type="text"
-                placeholder="Поиск статей..."
-                style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: 8,
-                border: '1px solid #333',
-                background: '#181a20',
-                color: '#f3f3f3',
-                fontSize: '1rem'
-                }}
-                // onChange={(e) => setSearchQuery(e.target.value)}  // ← можно добавить позже
-                // value={searchQuery}
-            />
+      {/* Main Content */}
+      <main className="articles-main">
+        <div className="articles-page-container">
+
+          {/* Панель управления (поиск и фильтры) */}
+          <div className="articles-controls-bar">
+            <div className="controls-top-row">
+              {/* Search Bar with Icon */}
+              <div className="search-bar-articles"> {/* Исправлено название класса */}
+                <input
+                  type="text"
+                  placeholder="Поиск статей по названию..." // Исправлена опечатка и уточнен текст
+                  className="search-input-articles" /* Исправлено название класса */
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <img
+                    src="/images/icons/ui/Search.svg"
+                    alt="Search"
+                    className="search-icon-articles" /* Исправлено название класса */
+                />
+              </div>
+              {/* Sort Button */}
+              <button
+                className="sort-button"
+                onClick={() => setSortOrder(prev => (prev === 'newest' ? 'oldest' : 'newest'))}
+              >
+                Сортировка: {sortOrder === 'newest' ? 'Сначала новые' : 'Сначала старые'}
+              </button>
             </div>
 
-          {articles.length === 0 ? (
-            <p style={{ color: 'var(--text-secondary, #aaa)' }}>Нет статей</p>
-          ) : (
-            <div className="articles-grid" style={{ display: 'grid', gridGap: '2rem' }}>
-              {articles.map((article) => (
-                <Link
-                  key={article.id}
-                  href={`/article/${article.id}`}
-                  passHref
+            {/* Tags Filter */}
+            <div className="tags-filter-list">
+              <button
+                className={`tag-filter-button ${selectedTags.length === 0 ? 'active' : ''}`}
+                onClick={() => setSelectedTags([])}
+              >
+                Все теги
+              </button>
+              {allTags.map(tag => (
+                <button
+                  key={tag}
+                  className={`tag-filter-button ${selectedTags.includes(tag) ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedTags(prev =>
+                      prev.includes(tag)
+                        ? prev.filter(t => t !== tag)
+                        : [...prev, tag]
+                    );
+                  }}
                 >
-                  <div
-                    className="article-card"
-                    style={{
-                      background: 'var(--background-secondary, #181a20)',
-                      borderRadius: 12,
-                      padding: '1.5rem',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                      color: 'var(--text-primary, #f3f3f3)',
-                      textDecoration: 'none',
-                      transition: 'transform 0.2s ease',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
-                  >
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary, #fff)' }}>
-                      {article.title}
-                    </h2>
-                    <p style={{ fontSize: '1rem', color: 'var(--text-secondary, #ccc)', marginBottom: '0.5rem' }}>
-                      Автор: {article.user_id ? `Пользователь ${article.user_id.slice(0, 8)}...` : "Unknown User"}
-                    </p>
-                    <p style={{ color: 'var(--text-tertiary, #aaa)', fontSize: '0.9rem' }}>
-                      {formatDate(article.created_at)}
-                    </p>
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                    {article.tags && article.tags.length > 0 && (
-                    <div className="tags-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '0.75rem 0' }}>
-                        {article.tags.map((tag, idx) => (
-                            <span
-                            key={idx}
-                            className="tag-chip"
-                            style={{
-                                background: 'var(--background-tertiary, #2a2c35)',
-                                color: 'var(--text-secondary, #bbb)',
-                                padding: '0.25rem 0.75rem',
-                                borderRadius: '9999px',
-                                fontSize: '0.85rem',
-                                fontWeight: 500
-                            }}
-                            >
-                            {tag}
-                            </span>
-                        ))}
+          {/* Сетка статей */}
+          {filteredArticles.length === 0 ? (
+            <p className="empty-articles-message">Нет статей, соответствующих вашему запросу.</p>
+          ) : (
+            <div className="articles-grid">
+              {filteredArticles.map((article) => (
+                <Link key={article.id} href={`/article/${article.id}`} passHref>
+                  <div className="ai-card">
+                    {/* Image Placeholder */}
+                    {article.image_url && (
+                        <div className="ai-card-image-wrapper">
+                            <img
+                                src={article.image_url}
+                                alt={article.title || "Article Image"}
+                                className="ai-card-image"
+                            />
+                            {article.tags && article.tags[0] && ( // Отображаем первый тег как категорию
+                                <div className="ai-card-category-tag">
+                                    {article.tags[0]}
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    <p style={{ marginTop: '1rem', color: 'var(--text-secondary, #ddd)' }}>
-                      {article.content.substring(0, 150)}...
-                    </p>
+                    <div className="ai-card-content">
+                      <h3 className="ai-card-title">{article.title}</h3>
+
+                      {/* Теги в карточке */}
+                      {article.tags && article.tags.length > 0 && (
+                        <div className="tags-list-card">
+                          {article.tags.map((tag) => (
+                            <span key={tag} className="tag-chip">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+
+                      <p className="ai-card-excerpt">{article.content.substring(0, 150)}...</p>
+                    </div>
+                    <div className="ai-card-footer">
+                      <span className="ai-card-author">{`Пользователь ${article.user_id.slice(0, 8)}...`}</span>
+                      <span className="ai-card-date">{formatDate(article.created_at)}</span>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -156,6 +275,7 @@ const ArticlesPage = () => {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 };
