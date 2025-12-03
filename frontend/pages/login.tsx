@@ -59,9 +59,11 @@ export default function LoginPage() {
           </div>
         </form>
 
-        <p className="auth-switch">
-          Нет аккаунта? <Link href="/register">Создать</Link>
-        </p>
+        <div className="auth-card-footer">
+          <Link href="/register">Создать аккаунт</Link>
+          <span className="separator">|</span>
+          <Link href="/forgot-password">Забыли пароль?</Link>
+        </div>
       </div>
     </div>
   );
