@@ -38,6 +38,11 @@
     hsl(220 13% 11% / 0.8),
     hsl(220 13% 15% / 0.6)
   );
+    --gradient-card-no-transparent: linear-gradient(
+    145deg,
+    hsl(220 13% 11%), /* Убрали / 0.8 */
+    hsl(220 13% 15%)  /* Убрали / 0.6 */
+  );
   --gradient-border: linear-gradient(
     90deg,
     hsl(217 91% 60%),
