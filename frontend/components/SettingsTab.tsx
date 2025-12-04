@@ -257,18 +257,19 @@ export default function SettingsTab() {
           </div>
         </section>
 
-        {/* Account Actions */}
-        <section className="settings-section">
-          <h3 className="section-title">Удаление аккаунта</h3>
-          <div className="settings-grid">
-            <div className="setting-item">
-              <div className="setting-info">
-                <h4 className="setting-description danger">Вы можете безвозвратно удалить свой аккаунт. Это действие нельзя отменить.</h4>
-              </div>
-              <button className="btn btn--danger">Удалить аккаунт</button>
+        {/* Danger Zone */}
+        <div className="danger-zone">
+          <h3 className="danger-zone-title">Удаление аккаунта</h3>
+          <div className="setting-item">
+            <div className="setting-info">
+              <h4 className="setting-title">После удаления учетная запись не подлежит восстановлению.</h4>
+              <p className="setting-description">
+                Все данные, связанные с вашим аккаунтом, будут безвозвратно утеряны. Вы уверены?
+              </p>
             </div>
+            <button className="btn btn--danger">Удалить свой аккаунт</button>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );
