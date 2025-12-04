@@ -365,7 +365,7 @@ export default function ProfileTab({ user, onProfileUpdate }: ProfileTabProps) {
                 </button>
               </>
             ) : (
-              <div className="d-flex gap-3">
+              <div className="d-flex gap-3" style={{ display: 'flex', gap: '50px' }}>
                 <button type="button" className="btn btn--primary" onClick={handleEditProfile}>
                   Редактировать профиль
                 </button>
@@ -373,7 +373,7 @@ export default function ProfileTab({ user, onProfileUpdate }: ProfileTabProps) {
                 {!isDeveloper && (
                   <button
                     type="button"
-                    className="btn btn--outline"
+                    className="btn btn--primary"
                     onClick={handleOpenDeveloperForm}
                   >
                     Стать разработчиком
