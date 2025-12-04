@@ -10,7 +10,7 @@ import Footer from '@/components/Footer';
 const DiscussionsListPage: React.FC = () => {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"all" | "active" | "unanswered">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "active" | "unanswered" | "my" | "member">("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -118,6 +118,8 @@ const DiscussionsListPage: React.FC = () => {
   const filteredDiscussions = discussions.filter((d) => {
     if (activeTab === "unanswered") return d.replies === 0;
     if (activeTab === "active") return d.replies > 5;
+    if (activeTab == "my") return d.replies === 0; //новые табы
+    if (activeTab == "member") return d.replies === 0; //новые табы
     return true;
   });
   console.log(filteredDiscussions)
@@ -208,6 +210,12 @@ const DiscussionsListPage: React.FC = () => {
           </button>
           <button className={`tab-button ${activeTab === "active" ? "active" : ""}`} onClick={() => setActiveTab("active")}>
             Активные
+          </button>
+          <button className={`tab-button ${activeTab === "my" ? "active" : ""}`} onClick={() => setActiveTab("my")}>
+            Мои обсуждения
+          </button>
+          <button className={`tab-button ${activeTab === "member" ? "active" : ""}`} onClick={() => setActiveTab("member")}>
+            Участник
           </button>
           <button className={`tab-button ${activeTab === "unanswered" ? "active" : ""}`} onClick={() => setActiveTab("unanswered")}>
             Без ответов

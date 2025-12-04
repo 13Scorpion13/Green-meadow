@@ -1,8 +1,8 @@
 .scroll-to-top-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #007bff;
+  position: static !important;
+  bottom: auto !important;
+  right: auto !important;
+  background: var(--gradient-hero);
   color: white;
   border: none;
   border-radius: 50%;
@@ -15,7 +15,7 @@
   cursor: pointer;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out, background-position 0.3s ease-out;
   z-index: 1000;
 }
 
@@ -25,5 +25,6 @@
 }
 
 .scroll-to-top-button:hover {
-  background-color: #0056b3;
+  transform: scale(1.1);
+  background-position: 50% 150%; /* Смещаем градиент вниз */
 }

@@ -66,7 +66,7 @@ const ArticlesPage = () => {
             created_at: '2025-11-01T00:00:00Z',
             updated_at: '2025-11-01T00:00:00Z',
             tags: ['гайды', 'выбор'],
-            image_url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+            image_url: '/images/illustrations/robot.jpeg',
          },
          {
             id: 'stub-2',
@@ -78,7 +78,7 @@ const ArticlesPage = () => {
             created_at: '2025-10-28T00:00:00Z',
             updated_at: '2025-10-28T00:00:00Z',
             tags: ['обзоры', 'маркетинг'],
-            image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+            image_url: '/images/illustrations/comp_marketing.jpeg',
          },
          {
             id: 'stub-3',
@@ -90,7 +90,7 @@ const ArticlesPage = () => {
             created_at: '2025-10-25T00:00:00Z',
             updated_at: '2025-10-25T00:00:00Z',
             tags: ['безопасность', 'гайды'],
-            image_url: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+            image_url: '/images/illustrations/security_comp.jpeg',
          },
          {
             id: 'stub-4',
@@ -102,7 +102,7 @@ const ArticlesPage = () => {
             created_at: '2025-10-20T00:00:00Z',
             updated_at: '2025-10-20T00:00:00Z',
             tags: ['тренды', 'будущее'],
-            image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80',
+            image_url: '/images/illustrations/future_earth.jpeg',
          },
         ];
 
