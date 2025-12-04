@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Query
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Query, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from minio import Minio
@@ -19,7 +19,6 @@ settings = get_settings()
 
 router = APIRouter(prefix="/agents/{agent_id}/media", tags=["agent_media"])
 
-# Допустимые типы
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_VIDEO_TYPES = {"video/mp4", "video/quicktime", "video/x-matroska"}
 MAX_FILE_SIZE = 50 * 1024 * 1024
@@ -31,12 +30,11 @@ def get_minio_client():
 async def upload_agent_media(
     agent_id: UUID,
     file: UploadFile = File(...),
-    is_primary: bool = False,
+    is_primary: bool = Form(False),
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
     minio_client: Minio = Depends(get_minio_client)
 ):
-    # 1. Проверяем существование агента и права
     agent_result = await db.execute(select(Agent).where(Agent.id == agent_id))
     agent = agent_result.scalar_one_or_none()
     if not agent:
@@ -45,7 +43,6 @@ async def upload_agent_media(
     if str(agent.user_id) != current_user["user_id"] and current_user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    # 2. Валидация файла
     content_type = file.content_type
     if content_type not in ALLOWED_IMAGE_TYPES and content_type not in ALLOWED_VIDEO_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported file type")
@@ -55,11 +52,9 @@ async def upload_agent_media(
 
     media_type = "image" if content_type in ALLOWED_IMAGE_TYPES else "video"
 
-    # 3. Генерируем уникальное имя
     extension = mimetypes.guess_extension(content_type) or ".bin"
     object_name = f"agents/{agent_id}/{secrets.token_urlsafe(16)}{extension}"
 
-    # 4. Загружаем в MinIO
     try:
         minio_client.put_object(
             bucket_name=settings.MINIO_BUCKET_NAME,
@@ -74,7 +69,7 @@ async def upload_agent_media(
         await file.close()
 
     media_in = {
-        "agent_id": str(agent_id),
+        "agent_id": agent_id,
         "media_type": media_type,
         "file_path": object_name,
         "is_primary": is_primary
