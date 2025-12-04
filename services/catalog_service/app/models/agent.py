@@ -26,3 +26,4 @@ class Agent(Base):
 
     category = relationship('Category', backref='agents')
     comments = relationship('Comment', backref='agent', cascade='all, delete-orphan')
+    media = relationship("AgentMedia", back_populates="agent", cascade="all, delete-orphan")

@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, File, UploadFile, Form
 from typing import List, Optional
 from app.utils.auth import get_current_user, get_token_from_header
 from app.services.catalog_service import (
     create_agent_in_catalog,
+    upload_media_to_catalog,
+    get_agent_media_from_catalog,
     get_agents_by_user_id_from_catalog_service,
     update_agent_in_catalog_service,
     delete_agent_in_catalog_service,
@@ -28,6 +30,35 @@ async def create_agent(
     try:
         created_agent = await create_agent_in_catalog(agent_data, token)
         return created_agent
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/{agent_id}/media", response_model=dict)
+async def upload_agent_media(
+    agent_id: str,
+    file: UploadFile = File(...),
+    is_primary: bool = Form(False),
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        media_response = await upload_media_to_catalog(
+            agent_id=agent_id,
+            file=file,
+            is_primary=is_primary,
+            token=token
+        )
+        return media_response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/{agent_id}/media", response_model=list)
+async def get_agent_media(
+    agent_id: str,
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        media_list = await get_agent_media_from_catalog(agent_id, token)
+        return media_list
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

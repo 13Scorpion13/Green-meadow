@@ -1,4 +1,5 @@
 import httpx
+from fastapi import UploadFile
 from app.config import get_settings
 from typing import Dict, Any, Optional, List
 
@@ -10,6 +11,49 @@ async def create_agent_in_catalog(agent_data: dict, token: str) -> Dict[Any, Any
             response = await client.post(
                 f"{settings.CATALOG_SERVICE_URL}/agents/",
                 json=agent_data,
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"Catalog Service connection error: {str(e)}")
+    
+async def upload_media_to_catalog(
+    agent_id: str,
+    file: UploadFile,
+    is_primary: bool,
+    token: str
+) -> Dict[Any, Any]:
+    try:
+        file_content = await file.read()
+        
+        async with httpx.AsyncClient() as client:
+            files = {"file": (file.filename, file_content, file.content_type)}
+            data = {"is_primary": str(is_primary).lower()}
+
+            response = await client.post(
+                f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}/media/",
+                files=files,
+                data=data,
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            return response.json()
+
+    except httpx.HTTPStatusError as e:
+        raise Exception(f"Catalog Service media upload error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"Catalog Service media connection error: {str(e)}")
+    finally:
+        await file.close()
+        
+async def get_agent_media_from_catalog(agent_id: str, token: str) -> list:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}/media",
                 headers={"Authorization": f"Bearer {token}"}
             )
             response.raise_for_status()
