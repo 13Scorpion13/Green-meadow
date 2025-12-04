@@ -5,7 +5,7 @@ import { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 interface Developer {
   first_name: string;
   last_name: string;
-  github_profile?: string;
+  github_profile: string | null;
 }
 
 interface User {
@@ -13,7 +13,8 @@ interface User {
   email: string;
   nickname: string;
   role: string;
-  developer?: Developer;
+  avatar_url: string | null;
+  developer: Developer | null;
 }
 
 interface ProfileTabProps {
@@ -21,12 +22,10 @@ interface ProfileTabProps {
   onProfileUpdate?: (updatedUser: User) => void;
 }
 
-interface FormData {
-  username: string;
-  lastName: string;
-  firstName: string;
-  email: string;
-  github: string;
+interface DeveloperFormData {
+  first_name: string;
+  last_name: string;
+  github_profile: string;
 }
 
 export default function ProfileTab({ user, onProfileUpdate }: ProfileTabProps) {
@@ -35,90 +34,100 @@ export default function ProfileTab({ user, onProfileUpdate }: ProfileTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<FormData>({
-    username: user.nickname || '',
-    lastName: user.developer?.last_name || '',
-    firstName: user.developer?.first_name || '',
+  // 🔥 Ключевое: надёжная проверка статуса разработчика
+  const isDeveloper = user.developer !== null && 
+                     user.developer !== undefined &&
+                     typeof user.developer === 'object' &&
+                     user.developer.first_name != null &&
+                     user.developer.last_name != null;
+
+  const [showDeveloperForm, setShowDeveloperForm] = useState(false);
+
+  // Форма редактирования профиля
+  const [profileFormData, setProfileFormData] = useState({
+    nickname: user.nickname || '',
     email: user.email || '',
-    github: user.developer?.github_profile || '',
+    avatar_url: user.avatar_url || '',
   });
 
-  // Сброс ошибок/успеха при выходе из редактирования
+  // Форма "стать разработчиком"
+  const [devFormData, setDevFormData] = useState<DeveloperFormData>({
+    first_name: '',
+    last_name: '',
+    github_profile: '',
+  });
+
+  // Сброс при смене режима
   useEffect(() => {
-    if (!isEditing) {
+    if (!isEditing && !showDeveloperForm) {
       setError(null);
       setSuccess(null);
+      setDevFormData({ first_name: '', last_name: '', github_profile: '' });
     }
-  }, [isEditing]);
+  }, [isEditing, showDeveloperForm]);
 
-  // Синхронизация при обновлении user (например, после логина)
+  // Синхронизация при обновлении user
   useEffect(() => {
-    setFormData({
-      username: user.nickname || '',
-      lastName: user.developer?.last_name || '',
-      firstName: user.developer?.first_name || '',
+    setProfileFormData({
+      nickname: user.nickname || '',
       email: user.email || '',
-      github: user.developer?.github_profile || '',
+      avatar_url: user.avatar_url || '',
     });
   }, [user]);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelClick = () => {
-    setFormData({
-      username: user.nickname || '',
-      lastName: user.developer?.last_name || '',
-      firstName: user.developer?.first_name || '',
+  // === Обычное редактирование профиля ===
+  const handleEditProfile = () => setIsEditing(true);
+  
+  const handleCancelEdit = () => {
+    setProfileFormData({
+      nickname: user.nickname || '',
       email: user.email || '',
-      github: user.developer?.github_profile || '',
+      avatar_url: user.avatar_url || '',
     });
     setIsEditing(false);
+    setError(null);
+    setSuccess(null);
   };
 
-  // ✅ Главное: формируем payload для бэкенда
-  const preparePayload = () => {
-    // Нормализуем значения
-    const email = formData.email.trim().toLowerCase();
-    const nickname = formData.username.trim();
-    const firstName = formData.firstName.trim();
-    const lastName = formData.lastName.trim();
-    const github = formData.github.trim();
-
-    // ⚠️ Обязательные поля не должны быть пустыми
-    if (!email) throw new Error('Поле "Почта" обязательно');
-    if (!nickname) throw new Error('Поле "Никнейм" обязательно');
-
-    // Формируем payload в snake_case — как ожидает бэкенд
-    return {
-      email,
-      nickname,
-      first_name: firstName || null,
-      last_name: lastName || null,
-      github_profile: github || null,
-      // avatar_url можно добавить позже
-    };
+  const handleProfileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setProfileFormData(prev => ({
+      ...prev,
+      [e.target.id]: e.target.value,
+    }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const validateProfileForm = (): string | null => {
+    if (!profileFormData.nickname.trim()) return 'Никнейм обязателен';
+    if (!profileFormData.email.trim()) return 'Email обязателен';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileFormData.email.trim())) {
+      return 'Некорректный email';
+    }
+    return null;
+  };
+
+  const handleProfileSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const err = validateProfileForm();
+    if (err) {
+      setError(err);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
-      // 1. Подготавливаем payload (с валидацией)
-      const payload = preparePayload();
-
-      // 2. Получаем токен
       const token = localStorage.getItem('access_token');
-      if (!token) {
-        throw new Error('Токен авторизации не найден. Пожалуйста, войдите снова.');
-      }
+      if (!token) throw new Error('Токен не найден');
 
-      // 3. Отправляем PATCH с ПОЛНЫМ объектом (но через PATCH — безопаснее PUT)
+      const payload = {
+        nickname: profileFormData.nickname.trim(),
+        email: profileFormData.email.trim().toLowerCase(),
+        avatar_url: profileFormData.avatar_url.trim() || null,
+      };
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/users/me`, {
         method: 'PATCH',
         headers: {
@@ -128,184 +137,322 @@ export default function ProfileTab({ user, onProfileUpdate }: ProfileTabProps) {
         body: JSON.stringify(payload),
       });
 
-      // 4. Обработка ответа
-      let data: any;
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await res.json();
-      }
+      let data: any = null;
+      const ct = res.headers.get('content-type');
+      if (ct?.includes('application/json')) data = await res.json();
 
       if (!res.ok) {
-        const msg = data?.detail || data?.message || `Ошибка ${res.status}: не удалось сохранить профиль`;
+        const msg = data?.detail || data?.message || `Ошибка ${res.status}`;
         if (res.status === 401 || res.status === 403) {
           localStorage.removeItem('access_token');
-          setError('Сессия истекла. Пожалуйста, войдите снова.');
-          setTimeout(() => (window.location.href = '/login'), 2000);
+          window.location.href = '/login';
           return;
         }
         throw new Error(msg);
       }
 
-      // 5. Успех
       const updatedUser: User = {
         ...user,
-        email: data.email ?? user.email,
         nickname: data.nickname ?? user.nickname,
-        developer: {
-          first_name: data.first_name ?? user.developer?.first_name ?? '',
-          last_name: data.last_name ?? user.developer?.last_name ?? '',
-          github_profile: data.github_profile ?? user.developer?.github_profile ?? '',
-        },
+        email: data.email ?? user.email,
+        avatar_url: data.avatar_url ?? user.avatar_url,
+        developer: data.developer ?? user.developer,
       };
 
-      setSuccess('Профиль успешно обновлён!');
-      if (onProfileUpdate) {
-        onProfileUpdate(updatedUser);
-      } else {
-        // Обновляем локальное состояние
-        setFormData({
-          username: updatedUser.nickname,
-          firstName: updatedUser.developer?.first_name || '',
-          lastName: updatedUser.developer?.last_name || '',
-          email: updatedUser.email,
-          github: updatedUser.developer?.github_profile || '',
-        });
-      }
-
+      setSuccess('Профиль обновлён');
+      onProfileUpdate?.(updatedUser);
       setIsEditing(false);
+
     } catch (err: any) {
-      setError(err.message || 'Произошла ошибка при сохранении профиля');
+      setError(err.message || 'Не удалось сохранить');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
+  // === Стать разработчиком ===
+  const handleOpenDeveloperForm = () => setShowDeveloperForm(true);
+  
+  const handleCancelDeveloperForm = () => {
+    setShowDeveloperForm(false);
+    setDevFormData({ first_name: '', last_name: '', github_profile: '' });
+    setError(null);
+  };
+
+  const handleDevChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDevFormData(prev => ({
+      ...prev,
       [e.target.id]: e.target.value,
-    });
+    }));
+  };
+
+  const validateDevForm = (): string | null => {
+    if (!devFormData.first_name.trim()) return 'Имя обязательно';
+    if (!devFormData.last_name.trim()) return 'Фамилия обязательна';
+    return null;
+  };
+
+  const handleBecomeDeveloper = async () => {
+    const err = validateDevForm();
+    if (err) {
+      setError(err);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) throw new Error('Токен не найден');
+
+      const payload = {
+        first_name: devFormData.first_name.trim(),
+        last_name: devFormData.last_name.trim(),
+        github_profile: devFormData.github_profile.trim() || undefined,
+      };
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/developers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      let data: any = null;
+      const ct = res.headers.get('content-type');
+      if (ct?.includes('application/json')) data = await res.json();
+
+      if (!res.ok) {
+        const msg = data?.detail || data?.message || `Ошибка ${res.status}`;
+        throw new Error(msg);
+      }
+
+      // 🔥 Главное исправление: после создания — включаем редактирование
+      const newDeveloper: Developer = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        github_profile: data.github_profile,
+      };
+
+      const updatedUser: User = {
+        ...user,
+        developer: newDeveloper,
+      };
+
+      setSuccess('Вы успешно стали разработчиком!');
+      onProfileUpdate?.(updatedUser);
+      setShowDeveloperForm(false);
+      setIsEditing(true); // ✅ теперь поля developer сразу видны!
+
+    } catch (err: any) {
+      setError(err.message || 'Не удалось создать профиль разработчика');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="tab-content active" id="profile-tab">
       <div className="tab-header">
         <h2 className="tab-title">Профиль</h2>
-        <p className="tab-subtitle">Управление вашей персональной информацией</p>
+        <p className="tab-subtitle">
+          {isDeveloper
+            ? 'Вы зарегистрированы как разработчик'
+            : 'Обычный пользователь'}
+        </p>
       </div>
 
-      {/* Уведомления */}
-      {error && (
-        <div className="alert alert--error" role="alert">
-          {error}
-        </div>
+      {error && <div className="alert alert--error">{error}</div>}
+      {success && <div className="alert alert--success">{success}</div>}
+
+      {/* Основная форма профиля */}
+      {!showDeveloperForm && (
+        <form className="profile-form" onSubmit={handleProfileSubmit}>
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="nickname" className="form-label">Никнейм *</label>
+              <input
+                type="text"
+                id="nickname"
+                className="form-input"
+                value={profileFormData.nickname}
+                onChange={handleProfileChange}
+                readOnly={!isEditing}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">Почта *</label>
+              <input
+                type="email"
+                id="email"
+                className="form-input"
+                value={profileFormData.email}
+                onChange={handleProfileChange}
+                readOnly={!isEditing}
+                required
+              />
+            </div>
+
+            {/* 👇 Developer-поля: ТОЛЬКО если isDeveloper === true */}
+            {isDeveloper && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="first_name" className="form-label">Имя *</label>
+                  <input
+                    type="text"
+                    id="first_name"
+                    className="form-input"
+                    value={user.developer?.first_name || ''}
+                    onChange={handleProfileChange}
+                    readOnly={!isEditing}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="last_name" className="form-label">Фамилия *</label>
+                  <input
+                    type="text"
+                    id="last_name"
+                    className="form-input"
+                    value={user.developer?.last_name || ''}
+                    onChange={handleProfileChange}
+                    readOnly={!isEditing}
+                    required
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="github_profile" className="form-label">GitHub</label>
+                  <input
+                    type="url"
+                    id="github_profile"
+                    className="form-input"
+                    value={user.developer?.github_profile || ''}
+                    onChange={handleProfileChange}
+                    readOnly={!isEditing}
+                    placeholder="https://github.com/ваш-профиль"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="form-actions">
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  onClick={handleCancelEdit}
+                  disabled={isLoading}
+                >
+                  Отменить
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn--primary"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Сохранение...' : 'Сохранить'}
+                </button>
+              </>
+            ) : (
+              <div className="d-flex gap-3">
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  onClick={handleEditProfile}
+                >
+                  Редактировать профиль
+                </button>
+
+                {!isDeveloper && (
+                  <button
+                    type="button"
+                    className="btn btn--outline"
+                    onClick={handleOpenDeveloperForm}
+                  >
+                    Стать разработчиком
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </form>
       )}
-      {success && (
-        <div className="alert alert--success" role="alert">
-          {success}
-        </div>
-      )}
 
-      <form className="profile-form" onSubmit={handleSubmit}>
-        <div className="form-grid">
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">Никнейм *</label>
-            <input
-              type="text"
-              id="username"
-              className="form-input"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Введите ваш никнейм"
-              readOnly={!isEditing}
-              required
-            />
+      {/* Форма "Стать разработчиком" */}
+      {showDeveloperForm && (
+        <div className="developer-form-card">
+          <h3 className="form-title">Создание профиля разработчика</h3>
+          <p className="form-subtitle">Заполните данные, чтобы получить доступ к возможностям разработчика.</p>
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label htmlFor="first_name" className="form-label">Имя *</label>
+              <input
+                type="text"
+                id="first_name"
+                className="form-input"
+                value={devFormData.first_name}
+                onChange={handleDevChange}
+                placeholder="Иван"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="last_name" className="form-label">Фамилия *</label>
+              <input
+                type="text"
+                id="last_name"
+                className="form-input"
+                value={devFormData.last_name}
+                onChange={handleDevChange}
+                placeholder="Иванов"
+                required
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label htmlFor="github_profile" className="form-label">GitHub (опционально)</label>
+              <input
+                type="url"
+                id="github_profile"
+                className="form-input"
+                value={devFormData.github_profile}
+                onChange={handleDevChange}
+                placeholder="https://github.com/ваш-профиль"
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email" className="form-label">Почта *</label>
-            <input
-              type="email"
-              id="email"
-              className="form-input"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Введите вашу почту"
-              readOnly={!isEditing}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="firstName" className="form-label">Имя</label>
-            <input
-              type="text"
-              id="firstName"
-              className="form-input"
-              value={formData.firstName}
-              onChange={handleChange}
-              placeholder="Введите ваше имя"
-              readOnly={!isEditing}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="lastName" className="form-label">Фамилия</label>
-            <input
-              type="text"
-              id="lastName"
-              className="form-input"
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Введите вашу фамилию"
-              readOnly={!isEditing}
-            />
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="github" className="form-label">Ссылка на GitHub</label>
-            <input
-              type="url"
-              id="github"
-              className="form-input"
-              value={formData.github}
-              onChange={handleChange}
-              placeholder="https://github.com/ваш-профиль"
-              readOnly={!isEditing}
-            />
-          </div>
-        </div>
-
-        <div className="form-actions">
-          {isEditing ? (
-            <>
-              <button
-                type="button"
-                className="btn btn--secondary"
-                onClick={handleCancelClick}
-                disabled={isLoading}
-              >
-                Отменить
-              </button>
-              <button
-                type="submit"
-                className="btn btn--primary"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Сохранение...' : 'Сохранить изменения'}
-              </button>
-            </>
-          ) : (
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn btn--secondary"
+              onClick={handleCancelDeveloperForm}
+              disabled={isLoading}
+            >
+              Отмена
+            </button>
             <button
               type="button"
               className="btn btn--primary"
-              onClick={handleEditClick}
+              onClick={handleBecomeDeveloper}
+              disabled={isLoading}
             >
-              Редактировать профиль
+              {isLoading ? 'Создание...' : 'Стать разработчиком'}
             </button>
-          )}
+          </div>
         </div>
-      </form>
+      )}
     </div>
   );
 }

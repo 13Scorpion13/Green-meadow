@@ -1,3 +1,12 @@
+export interface Developer {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  suppor_phone?: string;      // опционально → string | undefined
+  github_profile?: string;    // опционально → string | undefined
+  created_at: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -6,17 +15,8 @@ export interface User {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  avatar_url?: string;
-  developer?: Developer;
-}
-
-export interface Developer {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  suppor_phone?: string;
-  github_profile?: string;
-  created_at: string;
+  avatar_url: string | null;     // ← было ?: string → теперь точно null или строка
+  developer: Developer | null;   // ← было ?: Developer → теперь null или объект
 }
 
 export interface LoginRequest {
