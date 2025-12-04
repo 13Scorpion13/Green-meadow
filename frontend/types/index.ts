@@ -42,3 +42,9 @@ export interface DeveloperRegisterRequest {
   last_name: string;
   github_profile?: string;
 }
+
+export interface MediaItem {
+  type: "image" | "video";
+  src: string;
+  alt?: string;
+}

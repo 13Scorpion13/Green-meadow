@@ -5,6 +5,7 @@ from app.services.catalog_service import (
     create_agent_in_catalog,
     upload_media_to_catalog,
     get_agent_media_from_catalog,
+    get_signed_media_from_catalog,
     get_agents_by_user_id_from_catalog_service,
     update_agent_in_catalog_service,
     delete_agent_in_catalog_service,
@@ -58,6 +59,17 @@ async def get_agent_media(
 ):
     try:
         media_list = await get_agent_media_from_catalog(agent_id, token)
+        return media_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/{agent_id}/media/signed")
+async def get_signed_media_urls(
+    agent_id: str,
+    token: str = Depends(get_token_from_header)
+):
+    try:
+        media_list = await get_signed_media_from_catalog(agent_id, token)
         return media_list
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

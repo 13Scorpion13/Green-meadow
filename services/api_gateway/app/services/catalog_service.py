@@ -63,6 +63,20 @@ async def get_agent_media_from_catalog(agent_id: str, token: str) -> list:
     except Exception as e:
         raise Exception(f"Catalog Service connection error: {str(e)}")
     
+async def get_signed_media_from_catalog(agent_id: str, token: str) -> list:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{settings.CATALOG_SERVICE_URL}/agents/{agent_id}/media/signed",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPStatusError as e:
+        raise Exception(f"Catalog Service error: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        raise Exception(f"Catalog Service connection error: {str(e)}")
+    
 async def get_user_agents_from_catalog_service(
     user_id: str,
     token: str,

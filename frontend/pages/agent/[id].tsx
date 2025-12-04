@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from 'next/router';
 import { formatDate } from '@/utils/date';
+import { MediaItem } from '@/types/index';
 import MediaCarousel from '@/components/MediaCarousel';
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -68,6 +69,7 @@ export default function AgentDetailsPage() {
   const [commentText, setCommentText] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [media, setMedia] = useState<MediaItem[]>([]);
   const [discussions, setDiscussions] = useState<ContentRead[]>([]);
   const [activeTab, setActiveTab] = useState<"description" | "guide" | "discussions">("description");
 
@@ -96,6 +98,28 @@ export default function AgentDetailsPage() {
 
         const agentData: Agent = await agentResponse.json();
         setAgent(agentData);
+
+        const mediaResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/${id}/media/signed`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        let mediaList: MediaItem[] = [];
+
+        if (mediaResponse.ok) {
+          const signedMedia = await mediaResponse.json(); // [{ type, url, ... }]
+          mediaList = signedMedia.map((item: any) => ({
+            type: item.type,
+            src: item.url, // ← подписанный URL
+            alt: item.type === 'image' ? 'Скриншот' : 'Демо-видео'
+          }));
+        } else {
+          console.warn("Не удалось загрузить медиа");
+        }
+
+        setMedia(mediaList);
 
         const commentsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_GATEWAY}/agents/${id}/get_comments`, {
           headers: {
@@ -249,23 +273,7 @@ export default function AgentDetailsPage() {
 
                   {/* 🎞️ Карусель — не трогаем */}
                   <MediaCarousel
-                    media={[
-                      {
-                        type: "video",
-                        src: "/videos/archivarius.mp4",
-                        alt: "Демонстрация работы",
-                      },
-                      {
-                        type: "image",
-                        src: "/images/2.png",
-                        alt: "Превью агента",
-                      },
-                      {
-                        type: "image",
-                        src: "/images/1.png",
-                        alt: "Архитектура агента",
-                      },
-                    ]}
+                    media={media}
                     autoPlay={false}
                     interval={4000}
                     height="350px"
