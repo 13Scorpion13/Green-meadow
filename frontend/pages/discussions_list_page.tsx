@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const DiscussionsListPage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -49,7 +50,61 @@ const DiscussionsListPage: React.FC = () => {
           likes: 0,
         }));
 
-        setDiscussions(formattedData);
+        const placeholders = [
+         {
+           id: 'stub-1',
+           title: 'Заглушка: Как начать работу с модулем?',
+           excerpt: 'Краткое описание: инструкция по началу работы и настройки модуля...',
+           user_id: 'stub_user_1',
+           avatar: "/images/icons/ui/UserProfile.svg",
+           date: '1 ноября 2025',
+           replies: 2,
+           likes: 5,
+         },
+         {
+           id: 'stub-2',
+           title: 'Заглушка: Проблема с загрузкой данных',
+           excerpt: 'Краткое описание: возможные причины ошибки при загрузке контавыавыавыавыавыавппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппппыаента...',
+           user_id: 'stub_user_2',
+           avatar: "/images/icons/ui/UserProfile.svg",
+           date: '28 октября 2025',
+           replies: 0,
+           likes: 0,
+         },
+         {
+           id: 'stub-3',
+           title: 'Заглушка: Проблема с загрузкой данных',
+           excerpt: 'Краткое описание: возможные причины ошибки при загрузке контента...',
+           user_id: 'stub_user_2',
+           avatar: "/images/icons/ui/UserProfile.svg",
+           date: '28 октября 2025',
+           replies: 0,
+           likes: 0,
+         },
+         {
+           id: 'stub-4',
+           title: 'Заглушка: Проблема с загрузкой данных',
+           excerpt: 'Краткое описание: возможные причины ошибки при загрузке контента...',
+           user_id: 'stub_user_2',
+           avatar: "/images/icons/ui/UserProfile.svg",
+           date: '28 октября 2025',
+           replies: 0,
+           likes: 0,
+         },
+         {
+           id: 'stub-5',
+           title: 'Заглушка: Проблема с загрузкой данных',
+           excerpt: 'Краткое описание: возможные причины ошибки при загрузке контента...',
+           user_id: 'stub_user_2',
+           avatar: "/images/icons/ui/UserProfile.svg",
+           date: '28 октября 2025',
+           replies: 0,
+           likes: 0,
+         },
+        ];
+        const combined = [...placeholders, ...formattedData];
+
+        setDiscussions(combined);
       } catch (err: any) {
         setError(err.message || "Не удалось загрузить обсуждения");
       } finally {
@@ -109,7 +164,7 @@ const DiscussionsListPage: React.FC = () => {
   }, [isModalOpen]);
 
   if (loading) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen discussions-page-background flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
         <p className="mt-4 text-lg">Загрузка обсуждений...</p>
@@ -118,7 +173,7 @@ const DiscussionsListPage: React.FC = () => {
   );
 
   if (error) return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen discussions-page-background flex items-center justify-center">
       <div className="text-center text-red-500">
         <p>❌ Ошибка загрузки: {error}</p>
         <button className="btn btn--primary mt-4" onClick={() => window.location.reload()}>
@@ -129,7 +184,7 @@ const DiscussionsListPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen discussions-page-background">
       <Header />
 
       <main className="main-content container">
@@ -195,6 +250,9 @@ const DiscussionsListPage: React.FC = () => {
                 </div>
                 <h3 className="discussion-title">{d.title}</h3>
                 <p className="discussion-excerpt">{d.excerpt}</p>
+                <a className="read-more-link" onClick={handleCardClick(d.id)}>
+                  Читать далее →
+                </a>
               </div>
             ))
           ) : (
@@ -252,7 +310,7 @@ const DiscussionsListPage: React.FC = () => {
                 />
               </div>
               <div className="modal-actions">
-                <button type="button" className="btn btn--outline" onClick={handleCloseModal}>Отмена</button>
+                <button type="button" className="btn btn--simple" onClick={handleCloseModal}>Отмена</button>
                 <button type="submit" className="btn btn--primary" disabled={!title.trim() || !description.trim()}>
                   Опубликовать обсуждение
                 </button>
@@ -262,46 +320,7 @@ const DiscussionsListPage: React.FC = () => {
         </div>
       )}
 
-      <footer className="main-footer">
-        <div className="container footer-container">
-          <div className="footer-grid">
-            <div className="footer-about">
-              <div className="logo">
-                <div className="logo-icon">
-                  <img src="/images/logos/Bot.svg" alt="AI Market Logo" />
-                </div>
-                <span className="logo-title">AI Community</span>
-              </div>
-              <p className="footer-about-text">Лучшая площадка для поиска ИИ-агентов</p>
-            </div>
-            {/* другие блоки footer — без изменений */}
-            <div className="footer-links">
-              <h3 className="footer-heading">Для клиентов</h3>
-              <ul>
-                <li><a href="#">Гарантии</a></li>
-                <li><a href="#">Поддержка</a></li>
-              </ul>
-            </div>
-            <div className="footer-links">
-              <h3 className="footer-heading">Для разработчиков</h3>
-              <ul>
-                <li><a href="#">Разместить агента</a></li>
-                <li><a href="#">API документация</a></li>
-                <li><a href="#">Комиссии</a></li>
-              </ul>
-            </div>
-            <div className="footer-links">
-              <h3 className="footer-heading">Компания</h3>
-              <ul>
-                <li><a href="#">О нас</a></li>
-                <li><a href="#">Блог</a></li>
-                <li><a href="#">Контакты</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-copyright">© 2025 AI Community. Все права защищены.</div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
