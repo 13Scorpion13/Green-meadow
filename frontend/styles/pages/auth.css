@@ -107,3 +107,33 @@
   font-size: 15px;
   display: block;
 }
+
+.account-card--center {
+  padding-bottom: 0;
+}
+
+.auth-card-footer {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 0%;
+  padding: 20px 40px; 
+  background-color: transparent; 
+  margin-left: -40px;
+  margin-right: -40px;
+}
+
+.auth-card-footer a {
+  color: var(--text-secondary, #aaa);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.auth-card-footer a:hover {
+  color: var(--text-primary, #fff);
+}
+
+.auth-card-footer .separator {
+  color: var(--text-tertiary, #666);
+  margin: 0 10px;
+  user-select: none;
+}
