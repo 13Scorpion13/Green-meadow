@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from minio import Minio
 from minio.error import S3Error
+from datetime import timedelta
 from uuid import UUID
 import os
 import secrets
@@ -85,3 +86,36 @@ async def get_agent_media_list(
 ):
     media_list = await get_agent_media_by_agent_id(db, agent_id)
     return media_list
+
+@router.get("/signed")
+async def get_signed_media_urls(
+    agent_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    minio_client: Minio = Depends(get_minio_client)
+):
+    agent_result = await db.execute(select(Agent).where(Agent.id == agent_id))
+    agent = agent_result.scalar_one_or_none()
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    media_list = await get_agent_media_by_agent_id(db, agent_id)
+    signed_media = []
+
+    for media in media_list:
+        try:
+            url = minio_client.presigned_get_object(
+                bucket_name=settings.MINIO_BUCKET_NAME,
+                object_name=media.file_path,
+                expires=timedelta(hours=1)
+            )
+            signed_media.append({
+                "id": str(media.id),
+                "type": media.media_type,
+                "url": url,
+                "is_primary": media.is_primary
+            })
+        except S3Error as e:
+            print(f"Ошибка генерации signed URL для {media.file_path}: {e}")
+            continue
+
+    return signed_media

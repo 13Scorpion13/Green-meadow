@@ -1,5 +1,13 @@
 // components/ProgressBar.tsx
 import React from 'react';
+import { MediaItem } from '@/types/index';
+
+interface MediaCarouselProps {
+  media: MediaItem[];
+  autoPlay?: boolean;
+  interval?: number;
+  height?: string | number;
+}
 
 interface ProgressBarProps {
   currentStep: number;
