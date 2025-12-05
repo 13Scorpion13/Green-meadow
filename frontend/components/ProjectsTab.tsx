@@ -61,7 +61,7 @@ export default function ProjectsTab({ projects, loading }: ProjectsTabProps) {
   };
 
   const handleNewProjectClick = () => {
-    router.push('/add_agent'); 
+    router.push('/add_agents/agent'); 
   };
 
   const handleAgentClick = (agentId: string) => {

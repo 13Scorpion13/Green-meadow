@@ -105,7 +105,7 @@ const AddAgentStep2: React.FC = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container py-8">
-        <div className="mb-6">
+        <div className="mb-4 mt-4">
           <Link href={`/agents/${agentId}`} className="btn btn--secondary">
             ← Назад к агенту
           </Link>
@@ -182,7 +182,7 @@ const AddAgentStep2: React.FC = () => {
               />
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 mt-4">
               <button
                 type="button"
                 className="btn btn--secondary"

@@ -109,12 +109,17 @@ export default function AgentDetailsPage() {
         let mediaList: MediaItem[] = [];
 
         if (mediaResponse.ok) {
-          const signedMedia = await mediaResponse.json(); // [{ type, url, ... }]
+          const signedMedia = await mediaResponse.json();
           mediaList = signedMedia.map((item: any) => ({
             type: item.type,
-            src: item.url, // ← подписанный URL
+            src: item.url,
             alt: item.type === 'image' ? 'Скриншот' : 'Демо-видео'
           }));
+          mediaList.sort((a, b) => {
+            if (a.type === 'video' && b.type !== 'video') return -1;
+            if (a.type !== 'video' && b.type === 'video') return 1;
+            return 0;
+          });
         } else {
           console.warn("Не удалось загрузить медиа");
         }
