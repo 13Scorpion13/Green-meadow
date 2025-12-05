@@ -1,0 +1,299 @@
+@keyframes gradient-border-glow-chat {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulse-chat-bot {
+  0%, 100% {
+    box-shadow: 0 0 15px hsl(var(--ai-glow) / 0.8), /* Начальное свечение, почти непрозрачное */
+                0 0 0px hsl(var(--ai-glow) / 0.4); /* Второе, мягкое свечение */
+  }
+  50% {
+    box-shadow: 0 0 25px hsl(var(--ai-glow) / 1),  /* Более сильное, полностью непрозрачное свечение */
+                0 0 10px hsl(var(--ai-glow) / 0.6); /* Второе, чуть больше и ярче */
+  }
+}
+
+.fixed-low-right-panel-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  display: flex;       /* Ставим кнопки в ряд */
+  align-items: center;
+  gap: 15px;           /* Расстояние между кнопками */
+  z-index: 9997;
+  flex-direction: row-reverse;
+}
+
+/* Chat Toggle Button */
+.chat-toggle-button {
+    position: static !important;
+    bottom: auto !important;
+    right: auto !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--gradient-hero-no-transparent);
+    color: hsl(var(--primary-foreground));
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+    transition: var(--transition-smooth);
+
+    animation: pulse-chat-bot 2s infinite;
+}
+
+.chat-toggle-button:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-intense);
+
+    animation-play-state: paused;
+}
+
+.chat-toggle-button svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* ОКНО ЧАТА - ВЕРХНИЙ СЛОЙ */
+.chat-window {
+    position: fixed;
+    z-index: 9999; 
+
+    background: var(--gradient-border) !important; 
+    border: 1px solid transparent;
+    background-clip: padding-box;
+
+    bottom: 100px;
+    right: 25px;
+    width: 400px;
+    height: 600px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-window::before {
+    content: '';          
+    position: absolute;  
+
+    z-index: -1;
+
+    background: var(--gradient-card-no-transparent);
+
+    top: -1px;
+    right: -1px;
+    bottom: -1px;
+    left: -1px;
+    border-radius: inherit;
+}
+
+
+/* Chat Header */
+.chat-header {
+    background: var(--gradient-card-no-transparent);
+    color: hsl(var(--card-foreground));
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.close-chat-button {
+    background: none;
+    border: none;
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.8;
+    transition: var(--transition-smooth);
+}
+
+.close-chat-button:hover {
+    opacity: 1;
+    color: hsl(var(--foreground));
+}
+
+/* Chat Box (message area) */
+.chat-box {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Scrollbar styling */
+.chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+.chat-box::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted) / 0.5);
+    border-radius: 10px;
+    border: 3px solid transparent;
+}
+
+/* Individual Messages */
+.chat-message {
+    max-width: 85%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.chat-message p {
+    margin: 0;
+}
+
+.chat-message.user {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    align-self: flex-end;
+    border-bottom-right-radius: 6px;
+}
+
+.chat-message.ai {
+    background-color: hsl(var(--border));
+    color: hsl(var(--foreground));
+    align-self: flex-start;
+    border-bottom-left-radius: 6px;
+}
+
+/* Loading indicator for AI messages */
+.chat-message.ai p:empty::after {
+  content: "...";
+  color: hsl(var(--accent));
+}
+
+/* Chat Input Area */
+.chat-input-area {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card) / 0.8);
+}
+
+.chat-input-area input {
+    flex-grow: 1;
+    background-color: hsl(var(--input));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    font-size: 1em;
+    outline: none;
+    transition: var(--transition-smooth);
+}
+
+.chat-input-area input:focus {
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3);
+}
+
+.chat-input-area input:disabled {
+    background-color: hsl(var(--muted));
+    cursor: not-allowed;
+}
+
+.chat-input-area button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 10px;
+    color: hsl(var(--primary));
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+
+.chat-input-area button:hover {
+    color: hsl(var(--accent));
+}
+
+.chat-input-area button:disabled {
+    color: hsl(var(--muted-foreground));
+    cursor: not-allowed;
+}
+
+.chat-input-area button svg {
+    width: 24px;
+    height: 24px;
+}
+
+
+/* Стилизация иконки внутри кнопки переключения чата */
+.chat-toggle-button img,
+.close-chat-button:hover img,
+.chat-message.user img
+{
+    filter: brightness(0) invert(1);
+}
+
+.close-chat-button img,
+.chat-input-area button:disabled img
+{
+    filter: invert(52%) sepia(13%) saturate(242%) hue-rotate(178deg) brightness(94%) contrast(86%);
+    transition: var(--transition-smooth);
+}
+
+.chat-input-area button img {
+    filter: invert(49%) sepia(51%) saturate(5833%) hue-rotate(196deg) brightness(99%) contrast(97%);
+    transition: var(--transition-smooth);
+}
+
+.chat-input-area button:hover img {
+    filter: invert(83%) sepia(53%) saturate(464%) hue-rotate(119deg) brightness(104%) contrast(93%);
+}
+
+
+.chat-toggle-button img {
+    width: 28px;
+    height: 28px;
+}
+
+.close-chat-button img,
+.chat-input-area button img {
+    width: 24px;
+    height: 24px;
+}
+
+.close-chat-button img {
+    width: 32px;
+    height: 32px;
+
+    filter: invert(52%) sepia(13%) saturate(242%) hue-rotate(178deg) brightness(94%) contrast(86%);
+
+    transition: filter 0.2s ease;
+}
+
+.close-chat-button:hover img {
+    filter: invert(17%) sepia(87%) saturate(3000%) hue-rotate(345deg) brightness(80%) contrast(100%);
+}
