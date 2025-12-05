@@ -1,55 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: community-service
+  name: community-postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: community-service
+      app: community-postgres
   template:
     metadata:
       labels:
-        app: community-service
+        app: community-postgres
     spec:
       containers:
-      - name: community-service
-        image: qummach/community-service:latest
+      - name: community-postgres
+        image: postgres:15
         ports:
-        - containerPort: 8002
+        - containerPort: 5432
         env:
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
               name: community-postgres-secret
               key: db-name
-
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
               name: community-postgres-secret
               key: username
-
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: community-postgres-secret
               key: password
-
-        - name: POSTGRES_HOST
-          value: "community-postgres"
-
-        - name: POSTGRES_PORT
-          value: "5434"
-
-        - name: POSTGRES_PORT_TWO
-          value: "5432"
-
-        - name: API_GATEWAY_URL
-          value: "http://api-gateway:8000"
-
-        - name: SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: community-service-secret
-              key: secret-key
+        volumeMounts:
+        - name: community-postgres-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: community-postgres-data
+        emptyDir: {}

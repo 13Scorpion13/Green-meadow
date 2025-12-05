@@ -43,6 +43,9 @@ spec:
           value: "catalog-postgres"
 
         - name: POSTGRES_EXTERNAL_PORT
+          value: "5433"
+
+        - name: POSTGRES_INLAND_PORT
           value: "5432"
 
         # =======================
