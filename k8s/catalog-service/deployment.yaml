@@ -14,14 +14,78 @@ spec:
     spec:
       containers:
       - name: catalog-service
-        image: your-dockerhub-username/catalog-service:latest
+        image: qummach/catalog-service:latest
         ports:
         - containerPort: 8003
         env:
-        - name: DATABASE_URL
+        # =======================
+        #  POSTGRES
+        # =======================
+        - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
-              name: postgres-secret
-              key: url
-        - name: REDIS_URL
-          value: "redis://redis:6379"
+              name: catalog-postgres-secret
+              key: db-name
+
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: catalog-postgres-secret
+              key: username
+
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: catalog-postgres-secret
+              key: password
+
+        - name: POSTGRES_HOST
+          value: "catalog-postgres"
+
+        - name: POSTGRES_EXTERNAL_PORT
+          value: "5432"
+
+        # =======================
+        #  API GATEWAY
+        # =======================
+        - name: API_GATEWAY_URL
+          value: "http://api-gateway:8000"
+
+        # =======================
+        #  SECRET KEY
+        # =======================
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: catalog-secret
+              key: secret-key
+
+        # =======================
+        #  MINIO
+        # =======================
+        - name: MINIO_ENDPOINT
+          value: "http://minio:9000"
+
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: access-key
+
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-secret
+              key: secret-key
+
+        - name: MINIO_SECURE
+          value: "false"
+
+        - name: MINIO_BUCKET_NAME
+          value: "agents-media"
+
+        # =======================
+        #  REDIS
+        # =======================
+        # - name: REDIS_URL
+        #   value: "redis://:4321@redis:6379/0"

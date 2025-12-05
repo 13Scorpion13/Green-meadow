@@ -6,7 +6,6 @@ spec:
   selector:
     app: catalog-service
   ports:
-  - protocol: TCP
-    port: 8003
+  - port: 8003
     targetPort: 8003
   type: ClusterIP
