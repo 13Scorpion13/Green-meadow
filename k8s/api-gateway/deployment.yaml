@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: qummach/api-gateway:latest
+        image: qummach/api-gateway:v1
         ports:
         - containerPort: 8000
         env:

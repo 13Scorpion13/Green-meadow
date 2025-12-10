@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: your-dockerhub-username/frontend:latest
+        image: qummach/frontend:v4
         ports:
         - containerPort: 3000
-        env:
-        - name: NODE_ENV
-          value: "production"
+        # env:
+        # - name: NEXT_PUBLIC_API_GATEWAY
+        #   value: "/api"
