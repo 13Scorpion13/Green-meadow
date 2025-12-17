@@ -261,7 +261,7 @@ const HomePage: React.FC = () => {
               </div>
             ) : (
               <div className="agents-grid">
-                {agents.map((agent) => {
+                {Array.isArray(agents) ? agents.map((agent) => {
                   const avatar = getAvatarInitials(agent.name);
                   const tags = extractTags(agent.description, agent.category);
                   const rating = agent.avg_raiting ?? 0;
@@ -291,11 +291,11 @@ const HomePage: React.FC = () => {
                       </div>
                       <p className="agent-description">{agent.description}</p>
                       <div className="agent-tags">
-                        {tags.map((tag, i) => (
+                        {Array.isArray(tags) ? tags.map((tag, i) => (
                           <div key={i} className="tag">
                             {tag}
                           </div>
-                        ))}
+                        )) : null}
                       </div>
                       <div className="agent-stats">
                         {/* Рейтинг + количество отзывов */}
@@ -324,7 +324,7 @@ const HomePage: React.FC = () => {
                       {/* </div> */}
                     </a>
                   );
-                })}
+                }) : null}
               </div>
             )}
           </div>

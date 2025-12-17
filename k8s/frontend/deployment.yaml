@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: qummach/frontend:v4
+        image: qummach/frontend:v10
         ports:
         - containerPort: 3000
         # env:

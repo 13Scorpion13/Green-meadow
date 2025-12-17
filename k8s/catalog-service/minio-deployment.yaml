@@ -27,5 +27,7 @@ spec:
             secretKeyRef:
               name: minio-secret
               key: secret-key
+        - name: MINIO_CORS_ALLOW_ORIGIN
+          value: "http://localhost"
         ports:
         - containerPort: 9000
