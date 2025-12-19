@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    container_name: auth_service_app
+    ports:
+      - "8000:8000"
+    environment:
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+      COMMUNITY_SERVICE_URL: ${COMMUNITY_SERVICE_URL}
+      CATALOG_SERVICE_URL: ${CATALOG_SERVICE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+    restart: unless-stopped
+    networks:
+      - green-meadow-net
+networks:
+  green-meadow-net:
+    external: true
