@@ -476,9 +476,19 @@ sudo systemctl start archivist`}
           </div>
 
           <div className="agent-details-sidebar">
-            <div className="sidebar-widget">
-              <button className="btn btn--primary btn--large rent-button-detailed">Скачать</button>
-            </div>
+            <a
+              href={`http://localhost:8003/versions/archive/${id}/project-path`}
+              download
+              onClick={(e) => {
+                if (!id) {
+                  e.preventDefault();
+                  alert("Скачка временно недоступна");
+                }
+              }}>
+              <div className="sidebar-widget">
+                <button className="btn btn--primary btn--large rent-button-detailed">Скачать</button>
+              </div>
+            </a>
             <div className="sidebar-widget">
               <h3>Категории</h3>
               <div className="agent-categories">

@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_GATEWAY=http://localhost:8000/api
+    networks:
+      - green-meadow-net
+networks:
+  green-meadow-net:
+    external: true

@@ -13,6 +13,7 @@ const AddAgentStep2: React.FC = () => {
   const [changelog, setChangelog] = useState('');
   const [status, setStatus] = useState<'stable' | 'latest' | 'published'>('stable');
   const [projectPath, setProjectPath] = useState('');
+  const [archiveFile, setArchiveFile] = useState<File | null>(null); // ← новое поле
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +43,21 @@ const AddAgentStep2: React.FC = () => {
       return;
     }
 
+    // Валидация файла (если загружен)
+    if (archiveFile) {
+      const allowedExtensions = ['.zip', '.tar', '.gz', '.tar.gz'];
+      const lowerName = archiveFile.name.toLowerCase();
+      const hasValidExt = allowedExtensions.some(ext => lowerName.endsWith(ext));
+      if (!hasValidExt) {
+        setError('Поддерживаются только архивы: .zip, .tar, .gz, .tar.gz');
+        return;
+      }
+      if (archiveFile.size > 100 * 1024 * 1024) { // 100 MB
+        setError('Файл слишком большой. Максимум — 100 МБ.');
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
 
@@ -49,23 +65,29 @@ const AddAgentStep2: React.FC = () => {
       const token = localStorage.getItem('access_token');
       if (!token) throw new Error('Токен не найден');
 
-      const versionData = {
-        version: version.trim(),
-        changelog: changelog.trim() || null,
-        status,
-        project_path: projectPath.trim() || null,
-        agent_id: agentId
-      };
+      // ✅ Используем FormData для отправки файла
+      const formData = new FormData();
+      formData.append('version', version.trim());
+      if (changelog.trim()) formData.append('changelog', changelog.trim());
+      formData.append('status', status);
+      // Если загружен архив — project_path игнорируется (сервер сам запишет путь)
+      // Но если архива нет — отправляем project_path как fallback
+      if (!archiveFile && projectPath.trim()) {
+        formData.append('project_path', projectPath.trim());
+      }
+      if (archiveFile) {
+        formData.append('archive', archiveFile);
+      }
 
       const API_GATEWAY = process.env.NEXT_PUBLIC_API_GATEWAY;
 
       const response = await fetch(`${API_GATEWAY}/agents/${agentId}/versions/`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          // ⚠️ Content-Type НЕ указываем — браузер сам поставит multipart/form-data + boundary
         },
-        body: JSON.stringify(versionData),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -168,18 +190,45 @@ const AddAgentStep2: React.FC = () => {
               />
             </div>
 
-            {/* Путь к проекту */}
+            {/* Загрузка архива */}
             <div className="mb-6">
               <label className="block text-sm font-medium mb-1">
-                Ссылка на проект (опционально)
+                Архив проекта (ZIP/TAR/GZ, до 100 МБ)
+              </label>
+              <input
+                type="file"
+                accept=".zip,.tar,.gz,.tar.gz"
+                className="form-input w-full p-2 border rounded"
+                onChange={(e) => setArchiveFile(e.target.files?.[0] || null)}
+              />
+              {archiveFile && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Выбран: <strong>{archiveFile.name}</strong> ({(archiveFile.size / 1024 / 1024).toFixed(1)} МБ)
+                </p>
+              )}
+              <p className="text-xs text-gray-500 mt-1">
+                Архив должен содержать код агента, requirements.txt и инструкцию по запуску.
+              </p>
+            </div>
+
+            {/* Ссылка на проект (опционально, отключается при наличии архива) */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-1">
+                Ссылка на репозиторий (если не загружаете архив)
               </label>
               <input
                 type="url"
-                className="form-input w-full"
+                className={`form-input w-full ${archiveFile ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 value={projectPath}
                 onChange={(e) => setProjectPath(e.target.value)}
-                placeholder="https://github.com/user/repo или другая ссылка"
+                placeholder="https://github.com/user/repo"
+                disabled={!!archiveFile}
               />
+              {archiveFile && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Поле недоступно — архив будет сохранён на сервере.
+                </p>
+              )}
             </div>
 
             <div className="flex gap-4 mt-4">

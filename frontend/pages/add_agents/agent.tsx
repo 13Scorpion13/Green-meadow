@@ -1,9 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
 import Header from '@/components/Header';
 import Link from 'next/link';
 import ProgressBar from '@/components/ProgressBar';
+import MDEditor from '@uiw/react-md-editor';
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
+import remarkBreaks from 'remark-breaks';
 
 const AddAgentStep1: React.FC = () => {
     const router = useRouter();
@@ -46,6 +50,20 @@ const AddAgentStep1: React.FC = () => {
         });
     };
 
+    // Закрытие выпадающего списка при клике вне его
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -79,23 +97,24 @@ const AddAgentStep1: React.FC = () => {
             // Генерируем slug
             const slug = name
                 .toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '') // убираем спецсимволы
-                .replace(/\s+/g, '-')          // пробелы → дефисы
-                .replace(/-+/g, '-')           // несколько дефисов → один
-                .replace(/^-+|-+$/g, '');      // убираем дефисы по краям
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-+|-+$/g, '');
 
             const agentData = {
                 name: name.trim(),
                 slug,
                 agent_url: repoUrl || null,
                 description: shortDesc.trim(),
+                long_description: longDesc.trim() || null,
                 requirements: installGuide.trim() || null,
                 tags: tags
                     .split(',')
                     .map(tag => tag.trim())
                     .filter(tag => tag.length > 0),
-                category_id: null, // если категории не UUID, а строки — уточните
-                article_id: null, // или отдельный эндпоинт для репозиториев
+                category_id: null,
+                article_id: null,
                 price: null,
                 user_id: user.id
             };
@@ -151,8 +170,6 @@ const AddAgentStep1: React.FC = () => {
                     </Link>
                 </div>
 
-                <ProgressBar currentStep={1} totalSteps={3} />
-
                 <div className="max-w-3xl mx-auto bg-card p-6 rounded-xl shadow">
                     <h1 className="text-2xl font-bold mb-4">Шаг 1: Основная информация</h1>
 
@@ -185,16 +202,20 @@ const AddAgentStep1: React.FC = () => {
                             />
                         </div>
 
-                        {/* Подробное описание */}
+                        {/* Подробное описание с Markdown редактором */}
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1">Подробное описание</label>
-                            <textarea
-                                className="form-input w-full"
-                                rows={4}
-                                value={longDesc}
-                                onChange={(e) => setLongDesc(e.target.value)}
-                                placeholder="Расскажите подробнее о возможностях, технологиях, преимуществах"
-                            />
+                            <div className="md-editor-container">
+                                <MDEditor
+                                    value={longDesc}
+                                    onChange={(val) => setLongDesc(val || '')}
+                                    height={200}
+                                    preview="edit"
+                                    hideToolbar={false}
+                                    visibleDragbar={false}
+                                    data-color-mode="light"
+                                />
+                            </div>
                         </div>
 
                         {/* Теги */}
@@ -212,7 +233,7 @@ const AddAgentStep1: React.FC = () => {
                         </div>
 
                         {/* Категории */}
-                        <div className="form-group">
+                        <div className="form-group mb-4">
                             <label className="form-label" htmlFor="agentCategories">
                                 Категории
                             </label>
@@ -254,18 +275,22 @@ const AddAgentStep1: React.FC = () => {
                             </small>
                         </div>
 
-                        {/* Руководство по установке */}
+                        {/* Руководство по установке с Markdown редактором */}
                         <div className="mb-4">
                             <label className="block text-sm font-medium mb-1">
                                 Руководство по установке и запуску
                             </label>
-                            <textarea
-                                className="form-input w-full"
-                                rows={4}
-                                value={installGuide}
-                                onChange={(e) => setInstallGuide(e.target.value)}
-                                placeholder="Как установить и запустить агента?"
-                            />
+                            <div className="md-editor-container">
+                                <MDEditor
+                                    value={installGuide}
+                                    onChange={(val) => setInstallGuide(val || '')}
+                                    height={200}
+                                    preview="edit"
+                                    hideToolbar={false}
+                                    visibleDragbar={false}
+                                    data-color-mode="light"
+                                />
+                            </div>
                         </div>
 
                         {/* Ссылка на репозиторий */}
@@ -315,6 +340,8 @@ const AddAgentStep1: React.FC = () => {
                     </form>
                 </div>
             </main>
+
+            
         </div>
     );
 };

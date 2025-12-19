@@ -12,13 +12,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(users.router, prefix="/users", tags=["Users"])
-app.include_router(auth.router, prefix="", tags=["Authentication"])
-app.include_router(agents.router, prefix="/agents", tags=["Agents"])
-app.include_router(developers.router, prefix="/developers", tags=["Developers"])
-app.include_router(comments.router, prefix="/agents", tags=["Comments"])
-app.include_router(versions.router, prefix="/agents", tags=["Versions"])
-app.include_router(community.router, prefix="/contents", tags=["Community"])
+app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(auth.router, prefix="/api", tags=["Authentication"])
+app.include_router(agents.router, prefix="/api/agents", tags=["Agents"])
+app.include_router(developers.router, prefix="/api/developers", tags=["Developers"])
+app.include_router(comments.router, prefix="/api/agents", tags=["Comments"])
+app.include_router(versions.router, prefix="/api/agents", tags=["Versions"])
+app.include_router(community.router, prefix="/api/contents", tags=["Community"])
 
 @app.get("/")
 def root():

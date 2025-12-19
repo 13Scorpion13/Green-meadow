@@ -12,7 +12,7 @@ settings = get_settings()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.API_GATEWAY_URL],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

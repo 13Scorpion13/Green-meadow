@@ -14,6 +14,7 @@ class Agent(Base):
     slug = Column(Text, nullable=False, unique=True)
     agent_url = Column(Text, nullable=False)
     description = Column(Text, nullable=False)
+    long_description = Column(Text, nullable=True)
     requirements = Column(Text, nullable=True)
     tags = Column(JSONB, nullable=True)
     category_id = Column(UUID(as_uuid=True), ForeignKey('categories.id'), nullable=True)
