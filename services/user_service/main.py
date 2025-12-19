@@ -6,6 +6,13 @@ from app.routers import users, developers, auth
 from app.config import get_settings
 from app.redis import redis_client
 
+import os
+import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
+PROXY_PORT = int(os.getenv("USER_SERVICE_PORT"))
+
 settings = get_settings()
 
 app = FastAPI(
@@ -43,3 +50,6 @@ async def startup():
 async def shutdown():
     await redis_client.close()
     await engine.dispose()
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=PROXY_PORT)

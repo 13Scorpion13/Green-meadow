@@ -7,6 +7,13 @@ from app.routers.comment import router as comment_router
 from app.routers.agent_media import router as agent_media_router
 from app.config import get_settings
 
+import os
+import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
+PROXY_PORT = int(os.getenv("CATALOG_SERVICE_PORT"))
+
 app = FastAPI()
 settings = get_settings()
 
@@ -23,3 +30,6 @@ app.include_router(version_router)
 app.include_router(category_router)
 app.include_router(comment_router)
 app.include_router(agent_media_router)
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=PROXY_PORT)

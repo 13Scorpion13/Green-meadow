@@ -6,6 +6,13 @@ from app.routers.content import router as content_router
 from app.routers.content_type import router as content_type_router
 from app.config import get_settings
 
+import os
+import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
+PROXY_PORT = int(os.getenv("COMMUNITY_SERVICE_PORT"))
+
 settings = get_settings()
 
 app = FastAPI(
@@ -37,3 +44,6 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await engine.dispose()
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=PROXY_PORT)

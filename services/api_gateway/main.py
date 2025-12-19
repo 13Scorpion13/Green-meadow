@@ -2,6 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import users, auth, agents, developers, comments, versions, community
 
+import os
+import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
+PROXY_PORT = int(os.getenv("API_GATEWAY_PORT"))
+
 app = FastAPI(title="API Gateway")
 
 app.add_middleware(
@@ -23,3 +30,6 @@ app.include_router(community.router, prefix="/contents", tags=["Community"])
 @app.get("/")
 def root():
     return {"message": "API Gateway"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=PROXY_PORT)

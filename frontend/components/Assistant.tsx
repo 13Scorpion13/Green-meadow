@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown'; // Added import
 
 const Assistant = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -48,7 +49,7 @@ const Assistant = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   
-                    context: pageContext,
+                    // context: pageContext, // Front-end context is now ignored by backend
                     messages: [...messages, newUserMessage].map(msg => ({
                         role: msg.sender === 'user' ? 'user' : 'assistant',
                         content: msg.text
@@ -125,7 +126,11 @@ const Assistant = () => {
                     <div className="chat-box" ref={chatboxRef}>
                         {messages.map((msg) => (
                             <div key={msg.id} className={`chat-message ${msg.sender}`}>
-                                <p>{msg.text}</p>
+                                {msg.sender === 'ai' ? (
+                                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                                ) : (
+                                    <p>{msg.text}</p>
+                                )}
                             </div>
                         ))}
                         {isLoading && (

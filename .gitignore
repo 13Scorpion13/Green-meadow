@@ -24,3 +24,7 @@ build/
 
 data/
 faiss_index/
+
+faiss_index.bin
+content_map.json
+knowledge_base.json
